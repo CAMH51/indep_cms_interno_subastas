@@ -1,0 +1,54 @@
+
+
+    <div class="m-5 p-5 border border-2 border-gray-200 rounded-2xl">
+        <div class="flex justify-center">
+            <h2 class="text-2xl font-semibold"><%= titulo %></h2>
+        </div>
+        <hr class="h-px my-3 bg-neutral-quaternary border-0">
+        
+        <% if(errores && errores.length >0) {%> 
+            <div class="p-4 mb-4 text-sm text-fg-danger-strong rounded-base bg-danger-soft" role="alert">
+                <ul><%errores.forEach(function(e){%> <li><%= e.msg %></li> <%})%></ul>
+            </div>
+        <%}%>
+        
+        <form action="<%= usuario && usuario.usuario_id ? '/usuarios/' + usuario.usuario_id : '/usuarios' %>" method="POST">
+            <input type="hidden" name="_csrf" id="" value="<%= csrfToken %>" />
+        
+            <div class="grid grid-cols-2 gap-2 mb-2">
+                <div>
+                    <label for="first_name" class="block mb-2.5 text-sm font-medium text-heading">Email</label>
+                    <input type="email" id="email" name="email" class="bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full px-3 py-2.5 shadow-xs placeholder:text-body" placeholder="john.doe@example.com" value="<%= usuario ? usuario.email : '' %>" required />
+                </div>
+            
+                <div>
+                    <label for="roles" class="block mb-2.5 text-sm font-medium text-heading">Roles</label>
+                    <select id="roles" name="roles" class="block w-full px-3 py-2.5 bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand shadow-xs placeholder:text-body">
+                        <option selected>Seleccione un rol</option>
+                        <% roles.forEach(function(rol){ %>
+                            <option value="<%= rol.rol_id %>" <%= usuario && usuario.fk_rol_id === rol.rol_id ? 'selected' : '' %>><%= rol.nombre %></option>
+                        <% }); %>
+                    </select>
+                </div>
+            </div>
+
+            
+            <% if(usuario && usuario.usuario_id) {%>
+                <div class="flex items-center mb-4">
+                    <input type="checkbox"  class="w-4 h-4 border border-default-medium rounded-xs bg-neutral-secondary-medium focus:ring-2 focus:ring-brand-soft" id="mfa" name="mfa" <%=  usuario.mfa ? 'checked' : '' %> >
+                    <label for="mfa" class="select-none ms-2 text-sm font-medium text-heading">MFA Activo</label>
+                </div>
+                <div class="flex items-center mb-4">
+                    <input type="checkbox"  class="w-4 h-4 border border-default-medium rounded-xs bg-neutral-secondary-medium focus:ring-2 focus:ring-brand-soft" id="activo" name="activo" <%=  usuario.activo ? 'checked' : '' %> >
+                    <label for="activo" class="select-none ms-2 text-sm font-medium text-heading">Usuario Activo</label>
+                </div>
+            <%}%>
+        
+            <div>
+                <button type="submit" class="text-white bg-success box-border border border-transparent hover:bg-success-strong focus:ring-4 focus:ring-success-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none">Guardar</button>
+                <a class="text-white bg-danger box-border border border-transparent shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5" href="/usuarios">Cancelar</a>
+            </div>
+        
+        </form>
+
+    </div>

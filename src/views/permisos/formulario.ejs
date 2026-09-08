@@ -1,0 +1,47 @@
+
+
+    <div class="m-5 p-5 border border-2 border-gray-200 rounded-2xl">
+        <div class="flex justify-center">
+            <h2 class="text-2xl font-semibold"><%= titulo %></h2>
+        </div>
+        <hr class="h-px my-3 bg-neutral-quaternary border-0">
+        
+        <% if(errores && errores.length >0) {%> 
+            <div class="p-4 mb-4 text-sm text-fg-danger-strong rounded-base bg-danger-soft" role="alert">
+                <ul><%errores.forEach(function(e){%> <li><%= e.msg %></li> <%})%></ul>
+            </div>
+        <%}%>
+        
+        <form action="<%= permiso && permiso.permiso_id ? '/permisos/' + permiso.permiso_id : '/permisos' %>" method="POST">
+            <input type="hidden" name="_csrf" id="" value="<%= csrfToken %>" />
+        
+            <div class="grid grid-cols-2 gap-2 mb-2">
+                <div>
+                    <label for="accion" class="block mb-2.5 text-sm font-medium text-heading">Acción</label>
+                    <input type="text" id="accion" name="accion" class="bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full px-3 py-2.5 shadow-xs placeholder:text-body" placeholder="Nombre del rol" value="<%= permiso ? permiso.accion : '' %>" required />
+                </div>
+            
+                <div>
+                    <label for="descripcion" class="block mb-2.5 text-sm font-medium text-heading">Descripción</label>
+                    <input type="text" id="descripcion" name="descripcion" class="bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full px-3 py-2.5 shadow-xs placeholder:text-body" placeholder="Descripción del rol" value="<%= permiso ? permiso.descripcion : '' %>" />
+                </div>
+            </div>
+
+            <div>
+                <label for="modulos" class="block mb-2.5 text-sm font-medium text-heading">Módulos</label>
+                <select id="modulos" name="modulos" class="block w-full px-3 py-2.5 bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand shadow-xs placeholder:text-body">
+                    <option selected>Seleccione un módulo</option>
+                    <% modulos.forEach(function(modulo){ %>
+                        <option value="<%= modulo.modulo_id %>" <%= permiso && permiso.fk_modulo_id === modulo.modulo_id ? 'selected' : '' %>><%= modulo.nombre %></option>
+                    <% }); %>
+                </select>
+            </div>
+
+            <div>
+                <button type="submit" class="text-white bg-success box-border border border-transparent hover:bg-success-strong focus:ring-4 focus:ring-success-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none">Guardar</button>
+                <a class="text-white bg-danger box-border border border-transparent shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5" href="/permisos">Cancelar</a>
+            </div>
+        
+        </form>
+
+    </div>

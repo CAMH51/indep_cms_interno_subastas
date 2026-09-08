@@ -1,0 +1,119 @@
+  <!DOCTYPE html>
+  <html lang="es">
+  <head>
+    <%- include('./partials/head.ejs') %>
+  </head>
+  <body>
+      <%- include('./partials/navbargobmx.ejs') %>
+      <div class="flex items-start justify-center bg-animate font-sans antialiased pt-4">
+
+    <!-- Tarjeta principal: contenedor con efecto glass / sombra moderna -->
+    <div class="w-full max-w-md bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/50 p-5 md:p-5 transition-all duration-300 hover:shadow-indigo-300/30 mt-4">
+
+      <!-- Logo / icono decorativo -->
+      <div class="flex justify-center mb-6">
+        <div class="bg-[#611323] text-white p-4 rounded-2xl shadow-lg shadow-indigo-200/60">
+          <i class="bi bi-lock-fill"></i>
+        </div>
+      </div>
+
+      <!-- Título y subtítulo -->
+      <h2 class="text-3xl font-bold text-center text-gray-800 tracking-tight">Bienvenido</h2>
+      <p class="text-center text-gray-500 text-sm mt-1 mb-8">Inicia sesión para continuar</p>
+
+    
+
+      <!-- Formulario -->
+      <form id="formLogin" class="space-y-6">
+        <!-- Campo email -->
+        <div class="space-y-1">
+          <label for="email" class="block text-sm font-medium text-gray-700 ml-1">
+            <i class="bi bi-envelope"></i> Correo electrónico
+          </label>
+          <div class="relative">
+            <input 
+              type="email" 
+              id="email" 
+              name="email"
+              placeholder="tú@ejemplo.com" 
+              class="w-full pl-11 pr-4 py-3.5 bg-white/70 border border-gray-200 rounded-2xl text-gray-800 placeholder-gray-400 input-focus outline-none",
+              required
+              autofocus
+            />
+            <div class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-gray-400">
+              <i class="bi bi-envelope"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Campo contraseña -->
+        <div class="space-y-1">
+          <label for="password" class="block text-sm font-medium text-gray-700 ml-1">
+            <i class="bi bi-key"></i> Contraseña
+          </label>
+          <div class="relative">
+            <input 
+              type="password" 
+              id="password" 
+              name="password"
+              placeholder="••••••••" 
+              class="w-full pl-11 pr-12 py-3.5 bg-white/70 border border-gray-200 rounded-2xl text-gray-800 placeholder-gray-400 input-focus outline-none"
+              required
+            />
+            <div class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-gray-400">
+            <i class="bi bi-key"></i>
+            </div>
+            <!-- Ojo para mostrar/ocultar (solo estético, sin JS) -->
+            <div class="absolute inset-y-0 right-0 flex items-center pr-3.5 text-gray-400 hover:text-gray-600 cursor-pointer">
+              <i class="bi bi-eye"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Botón de inicio de sesión -->
+        <button 
+          type="submit" 
+          class="w-full bg-[#611323] hover:from-indigo-700 hover:to-purple-700 text-white font-semibold py-3.5 rounded-2xl shadow-lg shadow-indigo-300/50 transition-all duration-200 transform hover:scale-[1.01] active:scale-[0.98] flex items-center justify-center gap-2 text-lg"
+        >
+          <i class="fas fa-arrow-right-to-bracket"></i> Iniciar sesión
+        </button>
+
+      </form>
+
+        <% if(error){%> 
+        <div class="p-4 mb-4 text-sm text-fg-warning rounded-base bg-warning-soft" role="alert">
+          <%= error %>
+        </div>
+      <%}%>
+
+    </div>
+          
+    </div>
+
+    <script nonce="<%= nonce %>"> 
+      const formLogin = document.getElementById('formLogin');
+
+      formLogin.addEventListener('submit', async function(e){
+        e.preventDefault();
+        const formData = new FormData(formLogin);
+
+        try {
+          const response = await fetch('/auth/login',{
+            method:'POST',
+            body:formData
+          });
+
+          const data = await response.json();
+
+          if(data.success){
+            document.location.href = '/dashboard';
+          }
+        } catch (error) {
+          
+        } finally {
+
+        }
+      });
+    </script>
+  </body>
+  </html>

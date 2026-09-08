@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <%- include('./partials/head.ejs')%>
+</head>
+<body data-token-ttl = "<%= accessTokenTtlMs %>">
+    <%- include('./partials/navbar.ejs')%>
+
+
+<div class="">
+     <%- include('./' + page ) %>
+</div>

@@ -1,0 +1,48 @@
+
+<table id="<%= idtable %>">
+    <thead>
+        <tr>
+            <% headers.forEach(function(header){%> 
+                <th>
+                    <span class="flex items-center">
+                        <%= header.label %>
+                    </span>
+                </th>
+            <%})%>
+        </tr>
+    </thead>
+    <tbody>
+        <% datas.forEach(function(item) {%>  
+            <tr class="bg-white border-b hover:bg-gray-50">
+                <% headers.forEach(function(header){%> 
+                    <% if(header.key === 'activo') {%>
+                        <td class="px-6 py-4">
+                            <% if(item[header.key] === true){ %>
+                            <span class="bg-success-soft text-fg-success-strong text-xs font-medium px-1.5 py-0.5 rounded">Activo</span>
+                            <% }else{ %>
+                             <span class="bg-danger-soft text-fg-danger-strong text-xs font-medium px-1.5 py-0.5 rounded">Inactivo</span>
+                            <%}%>
+                        </td>
+                    <%}else if(header.key === 'acciones'){%>
+                        <td>
+                            <% if (puede(modulo + '.actualizar')){%>  
+                                <a class="text-white bg-blue-500 box-border border border-transparent hover:bg-blue-700 focus:ring-4 focus:ring-success-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none" href="/<%= modulo %>/<%= item[id] %>/editar">Editar</a> 
+                            <%}%>
+                        </td>
+                    <%}else{%>
+                        <td class="px-6 py-4">
+                            <%= item[header.key] %>
+                        </td>
+                    <%}%>
+                <%})%>
+            </tr>
+        <%})%>
+    </tbody>
+</table>
+
+
+<script type="module" nonce="<%= nonce %>"> 
+    import {dataTable} from '/js/dataTable.js';
+
+    dataTable('<%= idtable %>');
+</script>
