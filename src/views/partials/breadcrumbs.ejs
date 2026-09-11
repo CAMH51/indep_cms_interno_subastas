@@ -1,0 +1,64 @@
+<div class="bg-white/80 backdrop-blur-sm border-1 border-gray-100/50 px-6 py-4">
+  <!-- Top Bar -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <!-- Breadcrumbs -->
+    <nav class="breadcrumbs flex items-center flex-wrap gap-1 text-sm" aria-label="Ruta de carpetas">
+      <% if (breadcrumbs && breadcrumbs.length > 0) { %>
+        <% breadcrumbs.forEach((crumb, index) => { %>
+          <% const isLast = index === breadcrumbs.length - 1; %>
+          <% if (isLast) { %>
+            <span class="flex items-center gap-1.5 text-gray-700 font-medium">
+              <% if (crumb.id === null) { %>
+                <i class="bi bi-house-door text-indigo-500 text-md"></i>
+              <% } %>
+              <%= crumb.name %>
+            </span>
+          <% } else { %>
+            <a href="<%= crumb.id ? `/folders/${crumb.id}` : '/explorer' %>" 
+               class="flex items-center gap-1.5 text-gray-400 hover:text-indigo-600 transition-colors duration-200 group">
+              <% if (crumb.id === null) { %>
+                <i class="bi bi-house-door text-indigo-500 text-md"></i>
+              <% } %>
+              <span class="group-hover:underline underline-offset-2"><%= crumb.name %></span>
+            </a>
+            <span class="text-gray-300 text-xs mx-0.5">
+              <i class="bi bi-chevron-right"></i>
+            </span>
+          <% } %>
+        <% }) %>
+      <% } %>
+    </nav>
+
+      <!-- Stats Ribbon -->
+  <div class="mt-4 flex flex-wrap items-center gap-3 pt-3 border-t border-gray-100/80">
+    <div class="flex items-center gap-2 px-3.5 py-1.5 bg-gray-50/80 rounded-full text-sm text-gray-600">
+      <i class="bi bi-folder text-amber-400 text-xs"></i>
+      <span><strong class="font-semibold text-gray-700"><%= stats.folderCount %></strong> carpetas</span>
+    </div>
+    <div class="flex items-center gap-2 px-3.5 py-1.5 bg-gray-50/80 rounded-full text-sm text-gray-600">
+      <i class="bi bi-files text-blue-400 text-xs"></i>
+      <span><strong class="font-semibold text-gray-700"><%= stats.fileCount %></strong> archivos</span>
+    </div>
+    <div class="flex items-center gap-2 px-3.5 py-1.5 bg-gradient-to-r from-indigo-50/80 to-purple-50/80 rounded-full text-sm text-gray-600">
+      <i class="bi bi-hdd text-indigo-400 text-xs"></i>
+      <span>Espacio ocupado: <strong class="font-semibold text-gray-700"><%= stats.formattedTotalSize %></strong></span>
+    </div>
+  </div>
+
+    <!-- Search Box -->
+    <div class="relative flex-shrink-0 w-72">
+      <i class="bi bi-search absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+      <input 
+        type="text" 
+        id="searchExplorerInput" 
+        placeholder="Buscar en esta carpeta..." 
+        autocomplete="off"
+        class="w-full pl-9 pr-4 py-2 bg-gray-50/80 border border-gray-200/80 rounded-xl text-sm 
+               placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 
+               focus:border-indigo-400 focus:bg-white transition-all duration-200"
+      >
+    </div>
+  </div>
+
+
+</div>

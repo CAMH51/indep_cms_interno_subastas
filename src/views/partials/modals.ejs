@@ -1,0 +1,219 @@
+<!-- MODAL: CREAR NUEVA CARPETA -->
+<div class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm" id="newFolderModal">
+  <div class="w-full max-w-md rounded-xl bg-white shadow-xl">
+    <div class="flex items-center justify-between border-b border-gray-200 px-6 py-4">
+      <h3 class="flex items-center gap-2 text-lg font-semibold text-gray-800">
+        <i class="fa-solid fa-folder-plus text-indigo-500"></i> Nueva Carpeta
+      </h3>
+      <button type="button" class="text-2xl leading-none text-gray-400 hover:text-gray-600" id="btnNewFolder" >&times;</button>
+    </div>
+    <form action="/folders/create" method="POST">
+      <input type="hidden" name="parentId" value="<%= folderId || '' %>">
+
+      <div class="px-6 pt-5">
+        <label class="mb-1 block text-sm font-medium text-gray-700" for="folderNameInput">Nombre de la carpeta</label>
+        <input type="text" id="folderNameInput" name="name"
+          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-800 placeholder-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+          placeholder="Ej. Documentos de Proyecto" required autofocus>
+      </div>
+
+      <div class="px-6 pt-5">
+        <label class="mb-2 block text-sm font-medium text-gray-700">Color de la carpeta</label>
+        <input type="hidden" name="color" id="folderColorInput" value="indigo">
+        <div class="flex flex-wrap gap-3">
+          <div class="h-8 w-8 cursor-pointer rounded-full ring-2 ring-offset-2 ring-indigo-500 selected"
+            data-color="indigo" style="background-color: #6366f1;" title="Indigo"></div>
+          <div class="h-8 w-8 cursor-pointer rounded-full ring-2 ring-offset-2 ring-transparent hover:ring-gray-300"
+            data-color="sky" style="background-color: #0ea5e9;" title="Azul Cielo"></div>
+          <div class="h-8 w-8 cursor-pointer rounded-full ring-2 ring-offset-2 ring-transparent hover:ring-gray-300"
+            data-color="emerald" style="background-color: #10b981;" title="Esmeralda"></div>
+          <div class="h-8 w-8 cursor-pointer rounded-full ring-2 ring-offset-2 ring-transparent hover:ring-gray-300"
+            data-color="amber" style="background-color: #f59e0b;" title="Ámbar"></div>
+          <div class="h-8 w-8 cursor-pointer rounded-full ring-2 ring-offset-2 ring-transparent hover:ring-gray-300"
+            data-color="rose" style="background-color: #f43f5e;" title="Rosa"></div>
+          <div class="h-8 w-8 cursor-pointer rounded-full ring-2 ring-offset-2 ring-transparent hover:ring-gray-300"
+            data-color="purple" style="background-color: #a855f7;" title="Púrpura"></div>
+        </div>
+      </div>
+
+      <div class="mt-6 flex justify-end gap-3 border-t border-gray-200 px-6 py-4">
+        <button type="button" class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100" id="btnCloseNewFolder">Cancelar</button>
+        <button type="submit" class="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">
+          <i class="fa-solid fa-check"></i> Crear Carpeta
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL: SUBIR ARCHIVO -->
+<div class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm" id="uploadModal">
+  <div class="w-full max-w-md rounded-xl bg-white shadow-xl">
+    <div class="flex items-center justify-between border-b border-gray-200 px-6 py-4">
+      <h3 class="flex items-center gap-2 text-lg font-semibold text-gray-800">
+        <i class="fa-solid fa-cloud-arrow-up text-cyan-500"></i> Subir Archivos
+      </h3>
+      <button type="button" class="text-2xl leading-none text-gray-400 hover:text-gray-600" id="btnUpload">&times;</button>
+    </div>
+    <form id="uploadFilesForm" action="/files/upload<%= folderId ? '?folderId=' + folderId : '' %>" method="POST" enctype="multipart/form-data">
+      <input type="hidden" name="folderId" value="<%= folderId || '' %>">
+
+      <div class="m-6 flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 px-6 py-10 text-center cursor-pointer hover:border-cyan-400 hover:bg-cyan-50/50 transition-colors" id="dropzone">
+        <div class="mb-3 text-4xl text-cyan-500">
+          <i class="fa-solid fa-cloud-arrow-up"></i>
+        </div>
+        <div class="text-base font-semibold text-gray-800">Haz clic o arrastra archivos aquí</div>
+        <div class="mt-1 text-sm text-gray-500">Los archivos se guardarán físicamente en esta carpeta en el disco</div>
+        <input type="file" id="fileUploadInput" name="files" multiple class="hidden">
+      </div>
+
+      <div class="flex justify-end gap-3 border-t border-gray-200 px-6 py-4">
+        <button type="button" class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100" id="btnCloseUpload">Cerrar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL: RENOMBRAR CARPETA -->
+<div class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm" id="renameFolderModal">
+  <div class="w-full max-w-md rounded-xl bg-white shadow-xl">
+    <div class="flex items-center justify-between border-b border-gray-200 px-6 py-4">
+      <h3 class="flex items-center gap-2 text-lg font-semibold text-gray-800">
+        <i class="fa-solid fa-pen-to-square text-amber-500"></i> Renombrar Carpeta
+      </h3>
+      <button type="button" class="text-2xl leading-none text-gray-400 hover:text-gray-600" id="btnRenameFolder" >&times;</button>
+    </div>
+    <form id="renameFolderForm" method="POST">
+      <div class="px-6 pt-5">
+        <label class="mb-1 block text-sm font-medium text-gray-700" for="renameFolderNameInput">Nuevo nombre</label>
+        <input type="text" id="renameFolderNameInput" name="name"
+          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-800 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30"
+          required>
+      </div>
+      <div class="mt-6 flex justify-end gap-3 border-t border-gray-200 px-6 py-4">
+        <button type="button" class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100" id="btnCloseRenameFolder">Cancelar</button>
+        <button type="submit" class="rounded-lg bg-amber-500 px-4 py-2 text-sm font-medium text-white hover:bg-amber-600">Guardar Cambios</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL: RENOMBRAR ARCHIVO -->
+<div class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm" id="renameFileModal">
+  <div class="w-full max-w-md rounded-xl bg-white shadow-xl">
+    <div class="flex items-center justify-between border-b border-gray-200 px-6 py-4">
+      <h3 class="flex items-center gap-2 text-lg font-semibold text-gray-800">
+        <i class="fa-solid fa-pen-to-square text-cyan-500"></i> Renombrar Archivo
+      </h3>
+      <button type="button" class="text-2xl leading-none text-gray-400 hover:text-gray-600" id="btnRenameFile">&times;</button>
+    </div>
+    <form id="renameFileForm" method="POST">
+      <div class="px-6 pt-5">
+        <label class="mb-1 block text-sm font-medium text-gray-700" for="renameFileNameInput">Nuevo nombre de visualización</label>
+        <input type="text" id="renameFileNameInput" name="name"
+          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-800 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/30"
+          required>
+      </div>
+      <div class="mt-6 flex justify-end gap-3 border-t border-gray-200 px-6 py-4">
+        <button type="button" class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100" id="btnCloseRenameFile">Cancelar</button>
+        <button type="submit" class="rounded-lg bg-cyan-600 px-4 py-2 text-sm font-medium text-white hover:bg-cyan-700">Guardar Cambios</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL: VISUALIZADOR DE ARCHIVO -->
+<div class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm" id="viewFileModal">
+  <div class="w-full max-w-4xl rounded-xl bg-white shadow-xl">
+    <div class="flex items-center justify-between border-b border-gray-200 px-6 py-4">
+      <h3 class="flex items-center gap-2 text-lg font-semibold text-gray-800">
+        <i class="fa-solid fa-pen-to-square text-cyan-500"></i> Visualizador de Archivo
+      </h3>
+      <button type="button" class="text-2xl leading-none text-gray-400 hover:text-gray-600" id="btnViewFileModal">&times;</button>
+    </div>
+    <div id="contenido">
+     
+    </div>
+    <div class="mt-6 flex justify-end gap-3 border-t border-gray-200 px-6 py-4">
+      <button type="button" class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100" id="btnCloseViewFileModal">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<script type="module" nonce="<%= nonce %>">
+  import {closeModal} from '/js/explorer.js';
+
+  const btnNewFolder = document.getElementById('btnNewFolder');
+  const btnUpload = document.getElementById('btnUpload');
+  const btnRenameFolder = document.getElementById('btnRenameFolder');
+  const btnRenameFile = document.getElementById('btnRenameFile');
+  const btnViewFileModal = document.getElementById('btnViewFileModal');
+
+  const btnCloseNewFolder = document.getElementById('btnCloseNewFolder');
+  const btnCloseUpload = document.getElementById('btnCloseUpload');
+  const btnCloseRenameFolder = document.getElementById('btnCloseRenameFolder');
+  const btnCloseRenameFile = document.getElementById('btnCloseRenameFile');
+  const btnCloseViewFileModal = document.getElementById('btnCloseViewFileModal');
+
+  if(btnNewFolder){
+    btnNewFolder.addEventListener('click', function(){
+      closeModal('newFolderModal');
+    });
+  }
+
+  if(btnUpload){
+    btnUpload.addEventListener('click',function(){
+      closeModal('uploadModal');
+    });
+  }
+  
+  if(btnRenameFolder){
+    btnRenameFolder.addEventListener('click', function(){
+      closeModal('renameFolderModal');
+    });
+  }
+
+  if(btnRenameFile){
+    btnRenameFile.addEventListener('click', function(){
+      closeModal('renameFileModal');
+    });
+  }
+
+  if(btnViewFileModal){
+    btnViewFileModal.addEventListener('click', function(){
+      closeModal('viewFileModal');
+    });
+  }
+
+  //Btn Close Modal
+
+  if(btnCloseNewFolder){
+    btnCloseNewFolder.addEventListener('click', function(){
+      closeModal('newFolderModal');
+    });
+  }
+
+  if(btnCloseUpload){
+    btnCloseUpload.addEventListener('click', function(){
+      closeModal('uploadModal');
+    });
+  }
+
+  if(btnCloseRenameFolder){
+    btnCloseRenameFolder.addEventListener('click', function(){
+      closeModal('renameFolderModal');
+    });
+  }
+
+  if(btnCloseRenameFile){
+    btnCloseRenameFile.addEventListener('click', function(){
+      closeModal('renameFileModal');
+    });
+  }
+
+  if(btnCloseViewFileModal){
+    btnCloseViewFileModal.addEventListener('click', function(){
+      closeModal('viewFileModal');
+    });
+  }
+</script>

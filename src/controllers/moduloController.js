@@ -62,7 +62,7 @@ exports.crear = async(req, res) =>{
             orden:orden || 0
         });
 
-        res.status(201).json({success: true, msg:'Módulo creado correctamente'})
+        res.redirect('/modulos?msg=creado')
         
     } catch (error) {
         res.status(500).json({success:false, msg:error.message});
@@ -119,7 +119,7 @@ exports.actualizar = async(req, res) =>{
             activo: activo === 'on' || activo === true
         });
 
-        res.status(201).json({success: true, msg:'Módulo actualizado correctamente'})
+        res.redirect('/modulos?msg=editado')
     } catch (error) {
         res.status(500).json({success:false, msg:error.message});
     }

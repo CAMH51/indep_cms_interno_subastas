@@ -33,8 +33,9 @@ app.use(
                 fontSrc:["'self'",'https://cdn.jsdelivr.net', 'data:'],
                 imgSrc:["'self'",'data:'],
                 connectSrc:["'self'"],
-                objectSrc:["'none'"],
-                frameAncestors:["'none'"], //refuerza la protección anti-clickjacking
+                frameSrc:["'self'"],
+                objectSrc:["'self'"],
+                frameAncestors:["'self'"], //refuerza la protección anti-clickjacking
             },
         },
         //Se fuerza a HTTPS en producción mediante HSTS

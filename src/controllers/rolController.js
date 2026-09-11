@@ -59,7 +59,7 @@ exports.crear = async(req, res) =>{
             descripcion
         });
 
-        res.status(201).json({success: true, msg:'Rol creado correctamente'})
+        res.redirect('/roles?msg=creado');
         
     } catch (error) {
         res.status(500).json({success:false, msg:error.message});
@@ -116,7 +116,7 @@ exports.actualizar = async(req, res) =>{
 
         const actualizar = await rolService.actualizar(id,datosActualizado);
 
-        res.status(201).json({success: true, msg:'Rol actualizado correctamente'})
+         res.redirect('/roles?msg=editado');
     } catch (error) {
         res.status(500).json({success:false, msg:error.message});
     }

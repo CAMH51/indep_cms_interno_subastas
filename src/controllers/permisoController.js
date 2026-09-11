@@ -66,7 +66,7 @@ exports.crear = async(req, res) =>{
             descripcion,
         });
 
-        res.status(201).json({success: true, msg:'Permiso creado correctamente'})
+        res.redirect('/permisos?msg=creado')
         
     } catch (error) {
         res.status(500).json({success:false, msg:error.message});

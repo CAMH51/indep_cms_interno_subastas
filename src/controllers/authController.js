@@ -44,8 +44,8 @@ exports.loginBD = async(req,res) =>{
     if(!usuario) return credencialesInvalidas(res, email);
 
     const {accessToken, refreshToken} = await crearSesion(usuario,{
-            ip:req.ip,
-            user_agent: req.headers['user-agent']
+            ip: req.ip || req.connection.remoteAddress || req.socket.remoteAddress,
+            user_agent: req.headers['user-agent'] || req.get('User-Agent')
         });
     
         res.cookie('accessToken', accessToken, opcionesAccessCookie);

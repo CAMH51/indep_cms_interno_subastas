@@ -6,6 +6,16 @@ const Modulo = require('./Modulo');
 const Permiso = require('./Permiso');
 const RolPermiso = require('./RolPermiso');
 const Sesion = require('./Sesion');
+const Storage = require('./Storages');
+const Archivos = require('./Archivos');
+const File = require('./File');
+const Folder = require('./Folder');
+
+const Slider = require('./Sliders');
+const ConvocatoriasBienes = require('./ConvocatoriasBienes');
+const EventosCursos = require('./EventoCurso');
+const MenusLaterales = require('./MenusLaterales');
+
 
 
 // ----------Usuario <> Rol (1:N)------------------
@@ -38,6 +48,17 @@ Permiso.belongsToMany(Rol,{
 Usuario.hasMany(Sesion, {foreignKey:'fk_usuario_id', as:'sesiones'});
 Sesion.belongsTo(Usuario, {foreignKey:'fk_usuario_id', as: 'usuario'});
 
+Archivos.belongsTo(Storage, {foreignKey:'fk_storage_id', as:'storage'});
+Storage.hasMany(Archivos, {foreignKey:'fk_storage_id', as:'archivos'});
+
+
+Folder.hasMany(Folder, {as: 'subfolders', foreignKey: 'parent_id', onDelete: 'CASCADE'});
+Folder.belongsTo(Folder, {as: 'parent', foreignKey: 'parent_id'});
+
+Folder.hasMany(File, { as: 'files', foreignKey: 'folder_id', onDelete: 'CASCADE' });
+File.belongsTo(Folder, { as: 'folder', foreignKey: 'folder_id' });
+
+
 
 module.exports = {
     sequelize,
@@ -46,5 +67,13 @@ module.exports = {
     Modulo,
     Permiso,
     RolPermiso,
-    Sesion
+    Sesion,
+    Storage,
+    Archivos,
+    File,
+    Folder,
+    Slider,
+    ConvocatoriasBienes,
+    EventosCursos,
+    MenusLaterales
 }

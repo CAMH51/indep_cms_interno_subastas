@@ -1,27 +1,24 @@
-
-
 <div class="m-5 p-5 border border-2 border-gray-200 rounded-2xl">
     <div class="flex justify-between">
         <a href="/dashboard" class="flex items-center px-2 py-1.5 text-body rounded-base hover:bg-neutral-tertiary hover:text-fg-brand group">
             <svg class="w-5 h-5 transition duration-75 group-hover:text-fg-brand" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6.025A7.5 7.5 0 1 0 17.975 14H10V6.025Z"/><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.5 3c-.169 0-.334.014-.5.025V11h7.975c.011-.166.025-.331.025-.5A7.5 7.5 0 0 0 13.5 3Z"/></svg>
             <span class="ms-3">Ir a Dashboard</span>
         </a>
-        <h2 class="text-2xl font-semibold">Módulos</h2>
-        <% if(puede('modulos.crear')){%>
-            <a class="text-white bg-success box-border border border-transparent hover:bg-success-strong focus:ring-4 focus:ring-success-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none" href="/modulos/nuevo">Nuevo Módulo</a>    
+        <h2 class="text-2xl font-semibold">Ménu Derecho</h2>
+        <% if(puede('menus_laterales.crear')){%>
+            <a class="text-white bg-success box-border border border-transparent hover:bg-success-strong focus:ring-4 focus:ring-success-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none" href="/menus_laterales/nuevo?lado=derecho">Nuevo Menú Derecho</a>    
         <%}%>
     </div>
     <hr class="h-px my-3 bg-neutral-quaternary border-0">
 
     <div>
-        <%- include('../components/mensajeSuccess.ejs') %>
-        <table id="tablaModulos" class="text-center">
+        <table id="tablaMenuDerecho">
             <thead>
                 <tr>
-                    <th>Nombre</th>
-                    <th>slug</th>
-                    <th>Descripción</th>
-                    <th>Icono</th>
+                    <th>Tiutlo</th>
+                    <th>Texto</th>
+                    <th>URL de la imagen</th>
+                    <th>Link de la Información</th>
                     <th>Orden</th>
                     <th>Estatus</th>
                     <th>Fecha de registro</th>
@@ -30,40 +27,38 @@
                 </tr>
             </thead>
             <tbody>
-                <% modulos.forEach(modulo => { %>
+                 <% menusLaterales.forEach(menu => { %>
                     <tr>
-                        <td><%= modulo.nombre %></td>
-                        <td><%= modulo.slug %></td>
-                        <td><%= modulo.descripcion %></td>
-                        <td>
-                            <i class="bi <%= modulo.icono %>"></i>
-                            
-                        </td>
-                        <td><%= modulo.orden %></td>
+                        <td><%= menu.titulo %></td>
+                        <td><%= menu.texto %></td>
+                        <td><%= menu.url_imagen %></td>
+                        <td><%= menu.link_informacion %></td>
+                        <td><%= menu.orden %></td>
                         <td class="px-6 py-4">
-                            <% if(modulo.activo === true){ %>
+                            <% if(menu.activo === true){ %>
                             <span class="bg-success-soft text-fg-success-strong text-xs font-medium px-1.5 py-0.5 rounded">Activo</span>
                             <% }else{ %>
                              <span class="bg-danger-soft text-fg-danger-strong text-xs font-medium px-1.5 py-0.5 rounded">Inactivo</span>
                             <%}%>
                         </td>
-                        <td><%= new Date(modulo.createdAt).toLocaleString('es-ES') %></td>
-                        <td><%= new Date(modulo.updatedAt).toLocaleString('es-ES') %></td>
+                        <td><%= new Date(menu.createdAt).toLocaleString('es-ES') %></td>
+                        <td><%= new Date(menu.updatedAt).toLocaleString('es-ES') %></td>
                         <td>
-                            <% if(puede('modulos.actualizar')){%>
-                                <a class="text-white bg-blue-500 box-border border border-transparent hover:bg-blue-700 focus:ring-4 focus:ring-success-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none" href="/modulos/<%= modulo.modulo_id %>/editar">Editar</a> 
+                            <% if(puede('menus_laterales.actualizar')){%>
+                                <a class="text-white bg-blue-500 box-border border border-transparent hover:bg-blue-700 focus:ring-4 focus:ring-success-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none" href="/menus_laterales/<%= menu.menu_lateral_id %>/editar">Editar</a> 
                             <%}%>
                         </td>
                     </tr>
                 <% }) %>
+
             </tbody>
         </table>
     </div>
-</div>
-
-<script type="module" nonce="<%= nonce %>"> 
-    import {dataTable} from '/js/dataTable.js';
-    dataTable('tablaModulos');
 
     
+</div>
+<script type="module" nonce="<%= nonce %>"> 
+    import {dataTable} from '/js/dataTable.js';
+    dataTable('tablaMenuDerecho');
+
 </script>

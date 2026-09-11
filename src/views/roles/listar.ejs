@@ -10,8 +10,8 @@
         <%}%>
     </div>
     <hr class="h-px my-3 bg-neutral-quaternary border-0">
-
     <div>
+        <%- include('../components/mensajeSuccess.ejs') %>
         <table id="tablaRoles">
             <thead>
                 <tr>
@@ -47,11 +47,11 @@
             </tbody>
         </table>
     </div>
-
     
 </div>
 <script type="module" nonce="<%= nonce %>"> 
     import {dataTable} from '/js/dataTable.js';
     dataTable('tablaRoles');
 
+    
 </script>

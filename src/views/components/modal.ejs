@@ -1,0 +1,62 @@
+
+    <!-- Modal -->
+    <div id="<%=idModal%>" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden transition-all duration-300">
+        <div class="bg-white rounded-2xl shadow-2xl <%= typeof maxWidth !== 'undefined' ? maxWidth : 'max-w-md' %> w-full mx-4 transform transition-all duration-300 scale-95 opacity-0" id="modalContent">
+            
+            <!-- Cabecera del modal -->
+            <div class="flex justify-between items-center p-6 border-b border-gray-200">
+                <h2 class="text-2xl font-bold text-gray-800">
+                    <i class="bi bi-pencil-fill"></i>
+                    <%=titulo%>
+                </h2>
+                <button id="closeModalBtn" onclick="closeModal()" class="text-gray-400 hover:text-gray-600 transition duration-200">
+                    <i class="bi bi-x-circle text-xl"></i>
+                </button>
+            </div>
+            
+            <!-- Cuerpo del modal -->
+            <div class="p-6 overflow-y-auto flex-1 max-h-[80vh]">
+                <%- include(body) %>
+            </div>
+        </div>
+    </div>
+    <script >
+        const modal = document.getElementById('<%=idModal%>');
+        
+        function openModal() {
+            modal.classList.remove('hidden');
+            // Forzar reflow para la animación
+            modalContent.classList.remove('scale-95', 'opacity-0');
+            modalContent.classList.add('scale-100', 'opacity-100');
+  /*           if(callback && typeof callback === 'function'){
+                callback(id);
+            } */
+        }
+
+        function closeModal() {
+            modalContent.classList.remove('scale-100', 'opacity-100');
+            modalContent.classList.add('scale-95', 'opacity-0');
+            // Esperar a que termine la animación antes de ocultar
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        function closeOnBackdrop(e) {
+            if (e.target === modal) {
+                closeModal();
+            }
+        }
+
+        modal.addEventListener('click', closeOnBackdrop);
+
+        // Cerrar modal con tecla ESC
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+                closeModal();
+            }
+        });
+    
+    </script>
+
+  

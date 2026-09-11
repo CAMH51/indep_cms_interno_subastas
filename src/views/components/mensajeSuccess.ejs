@@ -1,0 +1,44 @@
+<div id="toastMensaje" class="hidden fixed top-10 right-5 z-50 px-4 py-3 rounded-base shadow-xs text-sm font-medium text-white bg-success transition-opacity duration-500 opacity-0">
+    <span id="toastTexto"></span>
+</div>
+
+<script nonce="<%= nonce %>">
+    (function () {
+        const params = new URLSearchParams(window.location.search);
+        const mensaje = params.get('msg');
+
+        console.log(mensaje);
+
+        if (mensaje) {
+            const textos = {
+                creado: 'Registro creado exitosamente',
+                editado: 'Registro editado exitosamente'
+            };
+
+            const texto = textos[mensaje];
+            if (texto) {
+                const toast = document.getElementById('toastMensaje');
+                const toastTexto = document.getElementById('toastTexto');
+
+                toastTexto.textContent = texto;
+                toast.classList.remove('hidden');
+
+                // pequeño delay para que la transición de opacidad se note
+                requestAnimationFrame(() => {
+                    toast.classList.remove('opacity-0');
+                });
+
+                // ocultarlo después de 3 segundos
+                setTimeout(() => {
+                    toast.classList.add('opacity-0');
+                    setTimeout(() => toast.classList.add('hidden'), 500);
+                }, 3000);
+            }
+
+            // limpiar el query param de la URL para que no reaparezca al refrescar
+            const url = new URL(window.location);
+            url.searchParams.delete('msg');
+            window.history.replaceState({}, '', url);
+        }
+    })();
+</script>

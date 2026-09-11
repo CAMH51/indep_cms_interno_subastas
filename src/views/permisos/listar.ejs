@@ -11,16 +11,45 @@
     </div>
     <hr class="h-px my-3 bg-neutral-quaternary border-0">
 
-    
-    <%- include('../components/table.ejs',{
-        id:'permiso_id',
-        idtable:'tablePermisos',
-        modulo:'permisos',
-        headers:[
-            {key:'accion',label:'Accion'},
-            {key:'descripcion',label:'Descripción'},
-            {key:'modulo.nombre',label:'Módulo'}
-        ],
-        datas:permisos
-    }) %>
+    <div>
+        <%- include('../components/mensajeSuccess.ejs') %>
+        <table id="tablaPermisos" class="text-center">
+            <thead>
+                <tr>
+                    <th>Acción</th>
+                    <th>Descripción</th>
+                    <th>Módulo</th>
+                    <th>Fecha de registro</th>
+                    <th>Última actualización</th>
+                   <!--  <th>Acciones</th> -->
+                </tr>
+            </thead>
+            <tbody>
+                <% permisos.forEach(permiso => { %>
+                    <tr>
+                        <td>
+                            <span class="bg-brand-softer text-fg-brand-strong text-xs font-medium px-1.5 py-0.5 rounded">
+                                <%= permiso.accion + ':' + permiso.modulo.slug %>
+                            </span>
+                        </td>
+                        <td><%= permiso.descripcion %></td>
+                        <td>
+                            <span class="bg-neutral-secondary-medium text-heading text-xs font-medium px-1.5 py-0.5 rounded">
+                                <%= permiso.modulo.nombre %>
+                            </span>
+                        </td>
+                        <td><%= new Date(permiso.createdAt).toLocaleString('es-ES') %></td>
+                        <td><%= new Date(permiso.updatedAt).toLocaleString('es-ES') %></td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
 </div>
+
+<script type="module" nonce="<%= nonce %>"> 
+    import {dataTable} from '/js/dataTable.js';
+    dataTable('tablaPermisos');
+
+    
+</script>

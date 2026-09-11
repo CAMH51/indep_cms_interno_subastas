@@ -1,0 +1,306 @@
+<%- include('partials/navbarExplorer.ejs') %>
+<%- include('partials/breadcrumbs.ejs') %>
+
+
+<!-- SECCIÓN DE CARPETAS -->
+<% if (subfolders && subfolders.length > 0) { %>
+  <div class="flex align-items-center justyfy-between ml-8">
+    <div class="text-lg font-bold uppercase tracking-wide flex items-center gap-2">
+      <i class="bi bi-folder"></i> Carpetas
+        <span class="flex items-center justify-center bg-brand-softer border border-brand-subtle text-fg-brand-strong text-xs font-medium h-5 w-5 rounded-full">
+            <span class="section-badge"><%= subfolders.length %></span>
+        </span>
+    </div>
+  </div>
+
+  <div class="m-6">
+    <div class="relative overflow-x-auto bg-neutral-primary-soft shadow-xs rounded-base border border-default">
+        <table class="w-full text-sm text-left rtl:text-right text-body">
+            <thead class="text-sm text-center bg-neutral-secondary-medium border-b border-default-medium">
+                <tr class="" >
+                    <th scope="col" class="px-6 py-3 font-medium">
+                        Nombre
+                    </th>
+                    <th scope="col" class="px-6 py-3 font-medium">
+                        Número de Carpetas
+                    </th>
+                    <th scope="col" class="px-6 py-3 font-medium">
+                        Número de Archivos
+                    </th>
+                    <th scope="col" class="px-6 py-3 font-medium">
+                        Acciones
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+    <% subfolders.forEach(folder => { %>
+        <tr class="bg-neutral-primary-soft border-b border-default hover:bg-neutral-secondary-medium p-4 text-center">
+            <td class="px-6 py-4">
+                <a href="/folders/<%= folder.folder_id %>" class="folder-info hover:underline">
+                    <div class="flex items-center gap-4 folder-icon color-<%= folder.color || 'indigo' %>">
+                        <i class="bi bi-folder text-xl text-yellow-400"></i>
+                        <div class="folder-name" title="<%= folder.name %>"><%= folder.name %></div>
+                    </div>
+                </a>
+            </td>
+            <td>
+              <%= (folder.subfolders ? folder.subfolders.length : 0) %>
+            </td>
+            <td>
+                <%= (folder.files ? folder.files.length : 0) %>
+            </td>
+            <td class="flex items-center gap-4">
+                <button type="button" class="bg-gray-300 rounded-md p-2 btn_renombrar_folder" title="Renombrar carpeta" onclick="openRenameFolderModal('<%= folder.id %>', '<%= folder.name.replace(/'/g, '\\\'') %>', '<%= folder.color %>')">
+                    <i class="bi bi-pencil-square"></i>
+                </button>
+                <form action="/folders/<%= folder.id %>/delete" method="POST" onsubmit="return confirm('¿Seguro que deseas eliminar esta carpeta y todo su contenido?');" style="display: inline;">
+                    <button type="submit" class="bg-red-300 rounded-md p-2" title="Eliminar carpeta">
+                    <i class="bi bi-trash3"></i>
+                    </button>
+                </form>
+            </td>
+        </tr>
+    <% }) %>
+    </tbody>
+    </table>
+</div>
+  </div>
+<% } %>
+
+<!-- SECCIÓN DE ARCHIVOS -->
+<div class="flex items-center justify-between ml-8" style="margin-top: 2rem;">
+  <div class="text-lg font-bold uppercase tracking-wide flex items-center gap-2">
+    <i class="bi bi-file-earmark-text"></i> Archivos
+    <span class="flex items-center justify-center bg-brand-softer border border-brand-subtle text-fg-brand-strong text-xs font-medium h-5 w-5 rounded-full">
+            <span class="section-badge"><%= files ? files.length : 0 %></span>
+    </span>
+  </div>
+</div>
+
+<% if (files && files.length > 0) { %>
+  <div class="m-6">
+    <div class="relative overflow-x-auto bg-neutral-primary-soft shadow-xs rounded-base border border-default">
+        <table class="w-full text-sm text-left rtl:text-right text-body">
+            <thead class="text-sm text-center bg-neutral-secondary-medium border-b border-default-medium">
+                <tr class="" >
+                    <th scope="col" class="px-6 py-3 font-medium">
+                        Nombre
+                    </th>
+                    <th scope="col" class="px-6 py-3 font-medium">
+                        Tamaño
+                    </th>
+<!--                     <th scope="col" class="px-6 py-3 font-medium">
+                        Número de Descargar
+                    </th> -->
+                    <th scope="col" class="px-6 py-3 font-medium">
+                        Link
+                    </th>
+                    <th scope="col" class="px-6 py-3 font-medium">
+                        Acciones
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+    <% files.forEach(file => { %>
+      <% 
+        const category = file.fileCategory;
+        let iconClass = 'bi-file-earmark-text';
+        let badgeClass = 'badge-other';
+
+        if (category === 'image') { iconClass = 'bi-file-earmark-image'; badgeClass = 'bg-brand-softer text-fg-brand-strong text-xs font-medium px-1.5 py-0.5 rounded'; }
+        else if (category === 'pdf') { iconClass = 'bi-file-pdf'; badgeClass = 'bg-brand-softer text-fg-brand-strong text-xs font-medium px-1.5 py-0.5 rounded'; }
+        else if (category === 'video') { iconClass = 'bi-file-earmark-play'; badgeClass = 'badge-video'; }
+        else if (category === 'audio') { iconClass = 'bi-file-music'; badgeClass = 'badge-audio'; }
+        else if (category === 'archive') { iconClass = ' bi-file-earmark-zip'; badgeClass = 'badge-archive'; }
+        else if (category === 'code') { iconClass = 'bi-file-earmark-code'; badgeClass = 'badge-code'; }
+        else if (category === 'document') { iconClass = 'bi-file-word'; badgeClass = 'badge-document'; }
+        
+        const fileUrl = `${appUrl}/f/${file.public_code}`;
+        const rawUrl = `${appUrl}/raw/${file.public_code}`;
+      %>
+
+      <tr class="bg-neutral-primary-soft border-b border-default hover:bg-neutral-secondary-medium p-4 text-center">
+        <td class="flex items-center gap-4 px-6 py-4">
+            <span class="flex items-center justify-center bg-brand-softer border border-brand-subtle text-fg-brand-strong text-xs font-medium h-8 w-8 rounded-full">
+                <i class="bi <%= iconClass %> text-xl"></i>
+            </span>
+             <div class="file-name" title="<%= file.name %>"><%= file.name %></div>
+        </td>
+        <td>
+            <span><i class="fa-solid fa-weight-hanging"></i> <%= file.formattedSize %></span>
+        </td>
+<!--         <td>
+            <span> <%= file.downloadsCount > 0 ? file.downloadsCount : 0   %></span>
+        </td> -->
+        <td>
+            <div class="fixed-link-box">
+            <span class="fixed-link-text" title="<%= rawUrl %>">
+              <i class="bi bi-link mr-4"></i> <%= rawUrl %>
+            </span>
+            <button type="button" class="btn-copy border-1 border-gray-200 p-1" data-file-id="<%= rawUrl %>" id="btnCopiar">
+              <i class="bi bi-copy"></i> Copiar
+            </button>
+          </div>
+        </td>
+        <td class="flex gap-2">
+            <button type="button" id="btnViewFileModal" class="bg-gray-400 rounded-md p-2 btn_view_file" data-code="<%= file.public_code %>">
+              <i class="bi bi-box-arrow-up-right"></i> Ver
+            </button>
+<!--             <a href="/f/<%= file.public_code %>" class="bg-gray-400 rounded-md p-2" target="_blank" title="Ver enlace público">
+              <i class="bi bi-box-arrow-up-right"></i> Ver
+            </a> -->
+            <a href="/raw/<%= file.public_code %>?download=1" class="bg-blue-100 rounded-md p-2" title="Descargar archivo">
+              <i class="bi bi-download"></i>
+            </a>
+            <button type="button" class="bg-gray-300 rounded-md p-2 btn_renombrar_file" title="Renombrar archivo" id="btnRenombrarFile" data-file-id="<%= file.file_id %>" data-file-name="<%= file.name.replace(/'/g, '\\\'') %>" >
+              <i class="bi bi-pencil-square"></i>
+            </button>
+            <button type="submit" class="bg-red-300 rounded-md p-2 btnDeleteFile" data-file-id="<%= file.file_id %>" title="Eliminar archivo">
+              <i class="bi bi-trash3"></i>
+            </button>
+
+        </td>
+      </tr>
+
+    <% }) %>
+        </tbody>
+    </table>
+</div>
+
+  </div>
+<% } else { %>
+  <div class="text-center p-10 border-1 border-gray-300 rounded-xl m-10">
+    <div class="text-7xl mb-3 opacity-75"><i class="bi bi-folder2-open"></i></div>
+    <div class="text-2xl font-bold">Esta carpeta está vacía</div>
+    <div class="text-md m-2">Crea una subcarpeta o sube archivos para comenzar a organizarlos y generar sus URLs fijas.</div>
+    <button type="button" class="bg-blue-500 rounded-xl p-3 text-white hover:bg-blue-700" id="btnSubirPrimerArchivo" >
+      <i class="bi bi-cloud-arrow-up-fill"></i> Subir Primer Archivo
+    </button>
+  </div> 
+<% } %>
+
+<%- include('partials/modals.ejs') %>
+<%- include('partials/footer.ejs') %>
+<script type="module" nonce="<%= nonce %>">
+    import {openModal,copyToClipboard, openRenameFolderModal,openRenameFileModal} from '/js/explorer.js';
+
+    const btnSubirPrimerArchivo  = document.getElementById('btnSubirPrimerArchivo');
+    const btnNuevaCarpeta  = document.getElementById('btnNuevaCarpeta');
+    const btnSubirArchivo  = document.getElementById('btnSubirArchivo');
+    const btnCopiar  = document.getElementById('btnCopiar');
+    const btnRenombrarFile = document.getElementById('btnRenombrarFile');
+    const btnViewFileModal = document.getElementById('btnViewFileModal');
+
+    if(btnSubirPrimerArchivo){
+        btnSubirPrimerArchivo.addEventListener("click", function(){
+            openModal('uploadModal')
+        });
+    }
+
+    if(btnNuevaCarpeta){
+        btnNuevaCarpeta.addEventListener("click", function(){
+            openModal('newFolderModal')
+        });
+    }
+
+    if(btnSubirArchivo){
+        btnSubirArchivo.addEventListener("click", function(){
+            openModal('uploadModal')
+        });
+    }
+
+    document.addEventListener('click', async function(e){
+        const btnRenameFile = e.target.closest('.btn_renombrar_file');
+        const btnCopiar = e.target.closest('.btn-copy');
+        const btnViewFile = e.target.closest('.btn_view_file');
+
+        const btnDeleteFile = e.target.closest('.btnDeleteFile');
+        //Renombrar Archivos
+        if(btnRenameFile){
+            const id = btnRenameFile.dataset.fileId;
+            const name = btnRenameFile.dataset.fileName;
+            openRenameFileModal(id,name);
+        }
+
+        //Eliminar los archivos
+        if(btnDeleteFile){
+          const id = btnDeleteFile.dataset.fileId;
+          const deleteFile = confirm('¿Deseas eliminar este archivo definitivamente?');
+
+          if(deleteFile){
+            const response = await fetch(`/files/${id}/delete`, {
+              method: 'POST',
+            });
+            if (!response.ok) {
+                return;
+            }
+            const data = await response.json();
+            document.location.reload();
+          }
+
+        }
+
+      //Copiar al portapapeles el link
+      if(btnCopiar){
+          const id = btnCopiar.dataset.fileId;
+          copyToClipboard(id);
+      }
+
+      //Validar el tipo de archivo y mostrarlo
+      if (btnViewFile) {
+        openModal('viewFileModal');
+        const code = btnViewFile.dataset.code;
+        const contenido = document.getElementById('contenido');
+        contenido.innerHTML = '<div class="p-4 text-center">Cargando visualizador...</div>';
+        const response = await fetch('/f/' + code, {
+            method: 'GET',
+        });
+        if (!response.ok) {
+            contenido.innerHTML = '<div class="p-4 text-red-500">Error al cargar el archivo.</div>';
+            return;
+        }
+        const data = await response.json();
+        const category = data.file.fileCategory;
+        const rawUrl = data.file.rawUrl;
+        
+        if (category === 'pdf') {
+          contenido.innerHTML = `
+            <div class="w-full h-[75vh] p-2">
+                <iframe src="${rawUrl}" class="w-full h-full rounded-lg border border-gray-200" frameborder="0"></iframe>
+            </div>
+          `;
+
+        } else if (category === 'image') {
+            contenido.innerHTML = `
+                <div class="flex justify-center items-center p-4 max-h-[70vh] overflow-auto">
+                    <img src="${rawUrl}" alt="${data.file.name}" class="max-w-full max-h-[65vh] object-contain rounded-lg" />
+                </div>
+            `;
+        } else if (category === 'video') {
+            contenido.innerHTML = `
+                <div class="flex justify-center p-4">
+                    <video src="${rawUrl}" controls class="max-w-full max-h-[65vh] rounded-lg"></video>
+                </div>
+            `;
+        } else if (category === 'audio') {
+            contenido.innerHTML = `
+                <div class="flex justify-center items-center p-8">
+                    <audio src="${rawUrl}" controls class="w-full"></audio>
+                </div>
+            `;
+        } else {
+            contenido.innerHTML = `
+                <div class="p-8 text-center text-gray-600">
+                    <p class="mb-4">No hay vista previa disponible para este tipo de archivo.</p>
+                    <a href="${rawUrl}?download=1" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                        <i class="bi bi-download"></i> Descargar archivo
+                    </a>
+                </div>
+            `;
+        }
+    }
+});
+
+
+</script>
+
