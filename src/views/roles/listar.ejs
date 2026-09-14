@@ -6,7 +6,7 @@
         </a>
         <h2 class="text-2xl font-semibold">Roles</h2>
         <% if(puede('roles.crear')){%>
-            <a class="text-white bg-success box-border border border-transparent hover:bg-success-strong focus:ring-4 focus:ring-success-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none" href="/roles/nuevo">Nuevo Rol</a>    
+            <a class="text-white bg-success box-border border border-transparent hover:bg-success-strong focus:ring-4 focus:ring-success-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none" href="/roles/nuevo"><i class="bi bi-check-circle"></i> Nuevo Rol</a>    
         <%}%>
     </div>
     <hr class="h-px my-3 bg-neutral-quaternary border-0">
@@ -35,11 +35,11 @@
                              <span class="bg-danger-soft text-fg-danger-strong text-xs font-medium px-1.5 py-0.5 rounded">Inactivo</span>
                             <%}%>
                         </td>
-                        <td><%= new Date(rol.createdAt).toLocaleString('es-ES') %></td>
-                        <td><%= new Date(rol.updatedAt).toLocaleString('es-ES') %></td>
+                        <td><%= formatearFecha(rol.createdAt) %></td>
+                        <td><%= formatearFecha(rol.updatedAt) %></td>
                         <td>
                             <% if(puede('roles.actualizar')){%>
-                                <a class="text-white bg-blue-500 box-border border border-transparent hover:bg-blue-700 focus:ring-4 focus:ring-success-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none" href="/roles/<%= rol.rol_id %>/editar">Editar</a> 
+                                <a class="text-white bg-blue-500 box-border border border-transparent hover:bg-blue-700 focus:ring-4 focus:ring-success-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none" href="/roles/<%= rol.rol_id %>/editar"><i class="bi bi-pencil-square"></i> Editar</a> 
                             <%}%>
                         </td>
                     </tr>

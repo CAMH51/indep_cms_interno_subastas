@@ -9,13 +9,14 @@
         <span class="text-sm text-body"><%= usuario.rol.nombre %></span>
         <div class="mt-4">
             <p class="text-xl font-semibold text-center bg-gray-300 p-2 rounded-2xl">Permisos Asignados</p>
-            <div class="mt-4 text-center">
+            <div class="mt-4">
                 <% if(permisos.length === 0){%> 
                     <p>Tu rol no tiene permisos asignados todavia</p>
                 <%}else{%>
                     <% permisos.forEach(function (permiso){ %> 
-                        <span class="bg-brand-softer text-fg-brand-strong text-xs font-medium px-1.5 py-0.5 rounded"><%=permiso%></span>
-                        
+                        <div class="mb-3">
+                            <span class="bg-brand-softer text-fg-brand-strong text-md font-medium px-1.5 py-0.5 rounded"><%=permiso%></span>
+                        </div>
                     <%});%>
                 <%}%>
             </div>

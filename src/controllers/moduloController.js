@@ -1,6 +1,7 @@
 const {validationResult} = require('express-validator');
 const moduloService = require('../services/modulo.service');
 const { Modulo } = require('../models');
+const formatearFecha = require('../utils/formatearFecha');
 
 
 exports.listar = async(req, res) =>{
@@ -10,7 +11,8 @@ exports.listar = async(req, res) =>{
             {
                 page:'modulos/listar',
                 titulo: 'Modulos',
-                 modulos
+                 modulos,
+                 formatearFecha
             });
     } catch (error) {
         res.status(500).json({success:false,msg:error.message});

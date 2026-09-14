@@ -4,7 +4,7 @@ const dbConnection = require('../config/dbPostrgres');
 
 exports.listar = async() =>{
     try {
-        const modulos = await Modulo.findAll({order: [['orden','ASC']]});
+        const modulos = await Modulo.findAll({order: [['createdAt','DESC']]});
         return modulos;
         
     } catch (error) {

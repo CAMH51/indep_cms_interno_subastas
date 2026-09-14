@@ -1,6 +1,7 @@
 const {validationResult} = require('express-validator');
 const permisosService = require('../services/permiso.service');
 const { Permiso, Modulo } = require('../models');
+const formatearFecha = require('../utils/formatearFecha');
 
 
 exports.listar = async(req, res) =>{
@@ -10,7 +11,8 @@ exports.listar = async(req, res) =>{
             {
                 page:'permisos/listar',
                 titulo: 'Permisos', 
-                permisos
+                permisos,
+                formatearFecha
             });
     } catch (error) {
         res.status(500).json({success:false,msg:error.message});
@@ -19,7 +21,7 @@ exports.listar = async(req, res) =>{
 
 
 exports.formularioCrear = async (req, res) =>{
-    const modulos= await Modulo.findAll({where:{activo: true},order: [['createdAt','ASC']]})
+    const modulos= await Modulo.findAll({where:{activo: true},order: [['createdAt','DESC']]})
     res.render('dashboard',
         {
             page:'permisos/formulario',
@@ -33,14 +35,14 @@ exports.formularioCrear = async (req, res) =>{
 
 exports.crear = async(req, res) =>{
     const errores = validationResult(req);
-    const modulos = await Modulo.findAll({where:{activo: true}});
+    const modulosAll = await Modulo.findAll({where:{activo: true}});
     try {
         if(!errores.isEmpty()){
             return res.status(400).render('dashboard',{
                 page:'permisos/formulario',
                 titulo:'Nuevo Permiso',
                 permiso:req.body,
-                modulos,
+                modulos:modulosAll,
                 errores:errores.array(),
             });
         }
@@ -55,7 +57,7 @@ exports.crear = async(req, res) =>{
                 page:'permisos/formulario',
                 titulo:'Nuevo Permiso',
                 permiso:req.body,
-                modulos,
+                modulos:modulosAll,
                 errores: [{msg:'Ese modulo ya cuenta con un permiso para esa accion.'}]
             });
         }

@@ -5,6 +5,11 @@
             <h2 class="text-2xl font-semibold"><%= titulo %></h2>
         </div>
         <hr class="h-px my-3 bg-neutral-quaternary border-0">
+
+        <div class="flex items-start sm:items-center p-4 mb-4 text-sm text-fg-warning rounded-base bg-warning-soft" role="alert">
+        <svg class="w-4 h-4 me-2 shrink-0 mt-0.5 sm:mt-0" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11h2v5m-2 0h4m-2.592-8.5h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
+        <p>Campos obligatorios <span class="text-xl font-bold text-red-700">*</span></p>
+        </div>
         
         <% if(errores && errores.length >0) {%> 
             <div class="p-4 mb-4 text-sm text-fg-danger-strong rounded-base bg-danger-soft" role="alert">
@@ -17,14 +22,14 @@
         
             <div class="grid grid-cols-2 gap-2 mb-2">
                 <div>
-                    <label for="first_name" class="block mb-2.5 text-sm font-medium text-heading">Email</label>
-                    <input type="email" id="email" name="email" class="bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full px-3 py-2.5 shadow-xs placeholder:text-body" placeholder="john.doe@example.com" value="<%= usuario ? usuario.email : '' %>" required />
+                    <label for="first_name" class="block mb-2.5 text-sm font-medium text-heading">Correo electrónico: <span class="text-xl font-bold text-red-700">*</span></label>
+                    <input type="email" id="email" name="email" class="bg-neutral-secondary-medium border border-[#e6d194] text-heading text-sm rounded-base focus:ring-[#a57f2c] focus:border-[#a57f2c] block w-full px-3 py-2.5 shadow-xs placeholder:text-body" placeholder="john.doe@example.com" value="<%= usuario ? usuario.email : '' %>" required />
                 </div>
             
                 <div>
-                    <label for="roles" class="block mb-2.5 text-sm font-medium text-heading">Roles</label>
-                    <select id="roles" name="roles" class="block w-full px-3 py-2.5 bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand shadow-xs placeholder:text-body">
-                        <option selected>Seleccione un rol</option>
+                    <label for="roles" class="block mb-2.5 text-sm font-medium text-heading">Roles: <span class="text-xl font-bold text-red-700">*</span></label>
+                    <select id="roles" name="roles" class="block w-full px-3 py-2.5 bg-neutral-secondary-medium border border-[#e6d194] text-heading text-sm rounded-base focus:ring-[#a57f2c] focus:border-[#a57f2c] shadow-xs placeholder:text-body">
+                        <optio value="" selected>Seleccione un rol</option>
                         <% roles.forEach(function(rol){ %>
                             <option value="<%= rol.rol_id %>" <%= usuario && usuario.fk_rol_id === rol.rol_id ? 'selected' : '' %>><%= rol.nombre %></option>
                         <% }); %>
@@ -35,18 +40,18 @@
             
             <% if(usuario && usuario.usuario_id) {%>
                 <div class="flex items-center mb-4">
-                    <input type="checkbox"  class="w-4 h-4 border border-default-medium rounded-xs bg-neutral-secondary-medium focus:ring-2 focus:ring-brand-soft" id="mfa" name="mfa" <%=  usuario.mfa ? 'checked' : '' %> >
+                    <input type="checkbox"  class="w-4 h-4 border border-default-medium rounded-xs bg-neutral-secondary-medium focus:ring-[#a57f2c] focus:border-[#a57f2c]" id="mfa" name="mfa" <%=  usuario.mfa ? 'checked' : '' %> >
                     <label for="mfa" class="select-none ms-2 text-sm font-medium text-heading">MFA Activo</label>
                 </div>
                 <div class="flex items-center mb-4">
-                    <input type="checkbox"  class="w-4 h-4 border border-default-medium rounded-xs bg-neutral-secondary-medium focus:ring-2 focus:ring-brand-soft" id="activo" name="activo" <%=  usuario.activo ? 'checked' : '' %> >
+                    <input type="checkbox"  class="w-4 h-4 border border-default-medium rounded-xs bg-neutral-secondary-medium focus:ring-[#a57f2c] focus:border-[#a57f2c]" id="activo" name="activo" <%=  usuario.activo ? 'checked' : '' %> >
                     <label for="activo" class="select-none ms-2 text-sm font-medium text-heading">Usuario Activo</label>
                 </div>
             <%}%>
         
             <div>
-                <button type="submit" class="text-white bg-success box-border border border-transparent hover:bg-success-strong focus:ring-4 focus:ring-success-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none">Guardar</button>
-                <a class="text-white bg-danger box-border border border-transparent shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5" href="/usuarios">Cancelar</a>
+                <button type="submit" class="text-white bg-success box-border border border-transparent hover:bg-success-strong focus:ring-4 focus:ring-success-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none"><i class="bi bi-floppy"></i> Guardar</button>
+                <a class="text-white bg-danger box-border border border-transparent shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5" href="/usuarios"><i class="bi bi-x-circle"></i> Cancelar</a>
             </div>
         
         </form>

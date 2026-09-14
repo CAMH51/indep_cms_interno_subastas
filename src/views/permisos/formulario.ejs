@@ -5,6 +5,11 @@
             <h2 class="text-2xl font-semibold"><%= titulo %></h2>
         </div>
         <hr class="h-px my-3 bg-neutral-quaternary border-0">
+
+        <div class="flex items-start sm:items-center p-4 mb-4 text-sm text-fg-warning rounded-base bg-warning-soft" role="alert">
+        <svg class="w-4 h-4 me-2 shrink-0 mt-0.5 sm:mt-0" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11h2v5m-2 0h4m-2.592-8.5h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
+        <p>Campos obligatorios <span class="text-xl font-bold text-red-700">*</span></p>
+        </div>
         
         <% if(errores && errores.length >0) {%> 
             <div class="p-4 mb-4 text-sm text-fg-danger-strong rounded-base bg-danger-soft" role="alert">
@@ -19,11 +24,11 @@
                 const acciones = ['crear', 'leer', 'actualizar', 'eliminar'];
             %>
         
-            <div class="grid grid-cols-2 gap-2 mb-2">
+            <div class="grid grid-cols-1 sm:grid-cols-1 gap-2 mb-2">
                 <div>
-                    <label for="accion" class="block mb-2.5 text-sm font-medium text-heading">Select an option</label>
-                    <select id="accion" name="accion" class="block w-full px-3 py-2.5 bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand shadow-xs placeholder:text-body" required>
-                        <option disabled <%= !permiso ? 'selected' : '' %>>Seleccione una acción</option>
+                    <label for="accion" class="block mb-2.5 text-sm font-medium text-heading">Acciones:<span class="text-xl font-bold text-red-700">*</span></label>
+                    <select id="accion" name="accion" class="block w-full px-3 py-2.5 bg-neutral-secondary-medium border border-[#e6d194] text-heading text-sm rounded-base focus:ring-[#a57f2c] focus:border-[#a57f2c] shadow-xs placeholder:text-body" required>
+                        <option value="" disabled <%= !permiso ? 'selected' : '' %>>Seleccione una acción</option>
                         <% acciones.forEach(function(accion){%> 
                             <option value="<%= accion %>" <%= permiso && permiso.accion === accion ? 'selected' : '' %>><%= accion.charAt(0).toUpperCase() + accion.slice(1) %></option>
                         <%})%>
@@ -31,15 +36,17 @@
                 </div>
             
                 <div>
-                    <label for="descripcion" class="block mb-2.5 text-sm font-medium text-heading">Descripción</label>
-                    <input type="text" id="descripcion" name="descripcion" class="bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full px-3 py-2.5 shadow-xs placeholder:text-body" placeholder="Descripción del rol" value="<%= permiso ? permiso.descripcion : '' %>" />
+                    <label for="message" class="block mb-2.5 text-sm font-medium text-heading">Descripción:</label>
+                    <textarea id="descripcion" name="descripcion" rows="4" class="bg-neutral-secondary-medium border border-[#e6d194] text-heading text-sm rounded-base focus:ring-[#a57f2c] focus:border-[#a57f2c] block w-full p-3.5 shadow-xs placeholder:text-body" placeholder="Ingrese una descripción" >
+                        <%= permiso ? permiso.descripcion : ' ' %>
+                    </textarea>
                 </div>
             </div>
 
             <div class="mb-4">
-                <label for="modulos" class="block mb-2.5 text-sm font-medium text-heading">Módulos</label>
-                <select id="modulos" name="modulos" class="block w-full px-3 py-2.5 bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand shadow-xs placeholder:text-body">
-                    <option selected>Seleccione un módulo</option>
+                <label for="modulos" class="block mb-2.5 text-sm font-medium text-heading">Módulos: <span class="text-xl font-bold text-red-700">*</span></label>
+                <select id="modulos" name="modulos" class="block w-full px-3 py-2.5 bg-neutral-secondary-medium border border-[#e6d194] text-heading text-sm rounded-base focus:ring-[#a57f2c] focus:border-[#a57f2c] shadow-xs placeholder:text-body" required>
+                    <option value="" selected>Seleccione un módulo</option>
                     <% modulos.forEach(function(modulo){ %>
                         <option value="<%= modulo.modulo_id %>" <%= permiso && permiso.fk_modulo_id === modulo.modulo_id ? 'selected' : '' %>><%= modulo.nombre %></option>
                     <% }); %>
@@ -47,8 +54,8 @@
             </div>
 
             <div>
-                <button type="submit" class="text-white bg-success box-border border border-transparent hover:bg-success-strong focus:ring-4 focus:ring-success-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none">Guardar</button>
-                <a class="text-white bg-danger box-border border border-transparent shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5" href="/permisos">Cancelar</a>
+                <button type="submit" class="text-white bg-success box-border border border-transparent hover:bg-success-strong focus:ring-4 focus:ring-success-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none"><i class="bi bi-floppy"></i> Guardar</button>
+                <a class="text-white bg-danger box-border border border-transparent shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5" href="/permisos"><i class="bi bi-x-circle"></i> Cancelar</a>
             </div>
         
         </form>

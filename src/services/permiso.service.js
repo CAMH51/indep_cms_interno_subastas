@@ -3,7 +3,7 @@ const dbConnection = require('../config/dbPostrgres');
 
 exports.listar = async() =>{
     try {
-        const permisos = await Permiso.findAll({include:{model:Modulo, as:'modulo'},order: [[{ model: Modulo, as: 'modulo' }, 'created_at', 'ASC']]});
+        const permisos = await Permiso.findAll({include:{model:Modulo, as:'modulo'},order: [[{ model: Modulo, as: 'modulo' }, 'created_at', 'DESC']]});
         return permisos;
         
     } catch (error) {

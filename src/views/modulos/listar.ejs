@@ -8,7 +8,7 @@
         </a>
         <h2 class="text-2xl font-semibold">Módulos</h2>
         <% if(puede('modulos.crear')){%>
-            <a class="text-white bg-success box-border border border-transparent hover:bg-success-strong focus:ring-4 focus:ring-success-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none" href="/modulos/nuevo">Nuevo Módulo</a>    
+            <a class="text-white bg-success box-border border border-transparent hover:bg-success-strong focus:ring-4 focus:ring-success-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none" href="/modulos/nuevo"><i class="bi bi-check-circle"></i> Nuevo Módulo</a>    
         <%}%>
     </div>
     <hr class="h-px my-3 bg-neutral-quaternary border-0">
@@ -47,11 +47,11 @@
                              <span class="bg-danger-soft text-fg-danger-strong text-xs font-medium px-1.5 py-0.5 rounded">Inactivo</span>
                             <%}%>
                         </td>
-                        <td><%= new Date(modulo.createdAt).toLocaleString('es-ES') %></td>
-                        <td><%= new Date(modulo.updatedAt).toLocaleString('es-ES') %></td>
+                        <td><%= formatearFecha(modulo.createdAt) %></td>
+                        <td><%= formatearFecha(modulo.updatedAt) %></td>
                         <td>
                             <% if(puede('modulos.actualizar')){%>
-                                <a class="text-white bg-blue-500 box-border border border-transparent hover:bg-blue-700 focus:ring-4 focus:ring-success-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none" href="/modulos/<%= modulo.modulo_id %>/editar">Editar</a> 
+                                <a class="text-white bg-blue-500 box-border border border-transparent hover:bg-blue-700 focus:ring-4 focus:ring-success-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none" href="/modulos/<%= modulo.modulo_id %>/editar"><i class="bi bi-pencil-square"></i> Editar</a> 
                             <%}%>
                         </td>
                     </tr>

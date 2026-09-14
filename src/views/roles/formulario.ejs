@@ -5,6 +5,11 @@
             <h2 class="text-2xl font-semibold"><%= titulo %></h2>
         </div>
         <hr class="h-px my-3 bg-neutral-quaternary border-0">
+
+        <div class="flex items-start sm:items-center p-4 mb-4 text-sm text-fg-warning rounded-base bg-warning-soft" role="alert">
+        <svg class="w-4 h-4 me-2 shrink-0 mt-0.5 sm:mt-0" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11h2v5m-2 0h4m-2.592-8.5h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
+        <p>Campos obligatorios <span class="text-xl font-bold text-red-700">*</span></p>
+        </div>
         
         <% if(errores && errores.length >0) {%> 
             <div class="p-4 mb-4 text-sm text-fg-danger-strong rounded-base bg-danger-soft" role="alert">
@@ -15,29 +20,31 @@
         <form action="<%= rol && rol.rol_id ? '/roles/' + rol.rol_id : '/roles' %>" method="POST">
             <input type="hidden" name="_csrf" id="" value="<%= csrfToken %>" />
         
-            <div class="grid grid-cols-2 gap-2 mb-2">
                 <div>
-                    <label for="nombre" class="block mb-2.5 text-sm font-medium text-heading">Nombre</label>
-                    <input type="text" id="nombre" name="nombre" class="bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full px-3 py-2.5 shadow-xs placeholder:text-body" placeholder="Nombre del rol" value="<%= rol ? rol.nombre : '' %>" required />
+                    <label for="nombre" class="block mb-2.5 text-sm font-medium text-heading">Nombre: <span class="text-xl font-bold text-red-700">*</span></label>
+                    <input type="text" id="nombre" name="nombre" class="bg-neutral-secondary-medium border border-[#e6d194] text-heading text-sm rounded-base focus:ring-[#a57f2c] focus:border-[#a57f2c] block w-full px-3 py-2.5 shadow-xs placeholder:text-body" placeholder="Nombre del rol" value="<%= rol ? rol.nombre : '' %>" required />
                 </div>
             
                 <div>
-                    <label for="descripcion" class="block mb-2.5 text-sm font-medium text-heading">Descripción</label>
-                    <input type="text" id="descripcion" name="descripcion" class="bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full px-3 py-2.5 shadow-xs placeholder:text-body" placeholder="Descripción del rol" value="<%= rol ? rol.descripcion : '' %>" />
+                    
+                    <label for="descripcion" class="block mb-2.5 text-sm font-medium text-heading">Descripción: </label>
+                    <textarea id="descripcion" name="descripcion" rows="4" class="bg-neutral-secondary-medium border border-[#e6d194] text-heading text-sm rounded-base focus:ring-[#a57f2c] focus:border-[#a57f2c] w-full p-3.5 shadow-xs placeholder:text-body" placeholder="Ingrese una descripción...">
+                        <%= rol ? rol.descripcion : '' %>
+                    </textarea>
                 </div>
-            </div>
+
 
             
             <% if(rol && rol.rol_id) {%>
                 <div class="flex items-center mb-4">
-                    <input type="checkbox"  class="w-4 h-4 border border-default-medium rounded-xs bg-neutral-secondary-medium focus:ring-2 focus:ring-brand-soft" id="activo" name="activo" <%=  rol.activo ? 'checked' : '' %> >
+                    <input type="checkbox"  class="w-4 h-4 border border-default-medium rounded-xs bg-neutral-secondary-medium focus:ring-[#a57f2c] focus:border-[#a57f2c]" id="activo" name="activo" <%=  rol.activo ? 'checked' : '' %> >
                     <label for="activo" class="select-none ms-2 text-sm font-medium text-heading">Rol Activo</label>
                 </div>
             <%}%>
         
             <div>
-                <button type="submit" class="text-white bg-success box-border border border-transparent hover:bg-success-strong focus:ring-4 focus:ring-success-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none">Guardar</button>
-                <a class="text-white bg-danger box-border border border-transparent shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5" href="/roles">Cancelar</a>
+                <button type="submit" class="text-white bg-success box-border border border-transparent hover:bg-success-strong focus:ring-4 focus:ring-success-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none"><i class="bi bi-floppy"></i> Guardar</button>
+                <a class="text-white bg-danger box-border border border-transparent shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5" href="/roles"><i class="bi bi-x-circle"></i> Cancelar</a>
             </div>
         
         </form>

@@ -810,6 +810,9 @@
     --tw-border-style: dashed;
     border-style: dashed;
   }
+  .border-\[\#a57f2c\] {
+    border-color: #a57f2c;
+  }
   .border-\[\#e6d194\] {
     border-color: #e6d194;
   }
@@ -1586,6 +1589,9 @@
     }
     .sm\:hidden {
       display: none;
+    }
+    .sm\:grid-cols-1 {
+      grid-template-columns: repeat(1, minmax(0, 1fr));
     }
     .sm\:flex-row {
       flex-direction: row;
