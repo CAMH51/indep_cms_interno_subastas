@@ -12,6 +12,8 @@ router.get('/', verificarPermiso('roles.leer'), rolCtrl.listar);
 router.get('/nuevo', verificarPermiso('roles.crear'), rolCtrl.formularioCrear);
 router.post('/', verificarPermiso('roles.crear'), verificarCsrf, validacionRol, rolCtrl.crear);
 
+router.get('/:rol/permisos', verificarPermiso('roles.leer'), rolCtrl.listarPermisosRol);
+
 router.get('/:id/editar', verificarPermiso('roles.actualizar'), rolCtrl.formEditar);
 router.post('/:id', verificarPermiso('roles.actualizar'), verificarCsrf, validacionRol, rolCtrl.actualizar);
 

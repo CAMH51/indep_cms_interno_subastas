@@ -90,6 +90,9 @@ async function obtenerPermisosDeUsuario(usuarioId){
                 include:{
                     model:Permiso,
                     as: 'permisos',
+                    through:{
+                        where:{activo:true},
+                    },
                         include:{model:Modulo, as:'modulo'}
                 }
         }
@@ -97,7 +100,7 @@ async function obtenerPermisosDeUsuario(usuarioId){
 
     if(!usuario  || !usuario.rol) return [];
 
-    return usuario.rol.permisos.map((p) => `${p.modulo.slug}.${p.accion}`)
+    return usuario.rol.permisos.map((p) =>  `${p.modulo.slug}.${p.accion}`)
 }
 
 module.exports = {

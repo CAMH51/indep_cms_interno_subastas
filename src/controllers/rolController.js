@@ -1,6 +1,6 @@
 const {validationResult} = require('express-validator');
 const rolService = require('../services/rol.service');
-const { Usuario,Rol, Permiso, Modulo } = require('../models');
+const { Usuario,Rol, Permiso, Modulo, RolPermiso } = require('../models');
 const formatearFecha = require('../utils/formatearFecha');
 
 
@@ -13,6 +13,27 @@ exports.listar = async(req, res) =>{
                 titulo: 'Roles', 
                 roles,
                 formatearFecha
+            });
+    } catch (error) {
+        res.status(500).json({success:false,msg:error.message});
+    }
+}
+
+exports.listarPermisosRol = async(req, res) =>{
+    try {
+        const {rol} = req.params;
+        const permisos = await Permiso.findAll({include:{
+            model:Modulo, as:'modulo'
+        }});
+        const permisosRol = await RolPermiso.findAll({where:{fk_rol_id:rol}});
+        const dataRol = await Rol.findOne({where:{rol_id:rol}});
+        res. render('dashboard',
+            {
+                page:'roles/permisos',
+                titulo: 'Permisos/Roles', 
+                permisos,
+                permisosRol,
+                rol:dataRol
             });
     } catch (error) {
         res.status(500).json({success:false,msg:error.message});

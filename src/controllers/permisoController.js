@@ -1,6 +1,6 @@
 const {validationResult} = require('express-validator');
 const permisosService = require('../services/permiso.service');
-const { Permiso, Modulo } = require('../models');
+const { Permiso, Modulo, RolPermiso } = require('../models');
 const formatearFecha = require('../utils/formatearFecha');
 
 
@@ -32,6 +32,42 @@ exports.formularioCrear = async (req, res) =>{
         });
 }
 
+exports.crearPermisosRol = async(req, res) =>{
+    const {id} = req.params;
+    const {permisos} = req.body;
+
+    try {
+        const rolId = parseInt(id,10);
+        const permisosIds = permisos.map(p => parseInt(p, 10));
+
+        const existentes = await RolPermiso.findAll({
+            where: {fk_rol_id : rolId},
+            attributes: ['fk_permiso_id','activo'],
+            raw:true
+        });
+
+        const permisosSet = new Set(permisosIds);
+        const existentesSet = new Set(existentes.map( e => e.fk_permiso_id));
+
+        const todosIds = new Set([...existentesSet, ...permisosSet])
+
+        const registros =  [...todosIds].map(permisosId => ({
+            fk_rol_id:rolId,
+            fk_permiso_id:permisosId,
+            activo:permisosSet.has(permisosId)
+        }));
+
+        if(registros.length){
+            await RolPermiso.bulkCreate(registros, {
+                updateOnDuplicate:['activo']
+            })
+        }
+
+        return res.status(200).redirect(`/roles/${rolId}/permisos`)
+    } catch (error) {
+        return res.status(500).json({ message: 'Error al actualizar permisos', error: error.message });
+    }
+}
 
 exports.crear = async(req, res) =>{
     const errores = validationResult(req);

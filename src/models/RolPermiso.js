@@ -12,6 +12,10 @@ const RolPermiso = sequelize.define('RolPermiso',{
         allowNull: false,
         primaryKey:true,
     },
+    activo:{
+        type:DataTypes.BOOLEAN,
+        defaultValue:true
+    }
 },
 {
     tableName:'roles_permisos',

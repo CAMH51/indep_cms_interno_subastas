@@ -1,0 +1,73 @@
+<div class="m-5 p-5 border border-2 border-gray-200 rounded-2xl">
+    <div class="flex justify-between gap-3 items-center">
+    <a href="/roles" class="flex items-center px-2 py-1.5 text-body rounded-base hover:bg-neutral-tertiary hover:text-fg-brand group w-fit">
+        <span class="ms-3">Regresar <i class="bi bi-arrow-return-left"></i></span>
+    </a>
+    <div class="text-center">
+        <h2 class="text-2xl font-semibold"><%= titulo %></h2>
+    </div>
+    <div>
+        <p class="font-bold text-xl"><%= 'Rol: ' + rol.nombre %></p>
+    </div> <!-- columna vacía para balancear -->
+</div>
+<hr class="h-px my-3 bg-neutral-quaternary border-0">
+<div class="relative overflow-y-auto max-h-[500px] border border-default-medium rounded-md">
+    <form action="/permisos/rol/<%= rol.rol_id %>" method="POST">
+         <input type="hidden" name="_csrf" id="" value="<%= csrfToken %>" />
+    <table class="w-full text-sm text-left rtl:text-right text-body">
+        <thead class="text-sm text-body bg-neutral-secondary-medium border-b border-default-medium sticky top-0 z-10">
+            <tr>
+                <th scope="col" class="p-4">
+                    Selecciona
+                </th>
+                <th scope="col" class="px-6 py-3 font-medium">
+                    Permiso
+                </th>
+                <th scope="col" class="px-6 py-3 font-medium">
+                    Módulo
+                </th>
+                <th scope="col" class="px-6 py-3 font-medium">
+                    Accion
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <% permisos.forEach(function(permiso) { %>
+                <% 
+                    const asignado = permisosRol.some(pr => pr.fk_permiso_id === permiso.permiso_id && pr.activo === true);
+                %>
+                <tr class="bg-neutral-primary-soft border-b border-default hover:bg-neutral-secondary-medium">
+                    <td class="w-4 p-4">
+                        <div class="flex items-center">
+                            <input 
+                                id="checkbox-<%= permiso.permiso_id %>" 
+                                name="permisos[]"
+                                type="checkbox" 
+                                value="<%= permiso.permiso_id %>" 
+                                <%= asignado ? 'checked' : '' %>
+                                class="w-4 h-4 border border-[#e6d194] rounded-xs bg-neutral-secondary-medium focus:ring-[#a57f2c] focus:border-[#a57f2c]">
+                            <label for="checkbox-<%= permiso.permiso_id %>" class="sr-only">Table checkbox</label>
+                        </div>
+                    </td>
+                    <th scope="row" class="px-6 py-4 font-medium text-heading whitespace-nowrap">
+                        <%= permiso.modulo.slug + ':' + permiso.accion %>
+                    </th>
+                    <td class="px-6 py-4">
+                        <%= permiso.modulo.nombre %>
+                    </td>
+                    <td class="px-6 py-4">
+                        <%= permiso.accion %>
+                    </td>
+                    
+                </tr>
+            <% }) %>
+        </tbody>
+    </table>
+
+</div>
+<div class="mt-4">
+    <button type="submit" class="text-white bg-success box-border border border-transparent hover:bg-success-strong focus:ring-4 focus:ring-success-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none"><i class="bi bi-floppy"></i> Guardar</button>
+    <a class="text-white bg-danger box-border border border-transparent shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5" href="/roles"><i class="bi bi-x-circle"></i> Cancelar</a>
+</div>
+</form>
+</div>

@@ -13,4 +13,6 @@ router.get('/', verificarPermiso('permisos.leer'), permisoCtrl.listar);
 router.get('/nuevo',verificarPermiso('permisos.crear'), permisoCtrl.formularioCrear);
 router.post('/', verificarPermiso('permisos.crear'), verificarCsrf, validacionPermiso, permisoCtrl.crear);
 
+router.post('/rol/:id', verificarPermiso('permisos.crear'), verificarCsrf, permisoCtrl.crearPermisosRol);
+
 module.exports = router;

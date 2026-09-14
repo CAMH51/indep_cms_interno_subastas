@@ -1,182 +1,134 @@
 <%- include('partials/navbarExplorer.ejs') %>
 <%- include('partials/breadcrumbs.ejs') %>
 
-
-<!-- SECCIÓN DE CARPETAS -->
-<% if (subfolders && subfolders.length > 0) { %>
-  <div class="flex align-items-center justyfy-between ml-8">
-    <div class="text-lg font-bold uppercase tracking-wide flex items-center gap-2">
-      <i class="bi bi-folder"></i> Carpetas
-        <span class="flex items-center justify-center bg-brand-softer border border-brand-subtle text-fg-brand-strong text-xs font-medium h-5 w-5 rounded-full">
-            <span class="section-badge"><%= subfolders.length %></span>
-        </span>
-    </div>
-  </div>
-
-  <div class="m-6">
-    <div class="relative overflow-x-auto bg-neutral-primary-soft shadow-xs rounded-base border border-default">
-        <table class="w-full text-sm text-left rtl:text-right text-body">
-            <thead class="text-sm text-center bg-neutral-secondary-medium border-b border-default-medium">
-                <tr class="" >
-                    <th scope="col" class="px-6 py-3 font-medium">
-                        Nombre
-                    </th>
-                    <th scope="col" class="px-6 py-3 font-medium">
-                        Número de Carpetas
-                    </th>
-                    <th scope="col" class="px-6 py-3 font-medium">
-                        Número de Archivos
-                    </th>
-                    <th scope="col" class="px-6 py-3 font-medium">
-                        Acciones
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-    <% subfolders.forEach(folder => { %>
-        <tr class="bg-neutral-primary-soft border-b border-default hover:bg-neutral-secondary-medium p-4 text-center">
-            <td class="px-6 py-4">
-                <a href="/folders/<%= folder.folder_id %>" class="folder-info hover:underline">
-                    <div class="flex items-center gap-4 folder-icon color-<%= folder.color || 'indigo' %>">
-                        <i class="bi bi-folder text-xl text-yellow-400"></i>
-                        <div class="folder-name" title="<%= folder.name %>"><%= folder.name %></div>
-                    </div>
-                </a>
-            </td>
-            <td>
-              <%= (folder.subfolders ? folder.subfolders.length : 0) %>
-            </td>
-            <td>
-                <%= (folder.files ? folder.files.length : 0) %>
-            </td>
-            <td class="flex items-center gap-4">
-                <button type="button" class="bg-gray-300 rounded-md p-2 btn_renombrar_folder" title="Renombrar carpeta" onclick="openRenameFolderModal('<%= folder.id %>', '<%= folder.name.replace(/'/g, '\\\'') %>', '<%= folder.color %>')">
-                    <i class="bi bi-pencil-square"></i>
-                </button>
-                <form action="/folders/<%= folder.id %>/delete" method="POST" onsubmit="return confirm('¿Seguro que deseas eliminar esta carpeta y todo su contenido?');" style="display: inline;">
-                    <button type="submit" class="bg-red-300 rounded-md p-2" title="Eliminar carpeta">
-                    <i class="bi bi-trash3"></i>
-                    </button>
-                </form>
-            </td>
-        </tr>
-    <% }) %>
-    </tbody>
-    </table>
-</div>
-  </div>
-<% } %>
-
-<!-- SECCIÓN DE ARCHIVOS -->
-<div class="flex items-center justify-between ml-8" style="margin-top: 2rem;">
+<!-- SECCIÓN UNIFICADA: CARPETAS + ARCHIVOS -->
+<div class="flex align-items-center justify-between ml-8">
   <div class="text-lg font-bold uppercase tracking-wide flex items-center gap-2">
-    <i class="bi bi-file-earmark-text"></i> Archivos
+    <i class="bi bi-folder2-open"></i> Contenido
     <span class="flex items-center justify-center bg-brand-softer border border-brand-subtle text-fg-brand-strong text-xs font-medium h-5 w-5 rounded-full">
-            <span class="section-badge"><%= files ? files.length : 0 %></span>
+      <span class="section-badge"><%= (subfolders ? subfolders.length : 0) + (files ? files.length : 0) %></span>
     </span>
   </div>
 </div>
 
-<% if (files && files.length > 0) { %>
+<% if ((subfolders && subfolders.length > 0) || (files && files.length > 0)) { %>
   <div class="m-6">
-    <div class="relative overflow-x-auto bg-neutral-primary-soft shadow-xs rounded-base border border-default">
-        <table class="w-full text-sm text-left rtl:text-right text-body">
-            <thead class="text-sm text-center bg-neutral-secondary-medium border-b border-default-medium">
-                <tr class="" >
-                    <th scope="col" class="px-6 py-3 font-medium">
-                        Nombre
-                    </th>
-                    <th scope="col" class="px-6 py-3 font-medium">
-                        Tamaño
-                    </th>
-<!--                     <th scope="col" class="px-6 py-3 font-medium">
-                        Número de Descargar
-                    </th> -->
-                    <th scope="col" class="px-6 py-3 font-medium">
-                        Link
-                    </th>
-                    <th scope="col" class="px-6 py-3 font-medium">
-                        Acciones
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-    <% files.forEach(file => { %>
-      <% 
-        const category = file.fileCategory;
-        let iconClass = 'bi-file-earmark-text';
-        let badgeClass = 'badge-other';
+    <!-- Contenedor con altura máxima y scroll para que el sticky funcione -->
+    <div class="relative overflow-y-auto shadow-xs rounded-base border border-default" style="max-height: 70vh;">
+      <table class="w-full text-sm text-left rtl:text-right text-body">
+        <thead class="text-sm text-center bg-neutral-secondary-medium border-b border-default-medium sticky top-0 z-10">
+          <tr>
+            <th scope="col" class="px-6 py-3 font-medium">Nombre</th>
+            <th scope="col" class="px-6 py-3 font-medium">Tamaño / Contenido</th>
+            <th scope="col" class="px-6 py-3 font-medium">Link</th>
+            <th scope="col" class="px-6 py-3 font-medium">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
 
-        if (category === 'image') { iconClass = 'bi-file-earmark-image'; badgeClass = 'bg-brand-softer text-fg-brand-strong text-xs font-medium px-1.5 py-0.5 rounded'; }
-        else if (category === 'pdf') { iconClass = 'bi-file-pdf'; badgeClass = 'bg-brand-softer text-fg-brand-strong text-xs font-medium px-1.5 py-0.5 rounded'; }
-        else if (category === 'video') { iconClass = 'bi-file-earmark-play'; badgeClass = 'badge-video'; }
-        else if (category === 'audio') { iconClass = 'bi-file-music'; badgeClass = 'badge-audio'; }
-        else if (category === 'archive') { iconClass = ' bi-file-earmark-zip'; badgeClass = 'badge-archive'; }
-        else if (category === 'code') { iconClass = 'bi-file-earmark-code'; badgeClass = 'badge-code'; }
-        else if (category === 'document') { iconClass = 'bi-file-word'; badgeClass = 'badge-document'; }
-        
-        const fileUrl = `${appUrl}/f/${file.public_code}`;
-        const rawUrl = `${appUrl}/raw/${file.public_code}`;
-      %>
+          <!-- CARPETAS -->
+          <% if (subfolders && subfolders.length > 0) { %>
+            <% subfolders.forEach(folder => { %>
+              <tr class="bg-neutral-primary-soft border-b border-default hover:bg-neutral-secondary-medium p-4 text-center">
+                <td class="px-6 py-4">
+                  <a href="/folders/<%= folder.folder_id %>" class="folder-info hover:underline">
+                    <div class="flex items-center gap-4 folder-icon color-<%= folder.color || 'indigo' %>">
+                      <i class="bi bi-folder text-xl text-yellow-400"></i>
+                      <div class="folder-name" title="<%= folder.name %>"><%= folder.name %></div>
+                    </div>
+                  </a>
+                </td>
+                <td>
+                  <span>
+                    <i class="bi bi-folder2"></i> <%= (folder.subfolders ? folder.subfolders.length : 0) %> carpetas
+                    &nbsp;|&nbsp;
+                    <i class="bi bi-file-earmark"></i> <%= (folder.files ? folder.files.length : 0) %> archivos
+                  </span>
+                </td>
+                <td>
+                  <span class="text-gray-400">—</span>
+                </td>
+                <td class="flex items-center gap-4">
+                  <button type="button" class="bg-gray-300 rounded-md p-2 btn_renombrar_folder" title="Renombrar carpeta" onclick="openRenameFolderModal('<%= folder.id %>', '<%= folder.name.replace(/'/g, '\\\'') %>', '<%= folder.color %>')">
+                    <i class="bi bi-pencil-square"></i>
+                  </button>
+                  <form action="/folders/<%= folder.id %>/delete" method="POST" onsubmit="return confirm('¿Seguro que deseas eliminar esta carpeta y todo su contenido?');" style="display: inline;">
+                    <button type="submit" class="bg-red-300 rounded-md p-2" title="Eliminar carpeta">
+                      <i class="bi bi-trash3"></i>
+                    </button>
+                  </form>
+                </td>
+              </tr>
+            <% }) %>
+          <% } %>
 
-      <tr class="bg-neutral-primary-soft border-b border-default hover:bg-neutral-secondary-medium p-4 text-center">
-        <td class="flex items-center gap-4 px-6 py-4">
-            <span class="flex items-center justify-center bg-brand-softer border border-brand-subtle text-fg-brand-strong text-xs font-medium h-8 w-8 rounded-full">
-                <i class="bi <%= iconClass %> text-xl"></i>
-            </span>
-             <div class="file-name" title="<%= file.name %>"><%= file.name %></div>
-        </td>
-        <td>
-            <span><i class="fa-solid fa-weight-hanging"></i> <%= file.formattedSize %></span>
-        </td>
-<!--         <td>
-            <span> <%= file.downloadsCount > 0 ? file.downloadsCount : 0   %></span>
-        </td> -->
-        <td>
-            <div class="fixed-link-box">
-            <span class="fixed-link-text" title="<%= rawUrl %>">
-              <i class="bi bi-link mr-4"></i> <%= rawUrl %>
-            </span>
-            <button type="button" class="btn-copy border-1 border-gray-200 p-1" data-file-id="<%= rawUrl %>" id="btnCopiar">
-              <i class="bi bi-copy"></i> Copiar
-            </button>
-          </div>
-        </td>
-        <td class="flex gap-2">
-            <button type="button" id="btnViewFileModal" class="bg-gray-400 rounded-md p-2 btn_view_file" data-code="<%= file.public_code %>">
-              <i class="bi bi-box-arrow-up-right"></i> Ver
-            </button>
-<!--             <a href="/f/<%= file.public_code %>" class="bg-gray-400 rounded-md p-2" target="_blank" title="Ver enlace público">
-              <i class="bi bi-box-arrow-up-right"></i> Ver
-            </a> -->
-            <a href="/raw/<%= file.public_code %>?download=1" class="bg-blue-100 rounded-md p-2" title="Descargar archivo">
-              <i class="bi bi-download"></i>
-            </a>
-            <button type="button" class="bg-gray-300 rounded-md p-2 btn_renombrar_file" title="Renombrar archivo" id="btnRenombrarFile" data-file-id="<%= file.file_id %>" data-file-name="<%= file.name.replace(/'/g, '\\\'') %>" >
-              <i class="bi bi-pencil-square"></i>
-            </button>
-            <button type="submit" class="bg-red-300 rounded-md p-2 btnDeleteFile" data-file-id="<%= file.file_id %>" title="Eliminar archivo">
-              <i class="bi bi-trash3"></i>
-            </button>
+          <!-- ARCHIVOS -->
+          <% if (files && files.length > 0) { %>
+            <% files.forEach(file => { %>
+              <%
+                const category = file.fileCategory;
+                let iconClass = 'bi-file-earmark-text';
+                if (category === 'image') { iconClass = 'bi-file-earmark-image'; }
+                else if (category === 'pdf') { iconClass = 'bi-file-pdf'; }
+                else if (category === 'video') { iconClass = 'bi-file-earmark-play'; }
+                else if (category === 'audio') { iconClass = 'bi-file-music'; }
+                else if (category === 'archive') { iconClass = 'bi-file-earmark-zip'; }
+                else if (category === 'code') { iconClass = 'bi-file-earmark-code'; }
+                else if (category === 'document') { iconClass = 'bi-file-word'; }
 
-        </td>
-      </tr>
+                const rawUrl = `${appUrl}/raw/${file.public_code}`;
+              %>
+              <tr class="bg-neutral-primary-soft border-b border-default hover:bg-neutral-secondary-medium p-4 text-center">
+                <td class="flex items-center gap-4 px-6 py-4">
+                  <span class="flex items-center justify-center bg-brand-softer border border-brand-subtle text-fg-brand-strong text-xs font-medium h-8 w-8 rounded-full">
+                    <i class="bi <%= iconClass %> text-xl"></i>
+                  </span>
+                  <div class="file-name" title="<%= file.name %>"><%= file.name %></div>
+                </td>
+                <td>
+                  <span><i class="fa-solid fa-weight-hanging"></i> <%= file.formattedSize %></span>
+                </td>
+                <td>
+                  <div class="fixed-link-box">
+                    <span class="fixed-link-text" title="<%= rawUrl %>">
+                      <i class="bi bi-link mr-4"></i> <%= rawUrl %>
+                    </span>
+                    <button type="button" class="btn-copy border-1 border-gray-200 p-1" data-file-id="<%= rawUrl %>" id="btnCopiar">
+                      <i class="bi bi-copy"></i> Copiar
+                    </button>
+                  </div>
+                </td>
+                <td class="flex gap-2">
+                  <button type="button" id="btnViewFileModal" class="bg-gray-400 rounded-md p-2 btn_view_file" data-code="<%= file.public_code %>">
+                    <i class="bi bi-box-arrow-up-right"></i> Ver
+                  </button>
+                  <a href="/raw/<%= file.public_code %>?download=1" class="bg-blue-100 rounded-md p-2" title="Descargar archivo">
+                    <i class="bi bi-download"></i>
+                  </a>
+                  <button type="button" class="bg-gray-300 rounded-md p-2 btn_renombrar_file" title="Renombrar archivo" id="btnRenombrarFile" data-file-id="<%= file.file_id %>" data-file-name="<%= file.name.replace(/'/g, '\\\'') %>">
+                    <i class="bi bi-pencil-square"></i>
+                  </button>
+                  <button type="submit" class="bg-red-300 rounded-md p-2 btnDeleteFile" data-file-id="<%= file.file_id %>" title="Eliminar archivo">
+                    <i class="bi bi-trash3"></i>
+                  </button>
+                </td>
+              </tr>
+            <% }) %>
+          <% } %>
 
-    <% }) %>
         </tbody>
-    </table>
-</div>
-
+      </table>
+    </div>
   </div>
 <% } else { %>
   <div class="text-center p-10 border-1 border-gray-300 rounded-xl m-10">
     <div class="text-7xl mb-3 opacity-75"><i class="bi bi-folder2-open"></i></div>
     <div class="text-2xl font-bold">Esta carpeta está vacía</div>
     <div class="text-md m-2">Crea una subcarpeta o sube archivos para comenzar a organizarlos y generar sus URLs fijas.</div>
-    <button type="button" class="bg-blue-500 rounded-xl p-3 text-white hover:bg-blue-700" id="btnSubirPrimerArchivo" >
+    <button type="button" class="bg-blue-500 rounded-xl p-3 text-white hover:bg-blue-700" id="btnSubirPrimerArchivo">
       <i class="bi bi-cloud-arrow-up-fill"></i> Subir Primer Archivo
     </button>
-  </div> 
+  </div>
 <% } %>
 
 <%- include('partials/modals.ejs') %>
@@ -303,4 +255,3 @@
 
 
 </script>
-
