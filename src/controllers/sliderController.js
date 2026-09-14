@@ -46,25 +46,30 @@ exports.crear = async(req, res) =>{
         const existe = await Slider.findOne({where:{titulo}});
     
         if(existe){
-            return res.status(400).render('dashboard',{
+             return res.status(400).render('dashboard',{
                 page:'sliders/formulario',
                 titulo:'Nuevo Slider',
                 slider: req.body,
                 errores: [{msg:'Ya existe un slider con ese titulo.'}]
-            });
+            }); 
         }
     
         const nuevo = await sliderService.crear({
             titulo,
             url_imagen: url_imagen || null,
             link_informacion:link_informacion || null,
-            orden
+            orden: orden ? parseInt(orden) : 0
         });
 
         res.redirect('/sliders?msg=creado');
         
     } catch (error) {
-        res.status(500).json({success:false, msg:error.message});
+        return res.status(500).render('dashboard',{
+            page:'sliders/formulario',
+            titulo:'Nuevo Slider',
+            slider: req.body,
+            errores: [{msg: 'Ocurrió un error al guardar el slider: ' + error.message}]
+        });
     }
 }
 

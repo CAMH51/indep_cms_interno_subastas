@@ -83,7 +83,7 @@ exports.crear = async(req, res) =>{
             ubicacion
         });
 
-        res.redirect(`/menus_laterales?lado=${lado}?msg=creado`);
+        res.redirect(`/menus_laterales?lado=${lado}&msg=creado`);
         
     } catch (error) {
         res.status(500).json({success:false, msg:error.message});
@@ -135,7 +135,7 @@ exports.actualizar = async(req, res) =>{
 
         const {titulo, texto, url_imagen, link_informacion, orden, ubicacion, activo} = req.body;
 
-        const actualizar = await eventosCursosService.actualizar(id,{
+        const actualizar = await menusLateralesService.actualizar(id,{
             titulo,
             texto,
             url_imagen,
@@ -145,7 +145,7 @@ exports.actualizar = async(req, res) =>{
             activo: activo === 'on' || activo === true
         });
 
-        res.redirect(`/menus_laterales?lado=${lado}?msg=editado`)
+        res.redirect(`/menus_laterales?lado=${lado}&msg=editado`)
     } catch (error) {
         res.status(500).json({success:false, msg:error.message});
     }

@@ -28,5 +28,7 @@ router.use('/folders',autenticar,require('./folder.route'));
 router.use('/sliders',autenticar,require('./slider.route'));
 router.use('/eventos_cursos',autenticar,require('./eventosCursos.route'));
 router.use('/menus_laterales',autenticar,require('./menusLaterales.route'));
+router.use('/convocatorias_muebles',autenticar,require('./convocatoriasMuebles.route'));
+router.use('/convocatorias_inmuebles',autenticar,require('./convocatoriasInmuebles.route'));
 
 module.exports = router;

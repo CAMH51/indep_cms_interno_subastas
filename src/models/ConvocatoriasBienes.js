@@ -3,15 +3,19 @@ const sequelize = require('../config/dbPostrgres');
 
 const ConvocatoriaBienes = sequelize.define('ConvocatoriaBienes',{
     convocatoria_bien_id:{
-        type:DataTypes.INTEGER,
-        primaryKey:true,
-        autoIncrement:true,
+        type:DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        primaryKey:true
+    },
+    nombre:{
+        type:DataTypes.STRING(255),
+        allowNull:true
     },
     descripcion:{
         type:DataTypes.STRING(255),
         allowNull:true
     },
-    texto:{
+    url_documento:{
         type:DataTypes.STRING(255),
         allowNull:true
     },

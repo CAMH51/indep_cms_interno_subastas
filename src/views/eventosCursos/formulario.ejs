@@ -18,35 +18,35 @@
     <div class="grid grid-cols-1 gap-2 mb-2">
         <div>
             <label for="accion" class="block mb-2.5 text-sm font-medium text-heading">Titulo</label>
-            <input type="text" id="titulo" name="titulo" class="bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full px-3 py-2.5 shadow-xs placeholder:text-body" placeholder="Titulo del evento" value="<%= evento ? evento.titulo : '' %>"  />
+            <input type="text" id="titulo" name="titulo" class="bg-neutral-secondary-medium border border-[#e6d194] text-heading text-sm rounded-base focus:ring-[#a57f2c] focus:border-[#a57f2c] block w-full px-3 py-2.5 shadow-xs placeholder:text-body" placeholder="Titulo del evento" value="<%= evento ? evento.titulo : '' %>"  />
         </div>
         <div>
             <label for="accion" class="block mb-2.5 text-sm font-medium text-heading">Actividad</label>
-            <input type="text" id="actividad" name="actividad" class="bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full px-3 py-2.5 shadow-xs placeholder:text-body" placeholder="Actividad del evento" value="<%= evento ? evento.actividad : '' %>"  />
+            <input type="text" id="actividad" name="actividad" class="bg-neutral-secondary-medium border border-[#e6d194] text-heading text-sm rounded-base focus:ring-[#a57f2c] focus:border-[#a57f2c] block w-full px-3 py-2.5 shadow-xs placeholder:text-body" placeholder="Actividad del evento" value="<%= evento ? evento.actividad : '' %>"  />
         </div>
         <div class="grid grid-cols-4 gap-4">
             <div>
                 <label for="accion" class="block mb-2.5 text-sm font-medium text-heading">Fecha de Inicio</label>
-                <input type="date" id="fecha_inicio" name="fecha_inicio" class="bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full px-3 py-2.5 shadow-xs placeholder:text-body" placeholder="" value="<%= evento ? evento.fecha_inicio : '' %>"  />
+                <input type="date" id="fecha_inicio" name="fecha_inicio" class="bg-neutral-secondary-medium border border-[#e6d194] text-heading text-sm rounded-base focus:ring-[#a57f2c] focus:border-[#a57f2c] block w-full px-3 py-2.5 shadow-xs placeholder:text-body" placeholder="" value="<%= evento ? evento.fecha_inicio : '' %>"  />
             </div>
             <div>
                 <label for="accion" class="block mb-2.5 text-sm font-medium text-heading">Hora de Inicio</label>
-                <input type="time" id="hora_inicio" name="hora_inicio" class="bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full px-3 py-2.5 shadow-xs placeholder:text-body" placeholder="" value="<%= evento ? evento.hora_inicio : '' %>"  />
+                <input type="time" id="hora_inicio" name="hora_inicio" class="bg-neutral-secondary-medium border border-[#e6d194] text-heading text-sm rounded-base focus:ring-[#a57f2c] focus:border-[#a57f2c] block w-full px-3 py-2.5 shadow-xs placeholder:text-body" placeholder="" value="<%= evento ? evento.hora_inicio : '' %>"  />
             </div>
 
             <div>
                 <label for="accion" class="block mb-2.5 text-sm font-medium text-heading">Fecha de Fin</label>
-                <input type="date" id="fecha_fin" name="fecha_fin" class="bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full px-3 py-2.5 shadow-xs placeholder:text-body" placeholder="" value="<%= evento ? evento.fecha_fin : '' %>"  />
+                <input type="date" id="fecha_fin" name="fecha_fin" class="bg-neutral-secondary-medium border border-[#e6d194] text-heading text-sm rounded-base focus:ring-[#a57f2c] focus:border-[#a57f2c] block w-full px-3 py-2.5 shadow-xs placeholder:text-body" placeholder="" value="<%= evento ? evento.fecha_fin : '' %>"  />
             </div>
             <div>
                 <label for="accion" class="block mb-2.5 text-sm font-medium text-heading">Hora de Fin</label>
-                <input type="time" id="hora_fin" name="hora_fin" class="bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full px-3 py-2.5 shadow-xs placeholder:text-body" placeholder="" value="<%= evento ? evento.hora_fin : '' %>"  />
+                <input type="time" id="hora_fin" name="hora_fin" class="bg-neutral-secondary-medium border border-[#e6d194] text-heading text-sm rounded-base focus:ring-[#a57f2c] focus:border-[#a57f2c] block w-full px-3 py-2.5 shadow-xs placeholder:text-body" placeholder="" value="<%= evento ? evento.hora_fin : '' %>"  />
             </div>
         </div>
     
         <div>
             <label for="accion" class="block mb-2.5 text-sm font-medium text-heading">Orden</label>
-            <input type="number" id="orden" name="orden" class="bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full px-3 py-2.5 shadow-xs placeholder:text-body" placeholder="Nombre del rol" value="<%= evento ? evento.orden : '' %>"  />
+            <input type="number" id="orden" name="orden" class="bg-neutral-secondary-medium border border-[#e6d194] text-heading text-sm rounded-base focus:ring-[#a57f2c] focus:border-[#a57f2c] block w-full px-3 py-2.5 shadow-xs placeholder:text-body" placeholder="Nombre del rol" value="<%= evento ? evento.orden : '' %>"  />
         </div>
 
     </div>
@@ -58,8 +58,8 @@
         </div>
     <%}%>
     <div>
-        <button type="submit" class="text-white bg-success box-border border border-transparent hover:bg-success-strong focus:ring-4 focus:ring-success-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none">Guardar</button>
-        <a class="text-white bg-danger box-border border border-transparent shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5" href="/eventos_cursos">Cancelar</a>
+        <button type="submit" class="text-white bg-success box-border border border-transparent hover:bg-success-strong focus:ring-4 focus:ring-success-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none"><i class="bi bi-floppy"></i> Guardar</button>
+        <a class="text-white bg-danger box-border border border-transparent shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5" href="/eventos_cursos"><i class="bi bi-x-circle"></i> Cancelar</a>
     </div>
 </form>
 </div>

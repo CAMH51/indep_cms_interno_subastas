@@ -8,7 +8,7 @@
         </a>
         <h2 class="text-2xl font-semibold">Sliders</h2>
         <% if(puede('sliders.crear')){%>
-            <a class="text-white bg-success box-border border border-transparent hover:bg-success-strong focus:ring-4 focus:ring-success-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none" href="/sliders/nuevo">Nuevo Slider</a>    
+            <a class="text-white bg-success box-border border border-transparent hover:bg-success-strong focus:ring-4 focus:ring-success-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none" href="/sliders/nuevo"><i class="bi bi-check-circle"></i> Nuevo Slider</a>    
         <%}%>
     </div>
     <hr class="h-px my-3 bg-neutral-quaternary border-0">
@@ -46,7 +46,7 @@
                         <td><%= new Date(slider.updatedAt).toLocaleString('es-ES') %></td>
                         <td>
                             <% if(puede('sliders.actualizar')){%>
-                                <a class="text-white bg-blue-500 box-border border border-transparent hover:bg-blue-700 focus:ring-4 focus:ring-success-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none" href="/sliders/<%= slider.slider_id %>/editar">Editar</a> 
+                                <a class="text-white bg-blue-500 box-border border border-transparent hover:bg-blue-700 focus:ring-4 focus:ring-success-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none" href="/sliders/<%= slider.slider_id %>/editar"><i class="bi bi-pencil-square"></i> Editar</a> 
                             <%}%>
                         </td>
                     </tr>

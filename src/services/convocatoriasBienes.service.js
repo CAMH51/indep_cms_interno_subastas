@@ -13,7 +13,7 @@ exports.listar = async(tipo_bien) =>{
 
 exports.obtenerPorId = async(id, tipo_bien) =>{
     try {
-        const convocatoria = await ConvocatoriasBienes.findOne({where:{menu_lateral_id:id,tipo_bien}});
+        const convocatoria = await ConvocatoriasBienes.findOne({where:{convocatoria_bien_id:id,tipo_bien}});
         return convocatoria
     } catch (error) {
         return error;

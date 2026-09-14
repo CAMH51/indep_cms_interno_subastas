@@ -14,11 +14,20 @@
         
         <form action="<%= permiso && permiso.permiso_id ? '/permisos/' + permiso.permiso_id : '/permisos' %>" method="POST">
             <input type="hidden" name="_csrf" id="" value="<%= csrfToken %>" />
+
+            <%
+                const acciones = ['crear', 'leer', 'actualizar', 'eliminar'];
+            %>
         
             <div class="grid grid-cols-2 gap-2 mb-2">
                 <div>
-                    <label for="accion" class="block mb-2.5 text-sm font-medium text-heading">Acción</label>
-                    <input type="text" id="accion" name="accion" class="bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full px-3 py-2.5 shadow-xs placeholder:text-body" placeholder="Nombre del rol" value="<%= permiso ? permiso.accion : '' %>" required />
+                    <label for="accion" class="block mb-2.5 text-sm font-medium text-heading">Select an option</label>
+                    <select id="accion" name="accion" class="block w-full px-3 py-2.5 bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand shadow-xs placeholder:text-body" required>
+                        <option disabled <%= !permiso ? 'selected' : '' %>>Seleccione una acción</option>
+                        <% acciones.forEach(function(accion){%> 
+                            <option value="<%= accion %>" <%= permiso && permiso.accion === accion ? 'selected' : '' %>><%= accion.charAt(0).toUpperCase() + accion.slice(1) %></option>
+                        <%})%>
+                    </select>
                 </div>
             
                 <div>
@@ -27,7 +36,7 @@
                 </div>
             </div>
 
-            <div>
+            <div class="mb-4">
                 <label for="modulos" class="block mb-2.5 text-sm font-medium text-heading">Módulos</label>
                 <select id="modulos" name="modulos" class="block w-full px-3 py-2.5 bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand shadow-xs placeholder:text-body">
                     <option selected>Seleccione un módulo</option>
