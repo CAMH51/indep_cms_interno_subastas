@@ -1,4 +1,4 @@
-<header class="flex justify-between gap-6 m-2 p-2">
+<!-- <header class="flex justify-between gap-6 m-2 p-2">
     <div>
         <p class="text-2xl font-bold">Documentos</p>
     </div>
@@ -12,4 +12,34 @@
       Subir Archivo
     </button>
   </div>
+</header> -->
+
+
+<header class="m-2 p-2">
+ 
+<button id="dropdownDefaultButton" data-dropdown-toggle="dropdown" class="inline-flex items-center justify-center text-black bg-gray-300 box-border border border-transparent hover:bg-brand-strong focus:ring-4 focus:ring-brand-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none" type="button">
+  <i class="bi bi-plus-circle"></i> Nuevo
+  <svg class="w-4 h-4 ms-1.5 -me-0.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 9-7 7-7-7"/></svg>
+</button>
+
+<!-- Dropdown menu -->
+<div id="dropdown" class="z-10 hidden bg-neutral-primary-medium border border-default-medium rounded-base shadow-lg w-44">
+    <ul class="p-2 text-sm text-body font-medium" aria-labelledby="dropdownDefaultButton">
+      <li>
+        <button class="inline-flex items-center w-full p-2 hover:bg-neutral-tertiary-medium hover:text-heading rounded" id="btnNuevaCarpeta"><i class="bi bi-folder"></i> Carpeta</button>
+      </li>
+      <li>
+        <button class="inline-flex items-center w-full p-2 hover:bg-neutral-tertiary-medium hover:text-heading rounded" id="btnSubirArchivo"><i class="bi bi-file-earmark-text"></i> Archivo</button>
+      </li>
+<!--       <li>
+        <a href="#" class="inline-flex items-center w-full p-2 hover:bg-neutral-tertiary-medium hover:text-heading rounded">Earnings</a>
+      </li>
+      <li>
+        <a href="#" class="inline-flex items-center w-full p-2 hover:bg-neutral-tertiary-medium hover:text-heading rounded">Sign out</a>
+      </li> -->
+    </ul>
+</div>
+
+
 </header>
+

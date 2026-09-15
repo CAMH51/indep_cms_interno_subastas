@@ -46,7 +46,7 @@
     
         <div>
             <label for="accion" class="block mb-2.5 text-sm font-medium text-heading">Orden</label>
-            <input type="number" id="orden" name="orden" class="bg-neutral-secondary-medium border border-[#e6d194] text-heading text-sm rounded-base focus:ring-[#a57f2c] focus:border-[#a57f2c] block w-full px-3 py-2.5 shadow-xs placeholder:text-body" placeholder="Nombre del rol" value="<%= evento ? evento.orden : '' %>"  />
+            <input type="number" id="orden" name="orden" class="bg-neutral-secondary-medium border border-[#e6d194] text-heading text-sm rounded-base focus:ring-[#a57f2c] focus:border-[#a57f2c] block w-full px-3 py-2.5 shadow-xs placeholder:text-body" placeholder="Nombre del rol" value="<%= evento ? evento.orden : maxOrden %>"  />
         </div>
 
     </div>

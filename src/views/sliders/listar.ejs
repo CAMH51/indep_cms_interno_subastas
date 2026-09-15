@@ -42,8 +42,8 @@
                              <span class="bg-danger-soft text-fg-danger-strong text-xs font-medium px-1.5 py-0.5 rounded">Inactivo</span>
                             <%}%>
                         </td>
-                        <td><%= new Date(slider.createdAt).toLocaleString('es-ES') %></td>
-                        <td><%= new Date(slider.updatedAt).toLocaleString('es-ES') %></td>
+                        <td><%= formatearFecha(slider.createdAt) %></td>
+                        <td><%= formatearFecha(slider.updatedAt) %></td>
                         <td>
                             <% if(puede('sliders.actualizar')){%>
                                 <a class="text-white bg-blue-500 box-border border border-transparent hover:bg-blue-700 focus:ring-4 focus:ring-success-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none" href="/sliders/<%= slider.slider_id %>/editar"><i class="bi bi-pencil-square"></i> Editar</a> 

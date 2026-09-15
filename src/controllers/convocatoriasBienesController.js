@@ -1,6 +1,7 @@
 const {validationResult} = require('express-validator');
 const convocatoriaBienesService = require('../services/convocatoriasBienes.service');
 const { ConvocatoriasBienes } = require('../models');
+const formatearFecha = require('../utils/formatearFecha');
 
 const render = (res,data, status)=>{
     return res.status(status).render('dashboard',data);
@@ -26,7 +27,8 @@ exports.listarConvocatoriaBienesMuebles = async(req, res) =>{
         const data ={
             page:'convocatoriasMuebles/listar',
             titulo: 'Convocatorias Muebles', 
-            convocatoriasBienesMuebles
+            convocatoriasBienesMuebles,
+            formatearFecha
         }
       return  render(res,data,200)
     } catch (error) {
@@ -41,7 +43,8 @@ exports.listarConvocatoriaBienesInmuebles = async(req, res) =>{
         const data = {
             page:'convocatoriasInmuebles/listar',
             titulo: 'Convocatorias Inmuebles', 
-            convocatoriasBienesInmuebles
+            convocatoriasBienesInmuebles,
+            formatearFecha
         }
        return render(res,data,200)
     } catch (error) {
@@ -84,7 +87,7 @@ exports.crearConvocatoriaMueble = async(req, res) =>{
             return render(res,data,400)
         }
 
-          const existe = await ConvocatoriasBienes.findOne({where:{nombre:nombre}});
+          const existe = await ConvocatoriasBienes.findOne({where:{nombre:nombre,tipo_bien:'mueble'}});
 
             if(existe){
                return render(res,{
@@ -123,7 +126,7 @@ exports.crearConvocatoriaInmueble = async(req, res) =>{
             return render(res,data,400)
         }
 
-          const existe = await ConvocatoriasBienes.findOne({where:{nombre:nombre}});
+          const existe = await ConvocatoriasBienes.findOne({where:{nombre:nombre,tipo_bien:'inmueble'}});
 
             if(existe){
                return render(res,{

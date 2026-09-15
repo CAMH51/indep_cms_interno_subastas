@@ -11,7 +11,7 @@
   <p>Campos obligatorios <span class="text-xl font-bold text-red-700">*</span></p>
 </div>
 
-<form action="<%= menuLateral && menuLateral.menu_lateral_id ? '/menus_laterales/' + menuLateral.menu_lateral_id + '?lado=derecho': '/menus_laterales?lado=derecho' %>" method="POST">
+<form action="<%= menuLateral && menuLateral.menu_lateral_id ? '/menus_derechos/' + menuLateral.menu_lateral_id : '/menus_derechos' %>" method="POST">
     <input type="hidden" name="_csrf" id="" value="<%= csrfToken %>" />
 
     <div class="grid grid-cols-2 gap-2 mb-2">
@@ -38,7 +38,7 @@
     
         <div class="mb-4">
             <label for="accion" class="block mb-2.5 text-sm font-medium text-heading">Orden:<span class="text-xl font-bold text-red-700">*</span></label>
-            <input type="number" id="orden" name="orden" class="bg-neutral-secondary-medium border border-[#e6d194] text-heading text-sm rounded-base focus:ring-[#a57f2c] focus:border-[#a57f2c] block w-64 px-3 py-2.5 shadow-xs placeholder:text-body" placeholder="Nombre del rol" value="<%= menuLateral ? menuLateral.orden : '' %>"  required/>
+            <input type="number" id="orden" name="orden" class="bg-neutral-secondary-medium border border-[#e6d194] text-heading text-sm rounded-base focus:ring-[#a57f2c] focus:border-[#a57f2c] block w-64 px-3 py-2.5 shadow-xs placeholder:text-body" placeholder="Nombre del rol" value="<%= menuLateral ? menuLateral.orden : maxOrdenDer %>"  required/>
         </div>
 
         <input type="hidden" id="ubicacion" name="ubicacion" value="derecho">
@@ -51,7 +51,7 @@
     <%}%>
     <div>
         <button type="submit" class="text-white bg-success box-border border border-transparent hover:bg-success-strong focus:ring-4 focus:ring-success-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none"><i class="bi bi-floppy"></i> Guardar</button>
-        <a class="text-white bg-danger box-border border border-transparent shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5" href="/menus_laterales?lado=derecho"><i class="bi bi-x-circle"></i> Cancelar</a>
+        <a class="text-white bg-danger box-border border border-transparent shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5" href="/menus_derechos"><i class="bi bi-x-circle"></i> Cancelar</a>
     </div>
 </form>
 

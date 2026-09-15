@@ -16,7 +16,7 @@
 
         <div>
             <label for="accion" class="block mb-2.5 text-sm font-medium text-heading">Nombre:<span class="text-xl font-bold text-red-700">*</span></label>
-            <input type="text" id="nombre" name="nombre" class="bg-neutral-secondary-medium border border-[#e6d194] text-heading text-sm rounded-base focus:ring-[#a57f2c] focus:border-[#a57f2c] block w-full px-3 py-2.5 shadow-xs placeholder:text-body" placeholder="Nombre de la convocatoria" value="<%= convocatoriaInmueble ? convocatoriaInmueble.nombre : '' %>"  required/>
+            <input type="text" id="nombre" name="nombre" class="bg-neutral-secondary-medium border border-[#e6d194] text-heading text-sm rounded-base focus:ring-[#a57f2c] focus:border-[#a57f2c] block w-full px-3 py-2.5 shadow-xs placeholder:text-body" placeholder="Nombre de la convocatoria" value="<%= convocatoriaInmueble ? convocatoriaInmueble.nombre : '' %>"  />
         </div>
         <div>
             <label for="message" class="block mb-2.5 text-sm font-medium text-heading">Descripción:</label>
@@ -24,7 +24,7 @@
         </div>
    
         <div class="mb-4">
-            <label for="accion" class="block mb-2.5 text-sm font-medium text-heading">URL del documento: <span class="text-xl font-bold text-red-700">*</span></label>
+            <label for="url_documento" class="block mb-2.5 text-sm font-medium text-heading">URL del documento: <span class="text-xl font-bold text-red-700">*</span></label>
             <input type="text" id="url_documento" name="url_documento" class="bg-neutral-secondary-medium border border-[#e6d194] text-heading text-sm rounded-base focus:ring-[#a57f2c] focus:border-[#a57f2c] block w-full px-3 py-2.5 shadow-xs placeholder:text-body" placeholder="URL del documento" value="<%= convocatoriaInmueble ? convocatoriaInmueble.url_documento : '' %>"  />
         </div>
 

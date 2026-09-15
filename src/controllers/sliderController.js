@@ -1,6 +1,8 @@
 const {validationResult} = require('express-validator');
 const sliderService = require('../services/slider.service');
 const { Slider } = require('../models');
+const formatearFecha = require('../utils/formatearFecha');
+const { fn, col } = require('sequelize');
 
 
 exports.listar = async(req, res) =>{
@@ -10,7 +12,8 @@ exports.listar = async(req, res) =>{
             {
                 page:'sliders/listar',
                 titulo: 'Sliders', 
-                sliders
+                sliders,
+                formatearFecha
             });
     } catch (error) {
         res.status(500).json({success:false,msg:error.message});
@@ -18,12 +21,19 @@ exports.listar = async(req, res) =>{
 }
 
 
-exports.formularioCrear = (req, res) =>{
+exports.formularioCrear = async(req, res) =>{
+    const maxorden = await Slider.findOne({
+        attributes:[[fn('MAX', col('orden')), 'maxOrden']],
+        raw:true
+    });
+
+    const maxOrden = maxorden?.maxOrden + 1 || 0;
     res.render('dashboard',
         {
             page:'sliders/formulario',
             titulo:'Nuevo Slider', 
             slider:null, 
+            maxOrden,
             errores:[]
         });
 }

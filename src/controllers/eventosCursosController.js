@@ -1,6 +1,8 @@
 const {validationResult} = require('express-validator');
 const eventosCursosService = require('../services/eventosCursos.service');
 const { EventosCursos } = require('../models');
+const formatearFecha = require('../utils/formatearFecha');
+const { fn, col } = require('sequelize');
 
 
 exports.listar = async(req, res) =>{
@@ -10,7 +12,8 @@ exports.listar = async(req, res) =>{
             {
                 page:'eventosCursos/listar',
                 titulo: 'Eventos en Curso', 
-                eventos
+                eventos,
+                formatearFecha
             });
     } catch (error) {
         res.status(500).json({success:false,msg:error.message});
@@ -18,12 +21,19 @@ exports.listar = async(req, res) =>{
 }
 
 
-exports.formularioCrear = (req, res) =>{
+exports.formularioCrear = async(req, res) =>{
+    const maxorden = await EventosCursos.findOne({
+        attributes:[[fn('MAX', col('orden')), 'maxOrden']],
+        raw:true
+    });
+
+    const maxOrden = maxorden?.maxOrden + 1 || 0;
     res.render('dashboard',
         {
             page:'eventosCursos/formulario',
             titulo:'Nuevo Evento en curso', 
             evento:null, 
+            maxOrden,
             errores:[]
         });
 }

@@ -1,20 +1,21 @@
-<%- include('partials/navbarExplorer.ejs') %>
-<%- include('partials/breadcrumbs.ejs') %>
+
+  <%- //include('partials/navbarExplorer.ejs') %>
+  <%- include('partials/breadcrumbs.ejs') %>
 
 <!-- SECCIÓN UNIFICADA: CARPETAS + ARCHIVOS -->
-<div class="flex align-items-center justify-between ml-8">
+<!-- <div class="flex align-items-center justify-between ml-8">
   <div class="text-lg font-bold uppercase tracking-wide flex items-center gap-2">
     <i class="bi bi-folder2-open"></i> Contenido
     <span class="flex items-center justify-center bg-brand-softer border border-brand-subtle text-fg-brand-strong text-xs font-medium h-5 w-5 rounded-full">
       <span class="section-badge"><%= (subfolders ? subfolders.length : 0) + (files ? files.length : 0) %></span>
     </span>
   </div>
-</div>
+</div> -->
 
 <% if ((subfolders && subfolders.length > 0) || (files && files.length > 0)) { %>
   <div class="m-6">
     <!-- Contenedor con altura máxima y scroll para que el sticky funcione -->
-    <div class="relative overflow-y-auto shadow-xs rounded-base border border-default" style="max-height: 70vh;">
+    <div class="relative overflow-y-auto max-h-[600px] border border-default-medium rounded-md z-10" >
       <table class="w-full text-sm text-left rtl:text-right text-body">
         <thead class="text-sm text-center bg-neutral-secondary-medium border-b border-default-medium sticky top-0 z-10">
           <tr>
@@ -29,11 +30,11 @@
           <!-- CARPETAS -->
           <% if (subfolders && subfolders.length > 0) { %>
             <% subfolders.forEach(folder => { %>
-              <tr class="bg-neutral-primary-soft border-b border-default hover:bg-neutral-secondary-medium p-4 text-center">
-                <td class="px-6 py-4">
+              <tr class="bg-neutral-primary-soft  hover:bg-neutral-secondary-medium p-2 text-center">
+                <td class="px-3 py-2">
                   <a href="/folders/<%= folder.folder_id %>" class="folder-info hover:underline">
                     <div class="flex items-center gap-4 folder-icon color-<%= folder.color || 'indigo' %>">
-                      <i class="bi bi-folder text-xl text-yellow-400"></i>
+                      <img src="/img/icons/carpeta.png" alt="" width="5%">
                       <div class="folder-name" title="<%= folder.name %>"><%= folder.name %></div>
                     </div>
                   </a>
@@ -68,21 +69,21 @@
               <%
                 const category = file.fileCategory;
                 let iconClass = 'bi-file-earmark-text';
-                if (category === 'image') { iconClass = 'bi-file-earmark-image'; }
-                else if (category === 'pdf') { iconClass = 'bi-file-pdf'; }
-                else if (category === 'video') { iconClass = 'bi-file-earmark-play'; }
-                else if (category === 'audio') { iconClass = 'bi-file-music'; }
-                else if (category === 'archive') { iconClass = 'bi-file-earmark-zip'; }
-                else if (category === 'code') { iconClass = 'bi-file-earmark-code'; }
-                else if (category === 'document') { iconClass = 'bi-file-word'; }
+                if (category === 'image') { iconClass = '/img/icons/imagenes.png'; }
+                else if (category === 'pdf') { iconClass = '/img/icons/archivo-pdf.png'; }
+                else if (category === 'video') { iconClass = '/img/icons/carpeta.png'; }
+                else if (category === 'audio') { iconClass = '/img/icons/carpeta.png'; }
+                else if (category === 'archive') { iconClass = '/img/icons/carpeta-zip.png'; }
+                else if (category === 'code') { iconClass = '/img/icons/carpeta.png'; }
+                else if (category === 'powerpoint') { iconClass = '/img/icons/powerpoint.png'; }
+                else if (category === 'word') { iconClass = '/img/icons/word.png'; }
+                else if (category === 'excel') { iconClass = '/img/icons/excel.png'; }
 
                 const rawUrl = `${appUrl}/raw/${file.public_code}`;
               %>
-              <tr class="bg-neutral-primary-soft border-b border-default hover:bg-neutral-secondary-medium p-4 text-center">
-                <td class="flex items-center gap-4 px-6 py-4">
-                  <span class="flex items-center justify-center bg-brand-softer border border-brand-subtle text-fg-brand-strong text-xs font-medium h-8 w-8 rounded-full">
-                    <i class="bi <%= iconClass %> text-xl"></i>
-                  </span>
+              <tr class="bg-neutral-primary-soft hover:bg-neutral-secondary-medium p-2 text-center">
+                <td class="flex items-center gap-4 px-3 py-2">
+                  <img src="<%= iconClass %>" alt="" width="5%">
                   <div class="file-name" title="<%= file.name %>"><%= file.name %></div>
                 </td>
                 <td>

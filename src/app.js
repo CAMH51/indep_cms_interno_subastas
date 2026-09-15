@@ -22,7 +22,12 @@ app.use(
         contentSecurityPolicy:{
             directives:{
                 defaultSrc:["'self'"],
-                styleSrc:["'self'",'https://cdn.jsdelivr.net', 'https://cdn.datatables.net/2.3.7/css/dataTables.dataTables.css'],
+                styleSrc:[
+                    "'self'",
+                    (req, res) => `'nonce-${res.locals.nonce}'`,
+                    'https://cdn.jsdelivr.net', 
+                    'https://cdn.datatables.net/2.3.7/css/dataTables.dataTables.css'
+                ],
                 scriptSrc:[
                     "'self'",
                     (req, res) => `'nonce-${res.locals.nonce}'`,

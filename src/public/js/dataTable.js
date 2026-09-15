@@ -4,7 +4,7 @@ if (document.getElementById(idTable) && typeof simpleDatatables.DataTable !== 'u
     const dataTable = new simpleDatatables.DataTable("#"+idTable, {
         searchable: true,
         sortable: true,
-        perPage: 5,
+        perPage: 10,
         perPageSelect: [5, 10, 25],
         labels: {
             placeholder: "Buscar...",

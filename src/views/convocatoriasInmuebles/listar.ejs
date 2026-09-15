@@ -10,7 +10,7 @@
         <%}%>
     </div>
     <hr class="h-px my-3 bg-neutral-quaternary border-0">
-
+    <%- include('../components/mensajeSuccess.ejs') %>
     <div>
         <table id="tablaConvocatoriasInmuebles">
             <thead>
@@ -37,8 +37,8 @@
                              <span class="bg-danger-soft text-fg-danger-strong text-xs font-medium px-1.5 py-0.5 rounded">Inactivo</span>
                             <%}%>
                         </td>
-                        <td><%= new Date(inmueble.createdAt).toLocaleString('es-ES') %></td>
-                        <td><%= new Date(inmueble.updatedAt).toLocaleString('es-ES') %></td>
+                        <td><%= formatearFecha(inmueble.createdAt) %></td>
+                        <td><%= formatearFecha(inmueble.updatedAt) %></td>
                         <td>
                             <% if(puede('convocatorias_inmuebles.actualizar')){%>
                                 <a class="text-white bg-blue-500 box-border border border-transparent hover:bg-blue-700 focus:ring-4 focus:ring-success-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none" href="/convocatorias_inmuebles/<%= inmueble.convocatoria_bien_id %>/editar"><i class="bi bi-pencil-square"></i> Editar</a> 

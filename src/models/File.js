@@ -92,6 +92,24 @@ const File = sequelize.define('File', {
                 return 'code';
 
             if (
+                mime.includes('word')||
+                ['doc', 'docx'].includes(ext)
+            ) 
+            return 'word';
+
+            if (
+                mime.includes('powerpoint')||
+                ['ppt', 'pptx'].includes(ext)
+            ) 
+            return 'powerpoint';
+
+            if (
+                mime.includes('excel')||
+                ['xls', 'xlsx'].includes(ext)
+            ) 
+            return 'excel';
+
+            if (
                 mime.includes('word') ||
                 mime.includes('officedocument') ||
                 ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'].includes(ext)
