@@ -32,5 +32,6 @@ router.use('/menus_derechos',autenticar,require('./menusDerechos.route'));
 router.use('/convocatorias_muebles',autenticar,require('./convocatoriasMuebles.route'));
 router.use('/convocatorias_inmuebles',autenticar,require('./convocatoriasInmuebles.route'));
 router.use('/documentos',autenticar,require('./documentos.route'));
+router.use('/menus_principales',autenticar,require('./menusPrincipales.route'));
 
 module.exports = router;

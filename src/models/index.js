@@ -15,6 +15,7 @@ const Slider = require('./Sliders');
 const ConvocatoriasBienes = require('./ConvocatoriasBienes');
 const EventosCursos = require('./EventoCurso');
 const MenusLaterales = require('./MenusLaterales');
+const MenusPrincipales = require('./MenuPrincipal');
 
 
 
@@ -75,5 +76,6 @@ module.exports = {
     Slider,
     ConvocatoriasBienes,
     EventosCursos,
-    MenusLaterales
+    MenusLaterales,
+    MenusPrincipales
 }
