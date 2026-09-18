@@ -2,6 +2,11 @@
   <%- //include('partials/navbarExplorer.ejs') %>
   <%- include('partials/breadcrumbs.ejs') %>
 
+<!--   <button data-modal-target="modalPrueba" data-modal-toggle="modalPrueba"
+        class="text-white bg-blue-700 hover:bg-blue-800 rounded-lg px-5 py-2.5" type="button">
+        Prueb de Modal
+</button> -->
+
 <!-- SECCIÓN UNIFICADA: CARPETAS + ARCHIVOS -->
 <!-- <div class="flex align-items-center justify-between ml-8">
   <div class="text-lg font-bold uppercase tracking-wide flex items-center gap-2">
@@ -16,11 +21,12 @@
   <div class="m-6">
     <!-- Contenedor con altura máxima y scroll para que el sticky funcione -->
     <div class="relative overflow-y-auto max-h-[600px] border border-default-medium rounded-md z-10" >
-      <table class="w-full text-sm text-left rtl:text-right text-body">
-        <thead class="text-sm text-center bg-neutral-secondary-medium border-b border-default-medium sticky top-0 z-10">
+      <table class="w-full text-sm text-left rtl:text-right text-body p-4">
+        <thead class="text-sm  bg-neutral-secondary-medium border-b border-default-medium sticky top-0 z-10">
           <tr>
             <th scope="col" class="px-6 py-3 font-medium">Nombre</th>
             <th scope="col" class="px-6 py-3 font-medium">Tamaño / Contenido</th>
+            <th scope="col" class="px-6 py-3 font-medium">Fecha de Modificación</th>
             <th scope="col" class="px-6 py-3 font-medium">Link</th>
             <th scope="col" class="px-6 py-3 font-medium">Acciones</th>
           </tr>
@@ -30,7 +36,7 @@
           <!-- CARPETAS -->
           <% if (subfolders && subfolders.length > 0) { %>
             <% subfolders.forEach(folder => { %>
-              <tr class="bg-neutral-primary-soft  hover:bg-neutral-secondary-medium p-2 text-center">
+              <tr class="bg-neutral-primary-soft  hover:bg-neutral-secondary-medium p-4">
                 <td class="px-3 py-2">
                   <a href="/folders/<%= folder.folder_id %>" class="folder-info hover:underline">
                     <div class="flex items-center gap-4 folder-icon color-<%= folder.color || 'indigo' %>">
@@ -47,17 +53,18 @@
                   </span>
                 </td>
                 <td>
+                  <%= formatearFecha(folder.updatedAt) %>
+                </td>
+                <td>
                   <span class="text-gray-400">—</span>
                 </td>
-                <td class="flex items-center gap-4">
-                  <button type="button" class="bg-gray-300 rounded-md p-2 btn_renombrar_folder" title="Renombrar carpeta" onclick="openRenameFolderModal('<%= folder.id %>', '<%= folder.name.replace(/'/g, '\\\'') %>', '<%= folder.color %>')">
+                <td class="">
+                  <button type="button" class="bg-gray-300 rounded-md p-2 btn_renombrar_folder" title="Renombrar carpeta" id="btnRenombrarFolder" data-folder-id="<%= folder.folder_id %>" data-folder-name="<%= folder.name.replace(/'/g, '\\\'') %>" data-folder-color="<%= folder.color %>" >
                     <i class="bi bi-pencil-square"></i>
                   </button>
-                  <form action="/folders/<%= folder.id %>/delete" method="POST" onsubmit="return confirm('¿Seguro que deseas eliminar esta carpeta y todo su contenido?');" style="display: inline;">
-                    <button type="submit" class="bg-red-300 rounded-md p-2" title="Eliminar carpeta">
-                      <i class="bi bi-trash3"></i>
-                    </button>
-                  </form>
+                  <button type="submit" class="bg-red-300 rounded-md p-2 btn_delete_folder" data-folder-id="<%= folder.folder_id %>" title="Eliminar carpeta">
+                    <i class="bi bi-trash3"></i>
+                  </button>
                 </td>
               </tr>
             <% }) %>
@@ -81,13 +88,16 @@
 
                 const rawUrl = `${appUrl}/raw/${file.public_code}`;
               %>
-              <tr class="bg-neutral-primary-soft hover:bg-neutral-secondary-medium p-2 text-center">
-                <td class="flex items-center gap-4 px-3 py-2">
+              <tr class="bg-neutral-primary-soft hover:bg-neutral-secondary-medium p-2">
+                <td class="flex items-center gap-4 px-4 py-2">
                   <img src="<%= iconClass %>" alt="" width="5%">
                   <div class="file-name" title="<%= file.name %>"><%= file.name %></div>
                 </td>
                 <td>
                   <span><i class="fa-solid fa-weight-hanging"></i> <%= file.formattedSize %></span>
+                </td>
+                <td>
+                  <%= formatearFecha(file.updatedAt) %>
                 </td>
                 <td>
                   <div class="fixed-link-box">
@@ -99,7 +109,7 @@
                     </button>
                   </div>
                 </td>
-                <td class="flex gap-2">
+                <td class="">
                   <button type="button" id="btnViewFileModal" class="bg-gray-400 rounded-md p-2 btn_view_file" data-code="<%= file.public_code %>">
                     <i class="bi bi-box-arrow-up-right"></i> Ver
                   </button>
@@ -132,6 +142,14 @@
   </div>
 <% } %>
 
+  <%- //include('./partials/modalFlowbite',{
+    //modalId:'modalPrueba',
+    //title:'Modal de Prueba formulario',
+    //contentView:'../contents/prueba1',
+    //contentData: { prueba: null },
+    //size:'max-w-7xl'
+  //}); %> 
+
 <%- include('partials/modals.ejs') %>
 <%- include('partials/footer.ejs') %>
 <script type="module" nonce="<%= nonce %>">
@@ -143,6 +161,7 @@
     const btnCopiar  = document.getElementById('btnCopiar');
     const btnRenombrarFile = document.getElementById('btnRenombrarFile');
     const btnViewFileModal = document.getElementById('btnViewFileModal');
+    const btnRenombrarFolder = document.getElementById('btnRenombrarFolder');
 
     if(btnSubirPrimerArchivo){
         btnSubirPrimerArchivo.addEventListener("click", function(){
@@ -166,13 +185,23 @@
         const btnRenameFile = e.target.closest('.btn_renombrar_file');
         const btnCopiar = e.target.closest('.btn-copy');
         const btnViewFile = e.target.closest('.btn_view_file');
+        const btnRenameFolder = e.target.closest('.btn_renombrar_folder');
+        
 
         const btnDeleteFile = e.target.closest('.btnDeleteFile');
+        const btnDeleteFolder = e.target.closest('.btn_delete_folder');
         //Renombrar Archivos
         if(btnRenameFile){
             const id = btnRenameFile.dataset.fileId;
             const name = btnRenameFile.dataset.fileName;
             openRenameFileModal(id,name);
+        }
+
+        if(btnRenameFolder){
+            const id = btnRenameFolder.dataset.folderId;
+            const name = btnRenameFolder.dataset.folderName;
+            const color = btnRenameFolder.dataset.folderColor;
+            openRenameFolderModal(id,name,color);
         }
 
         //Eliminar los archivos
@@ -182,6 +211,24 @@
 
           if(deleteFile){
             const response = await fetch(`/files/${id}/delete`, {
+              method: 'POST',
+            });
+            if (!response.ok) {
+                return;
+            }
+            const data = await response.json();
+            document.location.reload();
+          }
+
+        }
+
+
+        if(btnDeleteFolder){
+          const id = btnDeleteFolder.dataset.folderId;
+          const deleteFolder = confirm('¿Deseas eliminar esta carpeta definitivamente?');
+
+          if(deleteFolder){
+            const response = await fetch(`/folders/${id}/delete`, {
               method: 'POST',
             });
             if (!response.ok) {

@@ -52,7 +52,7 @@ async function renovarSesion(id, refreshToken){
         throw new Error('SESIÓN NO ENCONTRADA');
     }
 
-    if(sesion.expiraEn.getTime() < Date.now()){
+    if(new Date(sesion.expira_en).getTime() < Date.now()){
         await sesion.update({activa: false});
         throw new Error('SESIÓN EXPIRADA');
     }
@@ -69,7 +69,7 @@ async function renovarSesion(id, refreshToken){
         throw new Error('USUARIO INACTIVO');
     }
 
-    const nuevoAccessToken = generarAccessToken({id:usuario.usuario_id, id});
+    const nuevoAccessToken = generarAccessToken({id:usuario.usuario_id, sid: sesion.sesion_id});
 
     await sesion.update({ultimo_uso: new Date()});
 

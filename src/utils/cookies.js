@@ -3,15 +3,15 @@ const COOKIE_SECURE = process.env.COOKIE_SECURE === 'true';
 const opcionesAccessCookie = {
     httpOnly: true,
     secure: COOKIE_SECURE,
-    sameSite: 'strict',
+    sameSite: 'lax',
     path:'/'
 };
 
 const opcionesRefreshCookie = {
     httpOnly: true,
     secure: COOKIE_SECURE,
-    sameSite: 'strict',
-    path: '/auth',
+    sameSite: 'lax',
+    path: '/',
 }
 
 module.exports =  { opcionesAccessCookie, opcionesRefreshCookie};

@@ -1,0 +1,45 @@
+
+
+    <div class="m-5 p-5 border border-2 border-gray-200 rounded-2xl">
+        <div class="flex justify-center">
+            <h2 class="text-2xl font-semibold"><%= titulo %></h2>
+        </div>
+        <hr class="h-px my-3 bg-neutral-quaternary border-0">
+
+        <div class="flex items-start sm:items-center p-4 mb-4 text-sm text-fg-warning rounded-base bg-warning-soft" role="alert">
+        <svg class="w-4 h-4 me-2 shrink-0 mt-0.5 sm:mt-0" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11h2v5m-2 0h4m-2.592-8.5h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
+        <p>Campos obligatorios <span class="text-xl font-bold text-red-700">*</span></p>
+        </div>
+        
+        <% if(errores && errores.length >0) {%> 
+            <div class="p-4 mb-4 text-sm text-fg-danger-strong rounded-base bg-danger-soft" role="alert">
+                <ul><%errores.forEach(function(e){%> <li><%= e.msg %></li> <%})%></ul>
+            </div>
+        <%}%>
+        
+        <form action="<%= storage && storage.storage_id ? '/storages/' + storage.storage_id : '/storages' %>" method="POST">
+            <input type="hidden" name="_csrf" id="" value="<%= csrfToken %>" />
+        
+            <div class="grid grid-cols-1 gap-2 mb-2">
+                <div>
+                    <label for="accion" class="block mb-2.5 text-sm font-medium text-heading">Nombre:<span class="text-xl font-bold text-red-700">*</span></label>
+                    <input type="text" id="name" name="name" class="bg-neutral-secondary-medium border border-[#e6d194] text-heading text-sm rounded-base focus:ring-[#a57f2c] focus:border-[#a57f2c]  block w-full px-3 py-2.5 shadow-xs placeholder:text-body" placeholder="ingrese el titulo" value="<%= storage ? storage.name : '' %>" required />
+                </div>
+            </div>
+            <div class="mb-4">
+                <label for="accion" class="block mb-2.5 text-sm font-medium text-heading">Ubicación del Storage: <span class="text-xl font-bold text-red-700">*</span></label>
+                <input type="text" id="base_path" name="base_path" class="bg-neutral-secondary-medium border border-[#e6d194] text-heading text-sm rounded-base focus:ring-[#a57f2c] focus:border-[#a57f2c]  block w-full px-3 py-2.5 shadow-xs placeholder:text-body" placeholder="Ingrese la URL de la imagen" value="<%= storage ? storage.base_path : '' %>"  />
+            </div>
+
+             <% if(storage && storage.storage_id) {%>
+                <div class="flex items-center mb-4">
+                    <input type="checkbox"  class="w-4 h-4 border border-default-medium rounded-xs bg-neutral-secondary-medium focus:ring-2 focus:ring-brand-soft" id="activo" name="activo" <%=  storage.activo ? 'checked' : '' %> >
+                    <label for="activo" class="select-none ms-2 text-sm font-medium text-heading">Storage Activo</label>
+                </div>
+            <%}%>
+            <div>
+                <button type="submit" class="text-white bg-success box-border border border-transparent hover:bg-success-strong focus:ring-4 focus:ring-success-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none"><i class="bi bi-floppy"></i> Guardar</button>
+                <a class="text-white bg-danger box-border border border-transparent shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5" href="/storages"><i class="bi bi-x-circle"></i> Cancelar</a>
+            </div>
+        </form>
+    </div>

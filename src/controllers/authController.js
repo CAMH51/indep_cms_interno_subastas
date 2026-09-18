@@ -8,6 +8,8 @@ const {opcionesAccessCookie, opcionesRefreshCookie} = require('../utils/cookies'
 const dataActiveDirectory = require('../services/dataActiveDirect.service');
 const {loginAD} = require('../services/auth.service');
 
+const activeStorage = require('../middlewares/activeStorage');
+
 const MAX_INTENTOS = 5;
 const MINUTOS_BLOQUEO = 15;
 
@@ -50,6 +52,8 @@ exports.loginBD = async(req,res) =>{
     
         res.cookie('accessToken', accessToken, opcionesAccessCookie);
         res.cookie('refreshToken', refreshToken, opcionesRefreshCookie);
+
+        activeStorage.invalidate();
         
         res.status(200).json({success:true,msg:'Inicio de sesión correcto'});
 }
@@ -112,6 +116,8 @@ exports.loginAD = async(req, res) =>{
     
         res.cookie('accessToken', accessToken, opcionesAccessCookie);
         res.cookie('refreshToken', refreshToken, opcionesRefreshCookie);
+
+        activeStorage.invalidate();
         
         res.status(200).json({success:true,msg:'Inicio de sesión correcto'});
         //res.redirect('/dashboard');
@@ -124,12 +130,19 @@ exports.loginAD = async(req, res) =>{
 
 
 exports.logout = async(req, res) =>{
-    const id = req.sesion.sesion_id;
-    await cerrarSesion(id);
+    try {
+        if (req.sesion && req.sesion.sesion_id) {
+            await cerrarSesion(req.sesion.sesion_id);
+        }
 
-    res.clearCookie('accessToken', opcionesAccessCookie);
-    res.clearCookie('refreshToken', opcionesRefreshCookie);
-    res.redirect('/login');
+        activeStorage.invalidate();
+        // Limpiar las cookies en el navegador
+        res.clearCookie('accessToken', opcionesAccessCookie);
+        res.clearCookie('refreshToken', opcionesRefreshCookie);
+        return res.redirect('/login');
+    } catch (error) {
+        return res.redirect('/login');
+    }
 }
 
 exports.refreshToken = async(req, res)=>{

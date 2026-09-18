@@ -3,9 +3,9 @@ const sequelize = require('../config/dbPostrgres');
 
 const Storages = sequelize.define('Storages',{
     storage_id:{
-        type:DataTypes.INTEGER,
-        primaryKey:true,
-        autoIncrement:true,
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        primaryKey: true
     },
     name:{
         type:DataTypes.STRING(255),
@@ -23,6 +23,7 @@ const Storages = sequelize.define('Storages',{
 },
 {
     tableName:'storages',
+    timestamps:true
 }
 );
 

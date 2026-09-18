@@ -16,6 +16,7 @@ function manejadorErrores(err, req, res, next){
             process.env.NODE_ENV === 'production'
                 ? 'Ocurrio un error inesperado. Intenta nuevamente más tarde'
                 : err.message,
+        accessTokenTtlMs:''
     });
 }
 

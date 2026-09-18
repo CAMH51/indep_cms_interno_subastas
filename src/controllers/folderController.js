@@ -1,5 +1,7 @@
 const {Folder, File} = require('../models');
 const storageHelper = require('../utils/storageHelper');
+const formatearFecha = require('../utils/formatearFecha');
+const {Op} = require('sequelize');
 
 
 async function getBreadcrumbs(folderId){
@@ -23,10 +25,31 @@ async function getBreadcrumbs(folderId){
 const getExplorer = async(req, res, next) =>{
     try{
         const folderId = req.params.folderId || null;
+        const currentStorageId = req.storage.storage_id;
         let currentFolder = null;
 
+        const mode = req.query.mode || null;
+        const type = req.query.type  || null;
+        const targetInput = req.query.targetInput || 'url_imagen';
+
+        const fileWhere = {
+            fk_folder_id: folderId,
+            fk_storage_id:currentStorageId
+        }
+
+        if(type === 'image'){
+            fileWhere.mime_type = { [Op.like]: 'image/%'}
+        }
+
+
         if(folderId){
-            currentFolder = await Folder.findByPk(folderId);
+            currentFolder = await Folder.findByPk(folderId,{
+                where:{
+                    forder_id:folderId,
+                    fk_storage_id:currentStorageId
+                }
+            });
+
             if(!currentFolder){
                 return res.status(404).render('dashboard',{
                     page:'error',
@@ -35,20 +58,35 @@ const getExplorer = async(req, res, next) =>{
                     statusCode:404
                 });
             }
-            await storageHelper.createPhysicalFolder(folderId);
+            await storageHelper.createPhysicalFolder(folderId, req.storage);
         }
 
         const subfolders = await Folder.findAll({
-            where:{parent_id:folderId},
+            where:{
+                parent_id:folderId,
+                fk_storage_id:currentStorageId
+            },
             order:[['name','ASC']],
             include:[
-                {model:Folder, as:'subfolders', attributes:['folder_id']},
-                {model:File, as:'files', attributes:['file_id', 'size']}
+                {
+                    model:Folder, 
+                    as:'subfolders', 
+                    attributes:['folder_id'],
+                    where:{fk_storage_id:currentStorageId},
+                    required:false
+                },
+                {
+                    model:File, 
+                    as:'files', 
+                    attributes:['file_id', 'size'],
+                    where:{fk_storage_id:currentStorageId},
+                    required:false
+                }
             ]
         });
 
         const files = await File.findAll({
-            where: {folder_id:folderId},
+            where: fileWhere,
             order:[['createdAt','DESC']]
         });
 
@@ -75,6 +113,12 @@ const getExplorer = async(req, res, next) =>{
             breadcrumbs,
             subfolders,
             files,
+            formatearFecha,
+            picker:{
+                mode,
+                type,
+                targetInput
+            },
             stats:{
                 folderCount:subfolders.length,
                 fileCount: files.length,
@@ -91,18 +135,19 @@ const createFolder = async(req, res, next)=>{
     try {
         const {name, parent_id, color} = req.body;
         if(!name || !name.trim()){
-            return res.status(400).redirect(parent_id ? `/folders/${parent_id}` : '/explorer');
+            return res.status(400).redirect(parent_id ? `/folders/${parent_id}` : '/documentos');
         }
 
         const newFolder = await Folder.create({
             name:name.trim(),
             parent_id:parent_id || null,
             color: color || 'indigo',
+            fk_storage_id: req.storage.storage_id
         });
 
-        await storageHelper.createPhysicalFolder(newFolder.folder_id);
+        await storageHelper.createPhysicalFolder(newFolder.folder_id, req.storage);
 
-        res.redirect(parent_id ? `/folders/${parent_id}` : '/explorer')
+        res.redirect(parent_id ? `/folders/${parent_id}` : '/documentos')
     } catch (error) {
         next(error);
     }
@@ -123,17 +168,19 @@ const updateFolder = async(req, res, next)=>{
             });
         }
 
-        if(name && name.trim()  && name.trim() !== folder.name){
-            await storageHelper.renamePhysicalFolder(folder,name.trim());
+        const newName = name ? name.trim() : '';
 
-            folder.name = name.trim();
+        if(newName && newName !== folder.name){
+            await storageHelper.renamePhysicalFolder(folder.folder_id,folder.name.trim(), req.storage);
+
+            folder.name = newName;
         }
 
         if(color) folder.color = color;
 
         await folder.save();
 
-        res.redirect(folder.parent_id ? `/folders/${folder.parent_id}` : '/explorer');
+        res.redirect(folder.parent_id ? `/folders/${folder.parent_id}` : '/documentos');
     } catch (error) {
         next(error);
     }
@@ -154,9 +201,9 @@ const deleteFolder = async(req, res, next) =>{
             });
         }
 
-        const redirectTarget = folder.parent_id ? `/folders/${folder.parent_id}` :'/explorer';
+        const redirectTarget = folder.parent_id ? `/folders/${folder.parent_id}` :'/documentos';
 
-        await storageHelper.deletePhysicalFolder(folder.folder_id);
+        await storageHelper.deletePhysicalFolder(folder.folder_id, req.storage);
 
         await folder.destroy();
 

@@ -33,5 +33,6 @@ router.use('/convocatorias_muebles',autenticar,require('./convocatoriasMuebles.r
 router.use('/convocatorias_inmuebles',autenticar,require('./convocatoriasInmuebles.route'));
 router.use('/documentos',autenticar,require('./documentos.route'));
 router.use('/menus_principales',autenticar,require('./menusPrincipales.route'));
+router.use('/storages',autenticar,require('./storages.route'));
 
 module.exports = router;

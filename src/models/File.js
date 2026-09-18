@@ -40,13 +40,17 @@ const File = sequelize.define('File', {
         defaultValue: () => uuidv4(),
         comment: 'Código público para acceder al archivo',
     },
-    folder_id: {
+    fk_folder_id: {
         type: DataTypes.UUID,
         allowNull: true
     },
     downloads_count: {
         type: DataTypes.INTEGER,
         defaultValue: 0
+    },
+    fk_storage_id:{
+        type:DataTypes.UUID,
+        allowNull:false
     },
 
     // CAMPOS VIRTUALES (Se serializan automáticamente en res.json)

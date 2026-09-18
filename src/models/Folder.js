@@ -19,6 +19,10 @@ const Folder = sequelize.define('Folder',{
         type:DataTypes.UUID,
         allowNull:true
     },
+    fk_storage_id:{
+        type:DataTypes.UUID,
+        allowNull:false
+    },
     color:{
         type:DataTypes.STRING(20),
         defaultValue:'#000000'

@@ -55,7 +55,7 @@
       </h3>
       <button type="button" class="text-2xl leading-none text-gray-400 hover:text-gray-600" id="btnUpload">&times;</button>
     </div>
-    <form id="uploadFilesForm" action="/files/upload<%= folderId ? '?folderId=' + folderId : '' %>" method="POST" enctype="multipart/form-data">
+    <form id="uploadFilesForm" action="/files/upload<%= folderId ? '?folderId=' + folderId : '' %> <%= picker && picker.type ? '&type=' + picker.type : '' %>" method="POST" enctype="multipart/form-data">
       <input type="hidden" name="folderId" value="<%= folderId || '' %>">
 
       <div class="m-6 flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 px-6 py-10 text-center cursor-pointer hover:border-cyan-400 hover:bg-cyan-50/50 transition-colors" id="dropzone">
@@ -64,7 +64,7 @@
         </div>
         <div class="text-base font-semibold text-gray-800">Haz clic o arrastra archivos aquí</div>
         <div class="mt-1 text-sm text-gray-500">Los archivos se guardarán físicamente en esta carpeta en el disco</div>
-        <input type="file" id="fileUploadInput" name="files" multiple class="hidden">
+        <input type="file" id="fileUploadInput" name="files" multiple <%= (picker && picker.type === 'image') ? 'accept=image/*' : '' %>  class="hidden">
       </div>
 
       <div class="flex justify-end gap-3 border-t border-gray-200 px-6 py-4">
@@ -129,7 +129,7 @@
       <h3 class="flex items-center gap-2 text-lg font-semibold text-gray-800">
         <i class="fa-solid fa-pen-to-square text-cyan-500"></i> Visualizador de Archivo
       </h3>
-      <button type="button" class="text-2xl leading-none text-gray-400 hover:text-gray-600" id="btnViewFileModal">&times;</button>
+       <button type="button" class="text-2xl leading-none text-gray-400 hover:text-gray-600" id="btnXViewFileModal">&times;</button>
     </div>
     <div id="contenido">
      
@@ -147,7 +147,7 @@
   const btnUpload = document.getElementById('btnUpload');
   const btnRenameFolder = document.getElementById('btnRenameFolder');
   const btnRenameFile = document.getElementById('btnRenameFile');
-  const btnViewFileModal = document.getElementById('btnViewFileModal');
+  const btnXViewFileModal = document.getElementById('btnXViewFileModal');
 
   const btnCloseNewFolder = document.getElementById('btnCloseNewFolder');
   const btnCloseUpload = document.getElementById('btnCloseUpload');
@@ -179,8 +179,8 @@
     });
   }
 
-  if(btnViewFileModal){
-    btnViewFileModal.addEventListener('click', function(){
+  if(btnXViewFileModal){
+    btnXViewFileModal.addEventListener('click', function(){
       closeModal('viewFileModal');
     });
   }

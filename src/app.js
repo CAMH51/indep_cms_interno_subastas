@@ -7,6 +7,7 @@ const path = require('path');
 
 const nonceMiddleware = require('./middlewares/nonce');
 const {manejadorNotFound, manejadorErrores} = require('./middlewares/errorHandler');
+const activeStorage = require('./middlewares/activeStorage');
 
 const routerPrincipal = require('./routes');
 
@@ -52,6 +53,9 @@ app.use(
     Solo permite los origenes indicados en el .env,
     credentials: true es necesario porque usamos cookies httpOnly.
 */
+app.use(express.static(path.join(__dirname,'public')));
+
+app.use(activeStorage);
 
 const origenesPermitidos = (process.env.CORS_ORIGIN || '').split(',').map((o) => o.trim());
 app.use(
@@ -77,7 +81,6 @@ app.set('views', path.join(__dirname, 'views'));
 
 //Archivos estaticos
 
-app.use(express.static(path.join(__dirname,'public')));
 
 //Rutas publicas
 

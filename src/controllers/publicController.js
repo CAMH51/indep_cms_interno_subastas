@@ -43,7 +43,7 @@ const getRawUrl = async(req, res, next)=>{
             return res.status(404).send('Archivo no encontrado')
         }
 
-        const filePath = await storageHelper.getFilePhysicalPath(file);
+        const filePath = await storageHelper.getFilePhysicalPath(file, req.storage);
         if(!fs.existsSync(filePath)){
             return res.status(404).send('El archivo físico no existe en la ruta de almacenamiento.')
         }
