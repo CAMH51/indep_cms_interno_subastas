@@ -10,6 +10,7 @@ const {manejadorNotFound, manejadorErrores} = require('./middlewares/errorHandle
 const activeStorage = require('./middlewares/activeStorage');
 
 const routerPrincipal = require('./routes');
+const routerApi = require('./routes/api');
 
 
 const app = express();
@@ -85,6 +86,7 @@ app.set('views', path.join(__dirname, 'views'));
 //Rutas publicas
 
 app.use('/',routerPrincipal);
+app.use('/api/v1',routerApi);
 
 app.use(manejadorNotFound);
 app.use(manejadorErrores);

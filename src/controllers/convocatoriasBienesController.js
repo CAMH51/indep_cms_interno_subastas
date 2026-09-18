@@ -21,6 +21,42 @@ async function actualizar(req, res, id){
         });
 }
 
+exports.getAllBienesMuebles = async(req, res) =>{
+    try {
+        const {scope} = req.query;
+        let bienes = [];
+
+        if(!scope){
+            
+            bienes = await convocatoriaBienesService.getAll('mueble');
+        }
+
+        bienes = await convocatoriaBienesService.getAll('mueble', scope);
+        
+        res.status(200).json({success: true, data:bienes})
+    } catch (error) {
+        res.status(500).json({success:false, error:error.message});
+    }
+}
+
+exports.getAllBienesInmuebles = async(req, res) =>{
+    try {
+        const {scope} = req.query;
+        let bienes = [];
+
+        if(!scope){
+            
+            bienes = await convocatoriaBienesService.getAll('inmueble');
+        }
+
+        bienes = await convocatoriaBienesService.getAll('inmueble', scope);
+        
+        res.status(200).json({success: true, data:bienes})
+    } catch (error) {
+        res.status(500).json({success:false, error:error.message});
+    }
+}
+
 exports.listarConvocatoriaBienesMuebles = async(req, res) =>{
     try {
         const convocatoriasBienesMuebles = await convocatoriaBienesService.listar('mueble');

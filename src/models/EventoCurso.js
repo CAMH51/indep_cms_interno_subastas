@@ -43,6 +43,12 @@ const EventoCurso = sequelize.define('EventoCurso',{
 },
 {
     tableName:'eventos_cursos',
+    timestamps:true,
+    scopes:{
+        inactivos:{where:{activo:false}},
+        activos:{where:{activo:true}},
+        todos:{where:{}}
+    }
 }
 );
 

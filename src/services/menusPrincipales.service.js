@@ -1,6 +1,19 @@
 const {MenusPrincipales} = require('../models');
 const dbConnection = require('../config/dbPostrgres');
 
+
+exports.getAll = async(scope,whereOption={}) =>{
+    try {
+        const menus = scope ? await MenusPrincipales.scope([scope]).findAll(whereOption)
+                        : await MenusPrincipales.findAll(whereOption);
+
+        return menus;
+    } catch (error) {
+        return error;
+    }
+}
+
+
 exports.listar = async() =>{
     try {
         const menus = await MenusPrincipales.findAll({order: [['createdAt', 'DESC']]});

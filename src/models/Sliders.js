@@ -30,7 +30,12 @@ const Slider = sequelize.define('Slider',{
 },
 {
     tableName:'sliders',
-    timestamps:true
+    timestamps:true,
+    scopes:{
+        inactivos:{where:{activo:false}},
+        activos:{where:{activo:true}},
+        todos:{where:{}}
+    }
 }
 );
 

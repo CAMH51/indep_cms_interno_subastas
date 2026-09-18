@@ -35,6 +35,11 @@ const MenuPrincipal = sequelize.define('MenuPrincipal',{
 {
     tableName:'menus_principales',
     timestamps:true,
+    scopes:{
+        inactivos:{where:{activo:false}},
+        activos:{where:{activo:true}},
+        todos:{where:{}}
+    }
 }
 );
 

@@ -5,6 +5,24 @@ const {formatearFecha, formatearFechaCorta, formatearFechaCortaInvertida} = requ
 const { fn, col } = require('sequelize');
 
 
+exports.getAll = async(req, res) =>{
+    try {
+        const {scope} = req.query;
+        let eventos = [];
+
+        if(!scope){
+            
+            eventos = await eventosCursosService.getAll();
+        }
+
+        eventos = await eventosCursosService.getAll(scope);
+        
+        res.status(200).json({success: true, data:eventos})
+    } catch (error) {
+        res.status(500).json({success:false, error:error.message});
+    }
+}
+
 exports.listar = async(req, res) =>{
     try {
         const eventos = await eventosCursosService.listar();

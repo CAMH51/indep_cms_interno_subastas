@@ -39,6 +39,11 @@ const MenuLateral = sequelize.define('MenuLateral',{
 {
     tableName:'menus_laterales',
     timestamps:true,
+    scopes:{
+        inactivos:{where:{activo:false}},
+        activos:{where:{activo:true}},
+        todos:{where:{}}
+    }
 }
 );
 

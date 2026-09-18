@@ -5,6 +5,26 @@ const {formatearFecha} = require('../utils/formatearFecha');
 const { fn, col } = require('sequelize');
 
 
+
+exports.getAll = async(req, res) =>{
+    try {
+        const {scope} = req.query;
+        let menus = [];
+
+        if(!scope){
+            
+            menus = await menusPrincipalesService.getAll();
+        }
+
+        menus = await menusPrincipalesService.getAll(scope);
+        
+        res.status(200).json({success: true, data:menus})
+    } catch (error) {
+        res.status(500).json({success:false, error:error.message});
+    }
+}
+
+
 exports.listar = async(req, res) =>{
     try {
         const menusPrincipal = await menusPrincipalesService.listar();

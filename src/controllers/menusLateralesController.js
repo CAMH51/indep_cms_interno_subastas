@@ -4,6 +4,43 @@ const {formatearFecha} = require('../utils/formatearFecha');
 const { MenusLaterales } = require('../models');
 const { fn, col } = require('sequelize');
 
+exports.getAllMenuIzquierdo = async(req, res) =>{
+    try {
+        const {scope} = req.query;
+        let menus = [];
+
+        if(!scope){
+            
+            menus = await menusLateralesService.getAll('izquierdo');
+        }
+
+        menus = await menusLateralesService.getAll('izquierdo',scope);
+        
+        res.status(200).json({success: true, data:menus})
+    } catch (error) {
+        res.status(500).json({success:false, error:error.message});
+    }
+}
+
+
+exports.getAllMenuDerecho = async(req, res) =>{
+    try {
+        const {scope} = req.query;
+        let menus = [];
+
+        if(!scope){
+            
+            menus = await menusLateralesService.getAll('derecho');
+        }
+
+        menus = await menusLateralesService.getAll('derecho',scope);
+        
+        res.status(200).json({success: true, data:menus})
+    } catch (error) {
+        res.status(500).json({success:false, error:error.message});
+    }
+}
+
 
 exports.listarMenuIzquierdo = async(req, res) =>{
     try {

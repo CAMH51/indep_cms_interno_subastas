@@ -1,6 +1,17 @@
 const {EventosCursos} = require('../models');
 const dbConnection = require('../config/dbPostrgres');
 
+exports.getAll = async(scope,whereOption={}) =>{
+    try {
+        const eventos = scope ? await EventosCursos.scope([scope]).findAll(whereOption)
+                        : await EventosCursos.findAll(whereOption);
+
+        return eventos;
+    } catch (error) {
+        return error;
+    }
+}
+
 exports.listar = async() =>{
     try {
         const eventos = await EventosCursos.findAll({order: [['createdAt', 'DESC']]});

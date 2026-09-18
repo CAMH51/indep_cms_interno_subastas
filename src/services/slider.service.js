@@ -1,6 +1,17 @@
 const {Slider} = require('../models');
 const dbConnection = require('../config/dbPostrgres');
 
+exports.getAll = async(scope,whereOption={}) =>{
+    try {
+        const sliders = scope ? await Slider.scope([scope]).findAll(whereOption)
+                        : await Slider.findAll(whereOption);
+
+        return sliders;
+    } catch (error) {
+        return error;
+    }
+}
+
 exports.listar = async() =>{
     try {
         const sliders = await Slider.findAll({order: [['createdAt', 'DESC']]});

@@ -11,6 +11,8 @@
      <%- include('./' + page ) %>
 </div>
 
+
+
 <script nonce="<%= typeof nonce !== 'undefined' ? nonce : '' %>">
   // Detecta si la página se cargó desde la memoria caché del historial (botón Atrás/Adelante)
   window.addEventListener('pageshow', function (event) {
@@ -20,3 +22,6 @@
     }
   });
 </script>
+
+
+<%- include('partials/footer.ejs') %>

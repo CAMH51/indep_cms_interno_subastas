@@ -1,6 +1,16 @@
 const {MenusLaterales} = require('../models');
 const dbConnection = require('../config/dbPostrgres');
 
+exports.getAll = async(ubicacion, scope) =>{
+    try {
+        const menus = scope ? await MenusLaterales.scope([scope]).findAll({where:{ubicacion:ubicacion}})
+                        : await MenusLaterales.findAll({where:{ubicacion:ubicacion}});
+        return menus;
+    } catch (error) {
+        return error;
+    }
+}
+
 exports.listar = async(ubicacion) =>{
     try {
         const menus = await MenusLaterales.findAll({where:{ubicacion},order: [['createdAt', 'DESC']]});

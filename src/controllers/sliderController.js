@@ -5,6 +5,27 @@ const {formatearFecha} = require('../utils/formatearFecha');
 const { fn, col } = require('sequelize');
 
 
+//Para Api
+
+exports.getAll = async(req, res) =>{
+    try {
+        const {scope} = req.query;
+        let sliders = [];
+
+        if(!scope){
+            
+            sliders = await sliderService.getAll();
+        }
+
+        sliders = await sliderService.getAll(scope);
+        
+        res.status(200).json({success: true, data:sliders})
+    } catch (error) {
+        res.status(500).json({success:false, error:error.message});
+    }
+}
+
+
 exports.listar = async(req, res) =>{
     try {
         const sliders = await sliderService.listar();

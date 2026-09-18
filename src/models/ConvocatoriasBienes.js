@@ -31,6 +31,12 @@ const ConvocatoriaBienes = sequelize.define('ConvocatoriaBienes',{
 },
 {
     tableName:'convocatorias_bienes',
+    timestamps:true,
+    scopes:{
+        inactivos:{where:{activo:false}},
+        activos:{where:{activo:true}},
+        todos:{where:{}}
+    }
 }
 );
 

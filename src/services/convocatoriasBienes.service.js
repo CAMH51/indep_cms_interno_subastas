@@ -1,6 +1,16 @@
 const {ConvocatoriasBienes} = require('../models');
 const dbConnection = require('../config/dbPostrgres');
 
+exports.getAll = async(tipo_bien, scope) =>{
+    try {
+        const convocatorias = scope ? await ConvocatoriasBienes.scope([scope]).findAll({where:{tipo_bien:tipo_bien}})
+                        : await ConvocatoriasBienes.findAll({where:{tipo_bien:tipo_bien}});
+        return convocatorias;
+    } catch (error) {
+        return error;
+    }
+}
+
 exports.listar = async(tipo_bien) =>{
     try {
         const convocatorias = await ConvocatoriasBienes.findAll({where:{tipo_bien},order: [['createdAt', 'DESC']]});
