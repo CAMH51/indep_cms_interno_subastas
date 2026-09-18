@@ -1,7 +1,7 @@
 const {validationResult} = require('express-validator');
 const storageService = require('../services/storages.service');
 const { Storage } = require('../models');
-const formatearFecha = require('../utils/formatearFecha');
+const {formatearFecha} = require('../utils/formatearFecha');
 const activeStorage = require('../middlewares/activeStorage');
 
 

@@ -1,7 +1,7 @@
 const {validationResult} = require('express-validator');
 const eventosCursosService = require('../services/eventosCursos.service');
 const { EventosCursos } = require('../models');
-const formatearFecha = require('../utils/formatearFecha');
+const {formatearFecha, formatearFechaCorta, formatearFechaCortaInvertida} = require('../utils/formatearFecha');
 const { fn, col } = require('sequelize');
 
 
@@ -13,7 +13,8 @@ exports.listar = async(req, res) =>{
                 page:'eventosCursos/listar',
                 titulo: 'Eventos en Curso', 
                 eventos,
-                formatearFecha
+                formatearFecha,
+                formatearFechaCorta
             });
     } catch (error) {
         res.status(500).json({success:false,msg:error.message});
@@ -34,6 +35,7 @@ exports.formularioCrear = async(req, res) =>{
             titulo:'Nuevo Evento en curso', 
             evento:null, 
             maxOrden,
+            formatearFechaCorta,
             errores:[]
         });
 }
@@ -95,6 +97,7 @@ exports.formEditar = async(req, res) =>{
         page:'eventosCursos/formulario',
         titulo:'Editar Evento en Curso',
         evento,
+        formatearFechaCortaInvertida,
         errores:[]
     })
 }

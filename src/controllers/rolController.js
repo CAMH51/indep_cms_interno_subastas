@@ -1,7 +1,7 @@
 const {validationResult} = require('express-validator');
 const rolService = require('../services/rol.service');
 const { Usuario,Rol, Permiso, Modulo, RolPermiso } = require('../models');
-const formatearFecha = require('../utils/formatearFecha');
+const {formatearFecha} = require('../utils/formatearFecha');
 
 
 exports.listar = async(req, res) =>{

@@ -27,7 +27,7 @@
         <div class="grid grid-cols-4 gap-4">
             <div>
                 <label for="accion" class="block mb-2.5 text-sm font-medium text-heading">Fecha de Inicio</label>
-                <input type="date" id="fecha_inicio" name="fecha_inicio" class="bg-neutral-secondary-medium border border-[#e6d194] text-heading text-sm rounded-base focus:ring-[#a57f2c] focus:border-[#a57f2c] block w-full px-3 py-2.5 shadow-xs placeholder:text-body" placeholder="" value="<%= evento ? evento.fecha_inicio : '' %>"  />
+                <input type="date" id="fecha_inicio" name="fecha_inicio" class="bg-neutral-secondary-medium border border-[#e6d194] text-heading text-sm rounded-base focus:ring-[#a57f2c] focus:border-[#a57f2c] block w-full px-3 py-2.5 shadow-xs placeholder:text-body" placeholder="" value="<%= evento ? formatearFechaCortaInvertida(evento.fecha_inicio) : '' %>"  />
             </div>
             <div>
                 <label for="accion" class="block mb-2.5 text-sm font-medium text-heading">Hora de Inicio</label>
@@ -36,7 +36,7 @@
 
             <div>
                 <label for="accion" class="block mb-2.5 text-sm font-medium text-heading">Fecha de Fin</label>
-                <input type="date" id="fecha_fin" name="fecha_fin" class="bg-neutral-secondary-medium border border-[#e6d194] text-heading text-sm rounded-base focus:ring-[#a57f2c] focus:border-[#a57f2c] block w-full px-3 py-2.5 shadow-xs placeholder:text-body" placeholder="" value="<%= evento ? evento.fecha_fin : '' %>"  />
+                <input type="date" id="fecha_fin" name="fecha_fin" class="bg-neutral-secondary-medium border border-[#e6d194] text-heading text-sm rounded-base focus:ring-[#a57f2c] focus:border-[#a57f2c] block w-full px-3 py-2.5 shadow-xs placeholder:text-body" placeholder="" value="<%= evento ? formatearFechaCortaInvertida(evento.fecha_fin) : '' %>"  />
             </div>
             <div>
                 <label for="accion" class="block mb-2.5 text-sm font-medium text-heading">Hora de Fin</label>

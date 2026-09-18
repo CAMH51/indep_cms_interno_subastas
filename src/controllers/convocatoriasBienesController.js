@@ -1,7 +1,7 @@
 const {validationResult} = require('express-validator');
 const convocatoriaBienesService = require('../services/convocatoriasBienes.service');
 const { ConvocatoriasBienes } = require('../models');
-const formatearFecha = require('../utils/formatearFecha');
+const {formatearFecha} = require('../utils/formatearFecha');
 
 const render = (res,data, status)=>{
     return res.status(status).render('dashboard',data);

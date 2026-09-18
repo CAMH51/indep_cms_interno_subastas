@@ -1,7 +1,7 @@
 const {validationResult} = require('express-validator');
 const menusPrincipalesService = require('../services/menusPrincipales.service');
 const { MenusPrincipales } = require('../models');
-const formatearFecha = require('../utils/formatearFecha');
+const {formatearFecha} = require('../utils/formatearFecha');
 const { fn, col } = require('sequelize');
 
 

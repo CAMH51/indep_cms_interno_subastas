@@ -36,9 +36,9 @@
                     <tr>
                         <td><%= evento.titulo %></td>
                         <td><%= evento.actividad %></td>
-                        <td><%= evento.fecha_inicio %></td>
+                        <td><%= formatearFechaCorta(evento.fecha_inicio) %></td>
                         <td><%= evento.hora_inicio %></td>
-                        <td><%= evento.fecha_fin %></td>
+                        <td><%= formatearFechaCorta(evento.fecha_fin) %></td>
                         <td><%= evento.hora_fin %></td>
                         <td><%= evento.orden %></td>
                         <td class="px-6 py-4">

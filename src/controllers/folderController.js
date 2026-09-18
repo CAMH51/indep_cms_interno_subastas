@@ -1,6 +1,6 @@
 const {Folder, File} = require('../models');
 const storageHelper = require('../utils/storageHelper');
-const formatearFecha = require('../utils/formatearFecha');
+const {formatearFecha} = require('../utils/formatearFecha');
 const {Op} = require('sequelize');
 
 
