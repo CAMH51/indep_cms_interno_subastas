@@ -3,9 +3,9 @@ const sequelize = require('../config/dbPostrgres');
 
 const Modulo = sequelize.define('Modulo',{
     modulo_id:{
-        type:DataTypes.INTEGER,
-        primaryKey:true,
-        autoIncrement:true
+        type:DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        primaryKey:true
     },
     nombre:{
         type:DataTypes.STRING(100),

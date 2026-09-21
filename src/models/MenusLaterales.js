@@ -3,9 +3,9 @@ const sequelize = require('../config/dbPostrgres');
 
 const MenuLateral = sequelize.define('MenuLateral',{
     menu_lateral_id:{
-        type:DataTypes.INTEGER,
-        primaryKey:true,
-        autoIncrement:true,
+        type:DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        primaryKey:true
     },
     titulo:{
         type:DataTypes.STRING(255),

@@ -36,9 +36,11 @@ exports.crearPermisosRol = async(req, res) =>{
     const {id} = req.params;
     const {permisos} = req.body;
 
+    console.log('permisos',permisos)
+
     try {
-        const rolId = parseInt(id,10);
-        const permisosIds = permisos.map(p => parseInt(p, 10));
+        const rolId = id;
+        const permisosIds = permisos.map(p => p);
 
         const existentes = await RolPermiso.findAll({
             where: {fk_rol_id : rolId},
@@ -65,7 +67,7 @@ exports.crearPermisosRol = async(req, res) =>{
 
         return res.status(200).redirect(`/roles/${rolId}/permisos`)
     } catch (error) {
-        return res.status(500).json({ message: 'Error al actualizar permisos', error: error.message });
+        return res.status(500).json({ message: 'Error al crear/actualizar permisos', error: error.stack });
     }
 }
 
@@ -111,60 +113,3 @@ exports.crear = async(req, res) =>{
     }
 }
 
-/* exports.formEditar = async(req, res) =>{
-    const {id} = req.params;
-    const usuario = await usuarioService.obtenerPorId(id);
-
-    if(!usuario) return res.status(404).render('error',{
-        titulo:'No encontrado',
-        mensaje:'Usuario no encontrado'
-    });
-
-    res.render('usuarios/formulario',{
-        titulo:'Editar Usuario',
-        usuario,
-        errores:[]
-    })
-}
-
-exports.actualizar = async(req, res) =>{
-    const {id} = req.params;
-    const usuario = await usuarioService.obtenerPorId(id);
-
-    try {
-        if(!usuario) return res.status(404).render('error',{
-            titulo:'No encontrado',
-            mensaje:'Usuario no encontrado'
-        });
-
-        const errores = validationResult(req);
-        const roles = await Rol.findAll({where: {activo: true}});
-
-        if(!errores.isEmpty()){
-            return res.status(400).render('usuarios/formulario',{
-                titulo:'Editar Usuario',
-                usuario:{...usuario.toJSON(),...req.body},
-                roles,
-                errores: errores.array()
-            });
-        }
-
-        const {email, fk_rol_id, activo, mfa} = req.body;
-        const datosActualizado = {
-            email:email.toLowerCase().trim(),
-            fk_rol_id,
-            activo: activo === 'on' || activo === true,
-            mfa: mfa === 'on' || mfa === true
-        }
-
-        const actualizar = await usuarioService.actualizar(id,datosActualizado);
-
-        if(!datosActualizado.activo){
-            await Sesion.destroy({where:{usuario_id:usuario.usuario_id}})
-        }
-
-        res.status(201).json({success: true, msg:'Usuario actualizado correctamente'})
-    } catch (error) {
-        res.status(500).json({success:false, msg:error.message});
-    }
-} */

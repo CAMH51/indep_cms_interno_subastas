@@ -3,9 +3,9 @@ const sequelize = require('../config/dbPostrgres');
 
 const Permiso = sequelize.define('Permiso',{
     permiso_id:{
-        type:DataTypes.INTEGER,
-        primaryKey:true,
-        autoIncrement:true,
+        type:DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        primaryKey:true
     },
     accion:{
         type:DataTypes.ENUM('crear','leer','actualizar','eliminar'),
@@ -16,7 +16,7 @@ const Permiso = sequelize.define('Permiso',{
         allowNull:true
     },
     fk_modulo_id:{
-        type:DataTypes.INTEGER,
+        type:DataTypes.UUID,
         allowNull:false,
     }
 },

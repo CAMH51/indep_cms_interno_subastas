@@ -3,14 +3,14 @@ const sequelize = require('../config/dbPostrgres');
 
 const RolPermiso = sequelize.define('RolPermiso',{
     fk_rol_id:{
-        type:DataTypes.INTEGER,
-        allowNull: false,
-        primaryKey:true,
+        type:DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        primaryKey:true
     },
     fk_permiso_id:{
-        type:DataTypes.INTEGER,
-        allowNull: false,
-        primaryKey:true,
+        type:DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        primaryKey:true
     },
     activo:{
         type:DataTypes.BOOLEAN,

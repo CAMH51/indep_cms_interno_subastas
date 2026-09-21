@@ -12,7 +12,7 @@
 </div>
 <hr class="h-px my-3 bg-neutral-quaternary border-0">
 <div class="relative overflow-y-auto max-h-[500px] border border-default-medium rounded-md">
-    <form action="/permisos/rol/<%= rol.rol_id %>" method="POST">
+    <form id="formPermisos" action="/permisos/rol/<%= rol.rol_id %>" method="POST">
          <input type="hidden" name="_csrf" id="" value="<%= csrfToken %>" />
     <table class="w-full text-sm text-left rtl:text-right text-body">
         <thead class="text-sm text-body bg-neutral-secondary-medium border-b border-default-medium sticky top-0 z-10">
@@ -71,3 +71,22 @@
 </div>
 </form>
 </div>
+
+<script type="module" nonce="<%= nonce %>"> 
+    import {success,question} from '/js/alert.js'
+
+    document.getElementById('formPermisos').addEventListener("submit",async function(e){
+        e.preventDefault();
+        const form = this;
+
+        const ok = await question(
+            '¿Desea guardar los cambios?',
+            'Se actualizarán los permisos del rol <%= rol.nombre %>'
+        );
+
+        if(ok){
+          form.submit();
+            success('Permisos agregados correctamente.');
+        } 
+    })
+</script>

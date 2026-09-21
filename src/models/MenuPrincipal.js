@@ -3,9 +3,9 @@ const sequelize = require('../config/dbPostrgres');
 
 const MenuPrincipal = sequelize.define('MenuPrincipal',{
     menu_principal_id:{
-        type:DataTypes.INTEGER,
-        primaryKey:true,
-        autoIncrement:true,
+        type:DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        primaryKey:true
     },
     titulo:{
         type:DataTypes.STRING(255),

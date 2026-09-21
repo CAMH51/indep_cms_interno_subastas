@@ -3,12 +3,12 @@ const sequelize = require('../config/dbPostrgres');
 
 const Sesion = sequelize.define('Sesion',{
     sesion_id:{
-        type:DataTypes.INTEGER,
-        primaryKey:true,
-        autoIncrement:true,
+        type:DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        primaryKey:true
     },
     fk_usuario_id:{
-        type:DataTypes.INTEGER,
+        type:DataTypes.UUID,
         allowNull: false,
     },
     refresh_token_hash:{

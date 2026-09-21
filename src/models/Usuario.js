@@ -3,9 +3,9 @@ const sequelize = require('../config/dbPostrgres');
 
 const Usuario = sequelize.define('Usuario',{
         usuario_id:{
-            type:DataTypes.INTEGER,
-            autoIncrement:true,
-            primaryKey: true
+            type:DataTypes.UUID,
+            defaultValue: DataTypes.UUIDV4,
+            primaryKey:true
         },
         email:{
             type:DataTypes.STRING(150),
@@ -13,17 +13,8 @@ const Usuario = sequelize.define('Usuario',{
             unique:true,
             validate: {isEmail: true}
         },
-        intentos_fallidos:{
-            type:DataTypes.INTEGER,
-            allowNull: false,
-            defaultValue:0,
-        },
-        bloqueado_hasta:{
-            type:DataTypes.DATE,
-            allowNull:true
-        },
         fk_rol_id:{
-            type:DataTypes.INTEGER,
+            type:DataTypes.UUID,
             allowNull:true,
         },
         activo:{
