@@ -1,48 +1,85 @@
+<%
+  // Función auxiliar para obtener valores anidados como "rol.nombre"
+  function getNestedVal(obj, path) {
+    if (!obj || !path) return '—';
+    const parts = path.split('.');
+    let cur = obj;
+    for (const p of parts) {
+      if (cur === null || cur === undefined) return '—';
+      cur = cur[p];
+    }
+    return cur !== null && cur !== undefined && cur !== '' ? cur : '—';
+  }
+%>
 
-<table id="<%= idtable %>">
-    <thead>
-        <tr>
-            <% headers.forEach(function(header){%> 
-                <th>
-                    <span class="flex items-center">
+<div class="overflow-x-auto rounded-xl border border-neutral-200 dark:border-neutral-800 shadow-xs mt-3 bg-white dark:bg-neutral-900">
+    <table id="<%= idtable %>" class="w-full text-sm text-left rtl:text-right text-neutral-600 dark:text-neutral-300">
+        <thead class="text-xs uppercase bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border-b border-neutral-200 dark:border-neutral-700">
+            <tr>
+                <% headers.forEach(function(header){ %> 
+                    <th class="px-5 py-3.5 font-semibold whitespace-nowrap <%= header.key === 'acciones' || header.key === 'activo' || header.key === 'mfa' ? 'text-center' : '' %>">
                         <%= header.label %>
-                    </span>
-                </th>
-            <%})%>
-        </tr>
-    </thead>
-    <tbody>
-        <% datas.forEach(function(item) {%>  
-            <tr class="bg-white border-b hover:bg-gray-50">
-                <% headers.forEach(function(header){%> 
-                    <% if(header.key === 'activo') {%>
-                        <td class="px-6 py-4">
-                            <% if(item[header.key] === true){ %>
-                            <span class="bg-success-soft text-fg-success-strong text-xs font-medium px-1.5 py-0.5 rounded">Activo</span>
-                            <% }else{ %>
-                             <span class="bg-danger-soft text-fg-danger-strong text-xs font-medium px-1.5 py-0.5 rounded">Inactivo</span>
-                            <%}%>
-                        </td>
-                    <%}else if(header.key === 'acciones'){%>
-                        <td>
-                            <% if (puede(modulo + '.actualizar')){%>  
-                                <a class="text-white bg-blue-500 box-border border border-transparent hover:bg-blue-700 focus:ring-4 focus:ring-success-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none" href="/<%= modulo %>/<%= item[id] %>/editar">Editar</a> 
-                            <%}%>
-                        </td>
-                    <%}else{%>
-                        <td class="px-6 py-4">
-                            <%= item[header.key] %>
-                        </td>
-                    <%}%>
-                <%})%>
+                    </th>
+                <% }) %>
             </tr>
-        <%})%>
-    </tbody>
-</table>
-
+        </thead>
+        <tbody class="divide-y divide-neutral-100 dark:divide-neutral-800">
+            <% if (!datas || datas.length === 0) { %>
+                <tr>
+                    <td colspan="<%= headers.length %>" class="px-5 py-10 text-center text-neutral-400">
+                        <div class="flex flex-col items-center justify-center gap-2">
+                            <i class="bi bi-inbox text-3xl opacity-60"></i>
+                            <span class="text-sm font-medium">No hay registros disponibles</span>
+                        </div>
+                    </td>
+                </tr>
+            <% } else { %>
+                <% datas.forEach(function(item) { %>  
+                    <tr class="bg-white hover:bg-neutral-50 dark:bg-neutral-900 dark:hover:bg-neutral-800/60 transition-colors">
+                        <% headers.forEach(function(header){ %> 
+                            <% if (header.key === 'activo') { 
+                                const isActivo = (item.activo === true || item.activo === 1 || item.activo === 'true' || item.activo === '1');
+                            %>
+                                <td class="px-5 py-3.5 text-center whitespace-nowrap">
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold <%= isActivo ? 'bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-300' : 'bg-rose-100 text-rose-800 border border-rose-300 dark:bg-rose-950/60 dark:text-rose-300' %>">
+                                        <span class="w-1.5 h-1.5 rounded-full <%= isActivo ? 'bg-emerald-500' : 'bg-rose-500' %>"></span>
+                                        <span><%= isActivo ? 'Activo' : 'Inactivo' %></span>
+                                    </span>
+                                </td>
+                            <% } else if (header.key === 'mfa') { 
+                                const hasMfa = (item.mfa === true || item.mfa === 1 || item.mfa === 'true' || item.mfa === '1');
+                            %>
+                                <td class="px-5 py-3.5 text-center whitespace-nowrap">
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium <%= hasMfa ? 'bg-indigo-100 text-indigo-800 border border-indigo-200' : 'bg-neutral-100 text-neutral-600 border border-neutral-200' %>">
+                                        <i class="bi <%= hasMfa ? 'bi-shield-check' : 'bi-shield-slash' %>"></i>
+                                        <span><%= hasMfa ? 'Habilitado' : 'Deshabilitado' %></span>
+                                    </span>
+                                </td>
+                            <% } else if (header.key === 'acciones') { %>
+                                <td class="px-5 py-3.5 text-center whitespace-nowrap">
+                                    <% if (typeof puede === 'function' && puede(modulo + '.actualizar')) { %>  
+                                        <a class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg text-white bg-blue-600 hover:bg-blue-700 shadow-xs focus:ring-4 focus:ring-blue-300 transition-all cursor-pointer" href="/<%= modulo %>/<%= item[id] %>/editar">
+                                            <i class="bi bi-pencil-square"></i>
+                                            <span>Editar</span>
+                                        </a> 
+                                    <% } %>
+                                </td>
+                            <% } else { 
+                                const val = getNestedVal(item, header.key);
+                            %>
+                                <td class="px-5 py-3.5 whitespace-nowrap text-neutral-800 dark:text-neutral-200">
+                                    <%= val %>
+                                </td>
+                            <% } %>
+                        <% }) %>
+                    </tr>
+                <% }) %>
+            <% } %>
+        </tbody>
+    </table>
+</div>
 
 <script type="module" nonce="<%= nonce %>"> 
     import {dataTable} from '/js/dataTable.js';
-
     dataTable('<%= idtable %>');
 </script>

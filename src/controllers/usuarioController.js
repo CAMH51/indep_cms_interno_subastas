@@ -118,6 +118,18 @@ exports.actualizar = async(req, res) =>{
         }
 
         const {email, roles, activo, mfa} = req.body;
+        const { Op } = require('sequelize');
+        const existeOtro = await Usuario.findOne({ where: { email: email.toLowerCase().trim(), usuario_id: { [Op.ne]: id } } });
+        if (existeOtro) {
+            return res.status(400).render('dashboard', {
+                page: 'usuarios/formulario',
+                titulo: 'Editar Usuario',
+                usuario: { ...usuario.toJSON(), ...req.body },
+                rolesArray,
+                errores: [{ msg: 'Ya existe otro usuario con ese correo.' }]
+            });
+        }
+
         const datosActualizado = {
             email:email.toLowerCase().trim(),
             fk_rol_id:roles,

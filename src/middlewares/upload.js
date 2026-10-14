@@ -10,10 +10,19 @@ const storage = multer.diskStorage({
     try {
       // Obtener el ID de la carpeta desde query params o body
       const folderId = req.query.folderId || req.body.folderId || null;
-      const targetFolderId = folderId && folderId !== '' && folderId !== 'null' ? folderId : null;
+      let targetFolderId = folderId && folderId !== '' && folderId !== 'null' ? folderId : null;
+
+      // Si se sube una nueva versión de un archivo existente (vía /files/:id/versions)
+      if (!targetFolderId && req.params && req.params.id) {
+        const { File } = require('../models');
+        const existingFile = await File.findByPk(req.params.id);
+        if (existingFile && existingFile.fk_folder_id) {
+          targetFolderId = existingFile.fk_folder_id;
+        }
+      }
 
       // Obtener la ruta física absoluta de la carpeta en disco
-      const destDir = await storageHelper.getFolderPhysicalPath(targetFolderId,req.storage);
+      const destDir = await storageHelper.getFolderPhysicalPath(targetFolderId, req.storage);
 
       // Asegurar que la carpeta física exista antes de guardar
       if (!fs.existsSync(destDir)) {
@@ -47,7 +56,7 @@ const fileFilter = (req, file, cb) =>{
   const type = req.query.type || req.body.type;
 
   if(type === 'image'){
-    if(!file.mimetypr.startsWith('image/')){
+    if(!file.mimetype.startsWith('image/')){
       return cb(new Error('Solo se permiten archivos de imagen (JPG, PNG, WebP, GIF, SVG)'));
     }
   }

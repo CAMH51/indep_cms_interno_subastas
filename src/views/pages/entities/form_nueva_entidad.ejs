@@ -1,0 +1,493 @@
+<%- include('../../components/breadcrumb.ejs',{
+    links:[
+        {url:"/entities", name:'Librerías'},
+        {url:"/entities/new", name:'Definición de Campos'}
+    ]
+}) %>
+
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+    <div>
+        <h3 id="page_title" class="text-2xl font-bold text-neutral-900 dark:text-neutral-100 flex items-center gap-2">
+            <i class="bi bi-diagram-3 text-[#9b2247]"></i>
+            <span>Definición de Librería y Campos</span>
+        </h3>
+        <p class="text-sm text-neutral-500 dark:text-neutral-400 mt-1">
+            Crea una nueva librería de datos o carga los campos de una existente para modificarlos o agregar nuevos.
+        </p>
+    </div>
+</div>
+
+<% if (typeof error !== 'undefined' && error) { %>
+    <div class="mb-5 p-4 rounded-xl border border-red-200 bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 flex items-center justify-between shadow-xs">
+        <div class="flex items-center gap-2.5">
+            <i class="bi bi-exclamation-triangle-fill text-lg"></i>
+            <span class="text-sm font-medium"><%= error %></span>
+        </div>
+        <button type="button" class="text-red-600 hover:text-red-800 cursor-pointer" onclick="this.parentElement.remove()">
+            <i class="bi bi-x-lg"></i>
+        </button>
+    </div>
+<% } %>
+
+<div id="fields_error_message" class="hidden mb-5 p-4 rounded-xl border border-red-200 bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 flex items-center gap-2.5 shadow-xs">
+    <i class="bi bi-exclamation-triangle-fill text-lg"></i>
+    <span id="fields_error_text" class="text-sm font-medium"></span>
+</div>
+
+<!-- Card: Cargar Campos de Librería Existente -->
+<div class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl p-4 md:p-5 mb-6 shadow-sm">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-[#1e5b4f]/10 text-[#1e5b4f] flex items-center justify-center shrink-0">
+                <i class="bi bi-cloud-arrow-down text-xl"></i>
+            </div>
+            <div>
+                <h4 class="text-base font-semibold text-neutral-900 dark:text-neutral-100">
+                    Cargar campos de librería existente
+                </h4>
+                <p class="text-xs text-neutral-500 dark:text-neutral-400">
+                    Importa los campos configurados de otra librería para modificarlos, agregar más o clonarlos.
+                </p>
+            </div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 min-w-[320px] md:max-w-md w-full">
+            <select id="select_libreria_existente" class="bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 text-neutral-900 dark:text-neutral-100 text-sm rounded-lg focus:ring-brand focus:border-brand px-3 py-2.5 w-full">
+                <option value="">-- Seleccionar librería para cargar campos --</option>
+                <% if (typeof entities !== 'undefined' && entities && entities.length > 0) { %>
+                    <% entities.forEach(ent => { %>
+                        <option value="<%= ent.name %>" data-fields="<%- JSON.stringify(ent.fields || []).replace(/"/g, '&quot;') %>">
+                            <%= ent.name %> (<%= ent.fields ? ent.fields.length : 0 %> campos)
+                        </option>
+                    <% }) %>
+                <% } %>
+            </select>
+
+            <button 
+                type="button" 
+                id="btn_cargar_libreria" 
+                class="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-[#1e5b4f] hover:bg-[#15433a] focus:ring-4 focus:ring-[#1e5b4f]/30 rounded-lg shadow-xs transition-colors cursor-pointer shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled
+            >
+                <i class="bi bi-box-arrow-in-down"></i>
+                <span>Cargar</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Banner informativo de librería cargada -->
+    <div id="loaded_entity_banner" class="hidden mt-4 pt-4 border-t border-neutral-200 dark:border-neutral-800 flex flex-col sm:flex-row sm:items-center justify-between text-xs text-neutral-600 dark:text-neutral-300 gap-3">
+        <div class="flex items-center gap-2">
+            <i class="bi bi-check-circle-fill text-emerald-600 text-sm"></i>
+            <span>Librería cargada: <strong id="loaded_entity_name" class="text-neutral-900 dark:text-neutral-100 font-semibold"></strong></span>
+            <span id="loaded_fields_badge" class="bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 px-2 py-0.5 rounded-full font-medium"></span>
+        </div>
+        <div class="flex items-center gap-4">
+            <label class="flex items-center gap-1.5 cursor-pointer text-neutral-800 dark:text-neutral-200 font-medium">
+                <input type="checkbox" id="chk_mantener_nombre" class="w-4 h-4 text-[#1e5b4f] rounded border-neutral-300 focus:ring-[#1e5b4f] cursor-pointer">
+                <span>Modificar esta librería (<span id="target_entity_label"></span>)</span>
+            </label>
+            <button type="button" id="btn_limpiar_cargada" class="text-red-600 hover:text-red-700 underline cursor-pointer">
+                Limpiar lista
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Formulario principal de la entidad -->
+<form id="form_nueva_entidad" method="POST" action="/entities" class="flex flex-col flex-1 min-h-0">
+    <input type="hidden" id="form_mode" name="mode" value="create">
+    <input type="hidden" id="original_entity_name" name="original_name" value="">
+
+    <div class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl p-4 md:p-6 mb-5 shadow-sm">
+        <%- include('../../components/input.ejs',{
+            label:"Nombre de la librería (solo minúsculas, números y guión bajo( _ )): *",
+            id:"name",
+            name:"name",
+            type:"text",
+            placeholder:"ej. catalogos_subastas",
+            pattern:"[a-z][a-z0-9_]{0,49}",
+            required:true
+        }) %>
+
+        <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 pt-2">
+            <div>
+                <h4 class="text-lg font-bold text-neutral-900 dark:text-neutral-100 flex items-center gap-2">
+                    <i class="bi bi-list-check text-[#1e5b4f]"></i>
+                    <span>Campos de la librería:</span>
+                </h4>
+                <p class="text-xs text-neutral-500 dark:text-neutral-400">
+                    Define, modifica o elimina los campos requeridos para la estructura de datos.
+                </p>
+            </div>
+
+            <div class="flex items-center gap-2.5">
+                <button 
+                    data-modal-target="agregar_campo" 
+                    data-modal-toggle="agregar_campo" 
+                    id="btn_abrir_modal_campo"
+                    class="text-white bg-[#1e5b4f] hover:bg-[#15433a] focus:ring-4 focus:ring-[#1e5b4f]/30 shadow-xs font-medium rounded-lg text-sm px-4 py-2.5 transition-colors cursor-pointer flex items-center gap-2 focus:outline-none" 
+                    type="button"
+                >
+                    <i class="bi bi-plus-circle"></i>
+                    <span>Agregar campo</span>
+                </button>  
+
+                <button 
+                    type="submit"
+                    id="btn_crear_libreria"
+                    title="Crear librería"
+                    class="inline-flex items-center gap-2 text-white bg-[#611323] hover:bg-[#9b2247] focus:ring-4 focus:ring-[#9b2247]/30 shadow-xs font-medium rounded-lg text-sm px-5 py-2.5 transition-colors cursor-pointer focus:outline-none"
+                >
+                    <i class="bi bi-floppy"></i>
+                    <span id="btn_submit_label">Crear Librería</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenedor dinámico de la tabla de campos -->
+    <div id="fields" class="overflow-y-auto flex-1 min-h-0 pb-6"></div>
+</form>
+
+<!-- Modal: Agregar / Modificar Campo -->
+<%- include('../../components/modal.ejs',{
+    id:"agregar_campo",
+    title:"Agregar Campo Requerido",
+    icon:"bi-plus-circle",
+    modalSize:"max-w-4xl",
+    body:"../pages/entities/form_modal_entities.ejs"
+}) %>
+
+<script type="module" nonce="<%= nonce %>">
+    import { selectTipoDato, getDataField, resetModalForm, setModalEditField } from '/js/entities.js';
+    import { table } from '/js/table.js';
+    import { validate, validateAll } from '/js/validateForm.js';
+
+    const defaultActivoField = {
+        nombre_campo: 'activo',
+        etiqueta_campo: 'Activo',
+        tipo_campo: 'boolean',
+        tamanio_campo: null,
+        decimal_campo: null,
+        unico_campo: false,
+        requerido_campo: false,
+        activo_campo: true,
+        default_campo: 'true'
+    };
+
+    let items = [{ ...defaultActivoField }];
+
+    const container = document.getElementById('fields');
+    const form = document.getElementById('form_nueva_entidad');
+    const nameInput = document.getElementById('name');
+    const formModeInput = document.getElementById('form_mode');
+    const originalNameInput = document.getElementById('original_entity_name');
+    const btnSubmitLabel = document.getElementById('btn_submit_label');
+    const fieldsErrorBox = document.getElementById('fields_error_message');
+    const fieldsErrorText = document.getElementById('fields_error_text');
+
+    // Elementos del selector de librería existente
+    const selectLibreria = document.getElementById('select_libreria_existente');
+    const btnCargarLibreria = document.getElementById('btn_cargar_libreria');
+    const loadedBanner = document.getElementById('loaded_entity_banner');
+    const loadedEntityName = document.getElementById('loaded_entity_name');
+    const loadedFieldsBadge = document.getElementById('loaded_fields_badge');
+    const chkMantenerNombre = document.getElementById('chk_mantener_nombre');
+    const targetEntityLabel = document.getElementById('target_entity_label');
+    const btnLimpiarCargada = document.getElementById('btn_limpiar_cargada');
+
+    function showFieldsError(msg) {
+        if (fieldsErrorBox && fieldsErrorText) {
+            fieldsErrorText.textContent = msg;
+            fieldsErrorBox.classList.remove('hidden');
+            fieldsErrorBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
+
+    function hideFieldsError() {
+        if (fieldsErrorBox) {
+            fieldsErrorBox.classList.add('hidden');
+        }
+    }
+
+    // Modal helpers
+    function openFieldModal() {
+        const modal = document.getElementById('agregar_campo');
+        if (modal) {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+    }
+
+    function closeFieldModal() {
+        const modal = document.getElementById('agregar_campo');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+    }
+
+    // Renderizar la tabla de campos con soporte para eliminar, sincronizar y MODIFICAR
+    function renderFields() {
+        table(null, items, container, 
+            // Callback: Eliminar campo
+            (deleteIndex) => {
+                items.splice(deleteIndex, 1);
+                renderFields();
+                if (items.length > 0) {
+                    hideFieldsError();
+                }
+            }, 
+            // Callback: Sincronizar inputs inline
+            (updatedItems) => {
+                items = updatedItems;
+            },
+            // Callback: Modificar campo con modal completo
+            (editIndex, fieldData) => {
+                setModalEditField(editIndex, fieldData);
+                openFieldModal();
+            }
+        );
+    }
+
+    // Inicializar selector de tipo en el modal
+    selectTipoDato('tipo_campo');
+
+    // Renderizar estado inicial de la tabla
+    renderFields();
+
+    // ── Botón principal para abrir modal en modo "Agregar" ──
+    const btnAbrirModalCampo = document.getElementById('btn_abrir_modal_campo');
+    if (btnAbrirModalCampo) {
+        btnAbrirModalCampo.addEventListener('click', () => {
+            resetModalForm();
+            openFieldModal();
+        });
+    }
+
+    // ── Funcionalidad para cargar campos desde librería existente ──
+    if (selectLibreria && btnCargarLibreria) {
+        selectLibreria.addEventListener('change', () => {
+            btnCargarLibreria.disabled = !selectLibreria.value;
+        });
+
+        btnCargarLibreria.addEventListener('click', (e) => {
+            e.preventDefault();
+            const entityName = selectLibreria.value;
+            if (!entityName) return;
+
+            const selectedOption = selectLibreria.options[selectLibreria.selectedIndex];
+            let rawFields = selectedOption ? selectedOption.dataset.fields : null;
+            let fieldsList = [];
+
+            try {
+                if (rawFields) {
+                    fieldsList = JSON.parse(rawFields);
+                }
+            } catch (err) {
+                console.error('Error al parsear campos de la opción:', err);
+            }
+
+            // Mapear campos de la entidad al formato de la tabla
+            items = fieldsList.map(f => ({
+                nombre_campo: f.name || '',
+                etiqueta_campo: f.label || '',
+                tipo_campo: f.type || 'string',
+                tamanio_campo: f.length || (f.type === 'string' ? 255 : null),
+                decimal_campo: f.scale !== undefined && f.scale !== null ? f.scale : (f.type === 'decimal' ? 2 : null),
+                unico_campo: Boolean(f.unique),
+                requerido_campo: Boolean(f.required),
+                activo_campo: f.activo !== false,
+                default_campo: f.defaultValue || null
+            }));
+
+            // Asegurar que el campo activo siempre esté presente en los campos cargados
+            if (!items.some(f => f.nombre_campo.toLowerCase() === 'activo')) {
+                items.push({ ...defaultActivoField });
+            }
+
+            // Mostrar banner informativo
+            if (loadedBanner) loadedBanner.classList.remove('hidden');
+            if (loadedEntityName) loadedEntityName.textContent = entityName;
+            if (loadedFieldsBadge) loadedFieldsBadge.textContent = `${items.length} campos`;
+            if (targetEntityLabel) targetEntityLabel.textContent = entityName;
+
+            // Por defecto, sugerir nombre o actualizar
+            if (chkMantenerNombre) {
+                chkMantenerNombre.checked = true;
+                actualizarModoEdicion(true, entityName);
+            }
+
+            renderFields();
+            hideFieldsError();
+        });
+    }
+
+    function actualizarModoEdicion(esModificar, entityName) {
+        if (esModificar) {
+            if (nameInput) {
+                nameInput.value = entityName;
+            }
+            if (formModeInput) formModeInput.value = 'update';
+            if (originalNameInput) originalNameInput.value = entityName;
+            if (btnSubmitLabel) btnSubmitLabel.textContent = 'Actualizar Librería';
+            if (form) form.action = `/entities`;
+        } else {
+            if (nameInput && nameInput.value === entityName) {
+                nameInput.value = '';
+            }
+            if (formModeInput) formModeInput.value = 'create';
+            if (originalNameInput) originalNameInput.value = '';
+            if (btnSubmitLabel) btnSubmitLabel.textContent = 'Crear Librería';
+            if (form) form.action = `/entities`;
+        }
+    }
+
+    if (chkMantenerNombre) {
+        chkMantenerNombre.addEventListener('change', () => {
+            const entityName = selectLibreria ? selectLibreria.value : '';
+            actualizarModoEdicion(chkMantenerNombre.checked, entityName);
+        });
+    }
+
+    if (btnLimpiarCargada) {
+        btnLimpiarCargada.addEventListener('click', () => {
+            items = [{ ...defaultActivoField }];
+            renderFields();
+            if (loadedBanner) loadedBanner.classList.add('hidden');
+            if (selectLibreria) {
+                selectLibreria.value = '';
+                btnCargarLibreria.disabled = true;
+            }
+            actualizarModoEdicion(false, '');
+        });
+    }
+
+    // ── Validaciones para el nombre de la librería ──
+    if (nameInput) {
+        nameInput.addEventListener('input', () => {
+            validate({ name: 'name', validate: 'required|identifier' });
+        });
+
+        nameInput.addEventListener('blur', () => {
+            validate({ name: 'name', validate: 'required|identifier' });
+        });
+    }
+
+    // ── Guardar campo (Agregar o Modificar) desde el modal con validaciones ──
+    const btnAgregar = document.getElementById('btn_agregar_campo');
+    if (btnAgregar) {
+        btnAgregar.addEventListener('click', function(e) {
+            e.preventDefault();
+            const tipo = document.getElementById('tipo_campo');
+            const tipoVal = tipo ? tipo.value : '';
+
+            const validarCampo = [
+                { name: 'nombre_campo', validate: 'required|identifier' },
+                { name: 'etiqueta_campo', validate: 'required|max:200' },
+                { name: 'tipo_campo', validate: 'required' }
+            ];
+
+            if (tipoVal === 'string') {
+                validarCampo.push({ name: 'tamanio_campo', validate: 'required|integer|between:1,255' });
+            }
+
+            if (tipoVal === 'decimal') {
+                validarCampo.push({ name: 'decimal_campo', validate: 'required|integer|between:0,10' });
+            }
+
+            const { valid } = validateAll(validarCampo);
+            if (!valid) return;
+
+            const nombreVal = document.getElementById('nombre_campo').value.trim();
+            const editIndexVal = document.getElementById('edit_field_index').value;
+            const isEditing = editIndexVal !== "" && !isNaN(parseInt(editIndexVal, 10));
+            const editIndex = isEditing ? parseInt(editIndexVal, 10) : -1;
+
+            // Validar que no exista otro campo con el mismo nombre en la lista
+            const isDuplicate = items.some((item, idx) => {
+                if (isEditing && idx === editIndex) return false;
+                return item.nombre_campo === nombreVal;
+            });
+
+            if (isDuplicate) {
+                const nombreField = document.getElementById('nombre_campo').closest('.field');
+                const msgEl = nombreField?.querySelector('.msg');
+                if (msgEl) {
+                    msgEl.innerHTML = '<i class="bi bi-exclamation-circle"></i> Ya existe otro campo con este nombre en la lista.';
+                    msgEl.className = 'msg text-[#9b2247] font-bold p-1';
+                }
+                return;
+            }
+
+            const data = getDataField();
+
+            if (isEditing && editIndex >= 0 && editIndex < items.length) {
+                // Modificar campo existente
+                items[editIndex] = data;
+            } else {
+                // Agregar nuevo campo
+                items.push(data);
+            }
+
+            renderFields();
+            resetModalForm();
+            hideFieldsError();
+            closeFieldModal();
+        });
+    }
+
+    // ── Validación al enviar el formulario de librería ──
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            // Validar nombre de la librería
+            const { valid: nameValid } = validate({ name: 'name', validate: 'required|identifier' });
+            if (!nameValid) {
+                e.preventDefault();
+                nameInput.focus();
+                return;
+            }
+
+            // Validar que se haya agregado al menos un campo
+            if (items.length === 0) {
+                e.preventDefault();
+                showFieldsError('Debes agregar al menos un campo requerido para poder guardar la librería.');
+                return;
+            }
+
+            // Asegurar que el campo "activo" esté siempre presente antes del envío
+            if (!items.some(it => it.nombre_campo.toLowerCase() === 'activo')) {
+                items.push({ ...defaultActivoField });
+                renderFields();
+            }
+
+            // Validar duplicados en los nombres de los campos
+            const names = items.map(it => it.nombre_campo);
+            const duplicates = names.filter((n, i) => names.indexOf(n) !== i);
+            if (duplicates.length > 0) {
+                e.preventDefault();
+                showFieldsError(`Existen campos con nombres duplicados: ${[...new Set(duplicates)].join(', ')}`);
+                return;
+            }
+
+            // Validar todos los inputs de la tabla generada
+            if (!form.checkValidity()) {
+                e.preventDefault();
+                form.reportValidity();
+                return;
+            }
+        });
+    }
+
+    // ── Auto-cargar si se pasa ?entity=nombre o ?from=nombre en la URL ──
+    const urlParams = new URLSearchParams(window.location.search);
+    const entityFromUrl = urlParams.get('entity') || urlParams.get('from');
+    if (entityFromUrl && selectLibreria) {
+        selectLibreria.value = entityFromUrl;
+        if (selectLibreria.value) {
+            btnCargarLibreria.disabled = false;
+            btnCargarLibreria.click();
+        }
+    }
+</script>

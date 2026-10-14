@@ -1,17 +1,16 @@
 const router = require('express').Router();
-const slidersCtrl = require('../controllers/sliderController');
-const eventosCtrl = require('../controllers/eventosCursosController');
-const convocatoriasCtrl = require('../controllers/convocatoriasBienesController');
-const menusLateralesCtrl = require('../controllers/menusLateralesController');
-const menusPrincipalesCtrl = require('../controllers/MenusPrincipalesController');
+const dynamicApiCtrl = require('../controllers/api/dynamicApiController');
 
-router.get('/sliders', slidersCtrl.getAll);
-router.get('/eventos_curso', eventosCtrl.getAll);
-router.get('/convocatorias_bienes_muebles', convocatoriasCtrl.getAllBienesMuebles);
-router.get('/convocatorias_bienes_inmuebles', convocatoriasCtrl.getAllBienesInmuebles);
-router.get('/menus_izquierdos', menusLateralesCtrl.getAllMenuIzquierdo);
-router.get('/menus_derechos', menusLateralesCtrl.getAllMenuDerecho);
-router.get('/menus_principales', menusPrincipalesCtrl.getAll);
+// API Dinámica para consultar registros de librerías
+router.get('/librerias', dynamicApiCtrl.getRecords);
+router.get('/librerias/lista', dynamicApiCtrl.listLibrerias);
+router.get('/librerias/:name/registro/:id', dynamicApiCtrl.getRecordById);
+router.get('/librerias/:name/:filtro', dynamicApiCtrl.getRecords);
+router.get('/librerias/:name', dynamicApiCtrl.getRecords);
 
+// Rutas alias para entidades/entities
+router.get('/entities/:name/registro/:id', dynamicApiCtrl.getRecordById);
+router.get('/entities/:name/:filtro', dynamicApiCtrl.getRecords);
+router.get('/entities/:name', dynamicApiCtrl.getRecords);
 
 module.exports = router;

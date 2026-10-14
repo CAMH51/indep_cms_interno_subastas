@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doble factor de autenticación</title>
+    <%- include('./partials/head.ejs') %>
+</head>
+<body>
+
+<%- include('./partials/navbargobmx.ejs') %>
+<div class="flex items-start justify-center bg-animate font-sans antialiased pt-4">
+
+    <div class="w-full max-w-md">
+    <div class="bg-white backdrop-blur-xl border-2 border-[#9b2247] rounded-2xl shadow-2xl shadow-black/40 p-8">
+      
+      <!-- Enlace para volver al login -->
+      <div class="mb-4">
+        <a href="/login_2" class="text-xs text-gray-500 hover:text-[#611323] transition-colors inline-flex items-center gap-1">
+          <i class="bi bi-arrow-left"></i> Volver a Iniciar Sesión
+        </a>
+      </div>
+
+      <!-- Icono -->
+      <div class="flex justify-center mb-6">
+        <div class="w-16 h-16 rounded-full bg-[#611323] border border-indigo-500/30 flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 10-8 0v2" />
+          </svg>
+        </div>
+      </div>
+ 
+      <!-- Título -->
+      <h1 class="text-black text-2xl font-semibold text-center">Verificación en dos pasos</h1>
+      <p class="text-[#611323] text-sm text-center mt-2 leading-relaxed">
+        Ingresa el código de 6 dígitos que enviamos a
+        <span class="text-black font-semibold block mt-1" id="user-email-display">tu correo electrónico</span>
+      </p>
+
+      <!-- Contador de expiración del código -->
+      <div class="flex justify-center items-center gap-2 mt-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2m6-2a10 10 0 11-20 0 10 10 0 0120 0z" />
+        </svg>
+        <p class="text-black text-sm">
+          El código expira en <span id="expire-count" class="text-[#9b2247] font-medium">03:00</span>
+        </p>
+      </div>
+
+      <!-- Mensaje de estado informativo -->
+      <div id="status-msg" class="hidden text-xs text-center font-medium mt-3 p-2.5 rounded-xl bg-blue-50 text-blue-800 border border-blue-200"></div>
+ 
+      <!-- Inputs del código OTP -->
+      <div class="flex justify-center gap-2 sm:gap-3 mt-6" id="code-inputs">
+        <input type="text" inputmode="numeric" maxlength="1" class="otp-input w-12 h-14 sm:w-14 sm:h-16 text-center text-2xl font-semibold text-white bg-slate-800/80 border border-slate-700 rounded-xl focus:outline-none focus:border-[#9b2247] focus:ring-2 focus:ring-[#9b2247]/40 transition-all" />
+        <input type="text" inputmode="numeric" maxlength="1" class="otp-input w-12 h-14 sm:w-14 sm:h-16 text-center text-2xl font-semibold text-white bg-slate-800/80 border border-slate-700 rounded-xl focus:outline-none focus:border-[#9b2247] focus:ring-2 focus:ring-[#9b2247]/40 transition-all" />
+        <input type="text" inputmode="numeric" maxlength="1" class="otp-input w-12 h-14 sm:w-14 sm:h-16 text-center text-2xl font-semibold text-white bg-slate-800/80 border border-slate-700 rounded-xl focus:outline-none focus:border-[#9b2247] focus:ring-2 focus:ring-[#9b2247]/40 transition-all" />
+        <input type="text" inputmode="numeric" maxlength="1" class="otp-input w-12 h-14 sm:w-14 sm:h-16 text-center text-2xl font-semibold text-white bg-slate-800/80 border border-slate-700 rounded-xl focus:outline-none focus:border-[#9b2247] focus:ring-2 focus:ring-[#9b2247]/40 transition-all" />
+        <input type="text" inputmode="numeric" maxlength="1" class="otp-input w-12 h-14 sm:w-14 sm:h-16 text-center text-2xl font-semibold text-white bg-slate-800/80 border border-slate-700 rounded-xl focus:outline-none focus:border-[#9b2247] focus:ring-2 focus:ring-[#9b2247]/40 transition-all" />
+        <input type="text" inputmode="numeric" maxlength="1" class="otp-input w-12 h-14 sm:w-14 sm:h-16 text-center text-2xl font-semibold text-white bg-slate-800/80 border border-slate-700 rounded-xl focus:outline-none focus:border-[#9b2247] focus:ring-2 focus:ring-[#9b2247]/40 transition-all" />
+      </div>
+ 
+      <!-- Mensaje de error (oculto por defecto) -->
+      <p id="error-msg" class="hidden text-[#611323] text-sm text-center font-semibold mt-4 bg-[#e6d194] rounded-xl p-2.5"></p>
+ 
+      <!-- Botón verificar -->
+      <button id="verify-btn" class="w-full mt-6 bg-[#611323] hover:bg-[#9b2247] active:scale-[0.98] text-white font-medium py-3.5 rounded-xl transition-all duration-150 shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2 cursor-pointer">
+        <i class="bi bi-shield-check" id="btn-icon"></i>
+        <span id="btn-text">Verificar código</span>
+      </button>
+ 
+      <!-- Reenviar código -->
+      <div class="text-center mt-6">
+        <p class="text-slate-500 text-sm">
+          ¿No recibiste el código?
+          <button id="resend-btn" type="button" class="text-[#611323] font-semibold hover:text-[#9b2247] transition-colors ml-1 cursor-pointer">
+            Reenviar código
+          </button>
+        </p>
+        <p id="timer-text" class="hidden text-slate-500 text-sm mt-1">
+          Podrás reenviarlo en <span id="timer-count" class="text-[#9b2247] font-semibold">30</span>s
+        </p>
+      </div>
+
+    </div>
+ 
+    <p class="text-slate-600 text-xs text-center mt-6">
+      Protegemos tu cuenta con autenticación de doble factor
+    </p>
+  </div>
+</div>
+
+<script nonce="<%= nonce %>">
+  const inputs = document.querySelectorAll('.otp-input');
+  const verifyBtn = document.getElementById('verify-btn');
+  const btnText = document.getElementById('btn-text');
+  const btnIcon = document.getElementById('btn-icon');
+  const resendBtn = document.getElementById('resend-btn');
+  const timerText = document.getElementById('timer-text');
+  const timerCount = document.getElementById('timer-count');
+  const errorMsg = document.getElementById('error-msg');
+  const statusMsg = document.getElementById('status-msg');
+  const expireCount = document.getElementById('expire-count');
+  const userEmailDisplay = document.getElementById('user-email-display');
+
+  // Recuperar credenciales y tokens guardados en login_2
+  const kcToken = sessionStorage.getItem('kc_token');
+  let mfaToken = sessionStorage.getItem('mfa_token');
+  const userEmail = sessionStorage.getItem('auth_email');
+
+  // Si no hay token de autenticación o correo, redirigir a login_2
+  if (!kcToken || !userEmail) {
+    window.location.href = '/login_2';
+  } else if (userEmailDisplay) {
+    userEmailDisplay.textContent = userEmail;
+  }
+
+  function mostrarError(mensaje) {
+    if (errorMsg) {
+      errorMsg.textContent = mensaje;
+      errorMsg.classList.remove('hidden');
+    }
+  }
+
+  function ocultarError() {
+    if (errorMsg) {
+      errorMsg.classList.add('hidden');
+    }
+  }
+
+  function mostrarEstado(mensaje) {
+    if (statusMsg) {
+      statusMsg.textContent = mensaje;
+      statusMsg.classList.remove('hidden');
+    }
+  }
+
+  function ocultarEstado() {
+    if (statusMsg) {
+      statusMsg.classList.add('hidden');
+    }
+  }
+
+  // Navegación de campos OTP
+  inputs.forEach((input, index) => {
+    input.addEventListener('input', () => {
+      input.value = input.value.replace(/[^0-9]/g, '');
+      if (input.value && index < inputs.length - 1) {
+        inputs[index + 1].focus();
+      }
+      ocultarError();
+
+      // Si se llenaron los 6 dígitos, activar verificación automáticamente
+      const code = Array.from(inputs).map(i => i.value).join('');
+      if (code.length === 6) {
+        ejecutarVerificacion();
+      }
+    });
+ 
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Backspace' && !input.value && index > 0) {
+        inputs[index - 1].focus();
+      }
+    });
+ 
+    input.addEventListener('paste', (e) => {
+      e.preventDefault();
+      const paste = e.clipboardData.getData('text').replace(/[^0-9]/g, '').slice(0, inputs.length);
+      paste.split('').forEach((char, i) => {
+        if (inputs[i]) inputs[i].value = char;
+      });
+      const nextIndex = Math.min(paste.length, inputs.length - 1);
+      inputs[nextIndex].focus();
+      ocultarError();
+      if (paste.length === 6) {
+        ejecutarVerificacion();
+      }
+    });
+  });
+
+  // Temporizador de expiración (3 minutos)
+  let expireSeconds = 180;
+  let expireIntervalId = null;
+
+  function iniciarExpireTimer() {
+    clearInterval(expireIntervalId);
+    expireSeconds = 180;
+    inputs.forEach(i => { i.disabled = false; });
+    verifyBtn.disabled = false;
+    verifyBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+
+    expireIntervalId = setInterval(() => {
+      expireSeconds--;
+      const minutes = Math.floor(expireSeconds / 60);
+      const seconds = expireSeconds % 60;
+      expireCount.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+ 
+      if (expireSeconds <= 0) {
+        clearInterval(expireIntervalId);
+        expireCount.textContent = '00:00';
+        inputs.forEach(i => { i.value = ''; i.disabled = true; });
+        verifyBtn.disabled = true;
+        verifyBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        mostrarError('El código expiró. Solicita uno nuevo con el botón Reenviar código.');
+      }
+    }, 1000);
+  }
+
+  // Temporizador de enfriamiento para reenviar código (30s)
+  let cooldown = 0;
+  let cooldownIntervalId = null;
+
+  function startCooldown() {
+    cooldown = 30;
+    resendBtn.classList.add('hidden');
+    timerText.classList.remove('hidden');
+    timerCount.textContent = cooldown;
+
+    cooldownIntervalId = setInterval(() => {
+      cooldown--;
+      timerCount.textContent = cooldown;
+      if (cooldown <= 0) {
+        clearInterval(cooldownIntervalId);
+        resendBtn.classList.remove('hidden');
+        timerText.classList.add('hidden');
+      }
+    }, 1000);
+  }
+
+  // 1. Enviar el código OTP al correo usando getOTP
+  async function enviarCodigoOTP() {
+    ocultarError();
+    mostrarEstado('Enviando código de verificación a tu correo...');
+    try {
+      // Asegurar que tengamos el token del MFA
+      if (!mfaToken) {
+        const resToken = await fetch('/mfa/token', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: userEmail })
+        });
+        const dataToken = await resToken.json();
+        mfaToken = dataToken.data?.token || dataToken.token || dataToken.data;
+        if (mfaToken) {
+          sessionStorage.setItem('mfa_token', mfaToken);
+        }
+      }
+
+      // Llamar a getOTP (/mfa/login)
+      const resOtp = await fetch('/mfa/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${mfaToken}`
+        },
+        body: JSON.stringify({
+          token: mfaToken,
+          isActiveDirectory: true
+        })
+      });
+
+      const dataOtp = await resOtp.json();
+      console.log('Respuesta getOTP:', dataOtp);
+
+      if (!resOtp.ok || dataOtp.success === false) {
+        const errText = dataOtp.error?.message || dataOtp.error || dataOtp.msg || 'No fue posible enviar el código OTP.';
+        mostrarError(errText);
+        ocultarEstado();
+        return;
+      }
+
+      // Guardar el id de la sesión/transacción MFA devuelto por el servicio
+      const mfaId = dataOtp?.data?.data?.id || dataOtp?.data?.id || dataOtp?.data?.id_user || dataOtp?.id || (typeof dataOtp?.data === 'string' ? dataOtp.data : null);
+      if (mfaId) {
+        sessionStorage.setItem('mfa_id', mfaId);
+      }
+
+      mostrarEstado('Código enviado correctamente a tu correo institucional.');
+      iniciarExpireTimer();
+      startCooldown();
+      inputs[0].focus();
+    } catch (err) {
+      console.error('Error al enviar OTP:', err);
+      mostrarError('Error de comunicación con el servicio de autenticación.');
+      ocultarEstado();
+    }
+  }
+
+  // Ejecutar envío de OTP automáticamente al mostrar la pantalla
+  enviarCodigoOTP();
+
+  // Reenviar código
+  resendBtn.addEventListener('click', () => {
+    inputs.forEach(i => i.value = '');
+    enviarCodigoOTP();
+  });
+
+  // 2. Validar código OTP, ejecutar getUserInfo, ejecutar getUser, crear sesión y visualizar dashboard
+  async function ejecutarVerificacion() {
+    const code = Array.from(inputs).map(i => i.value).join('');
+    if (code.length < 6) {
+      mostrarError('Completa los 6 dígitos del código.');
+      return;
+    }
+
+    const mfaId = sessionStorage.getItem('mfa_id');
+
+    try {
+      verifyBtn.disabled = true;
+      btnText.textContent = 'Validando código OTP...';
+      btnIcon.className = 'fas fa-spinner fa-spin';
+      ocultarError();
+      ocultarEstado();
+
+      // Paso A: Valida el código OTP usando getVerifyOTP (/mfa/verify)
+      const verifyRes = await fetch('/mfa/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          code: code,
+          id: mfaId,
+          id_user: mfaId
+        })
+      });
+
+      const verifyData = await verifyRes.json();
+      console.log('Respuesta verifyOTP:', verifyData);
+
+      if (!verifyRes.ok || verifyData.success === false) {
+        mostrarError(verifyData.error || verifyData.msg || 'Código OTP incorrecto o expirado.');
+        return;
+      }
+
+      // Paso B: Si todo está correcto, ejecuta getUserInfo de authCtrlAccesosController
+      btnText.textContent = 'Obteniendo información del usuario...';
+      const userInfoRes = await fetch('/authCtrlAcceso/userinfo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: kcToken })
+      });
+
+      const userInfoData = await userInfoRes.json().catch(() => ({}));
+      console.log('Respuesta getUserInfo:', userInfoData);
+
+      if (!userInfoRes.ok || !userInfoData.success) {
+        mostrarError(userInfoData.error || 'Error al obtener la información del usuario.');
+        return;
+      }
+
+      const userInfoObj = userInfoData.data || userInfoData.token || {};
+      const sub = userInfoObj.sub || userInfoObj.id || userInfoObj.uid || userInfoObj.preferred_username;
+
+      if (!sub) {
+        mostrarError('No fue posible recuperar el identificador del usuario (sub).');
+        return;
+      }
+
+      // Paso C: Luego ejecuta getUser de authCtrlAccesosController y crea la sesión
+      btnText.textContent = 'Verificando roles y creando sesión...';
+      const getUserRes = await fetch('/authCtrlAcceso/getuser', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sub: sub,
+          token: kcToken,
+          email: userEmail
+        })
+      });
+
+      const getUserData = await getUserRes.json().catch(() => ({}));
+      console.log('Respuesta getUser:', getUserData);
+
+      if (!getUserRes.ok || !getUserData.success) {
+        mostrarError(getUserData.error || 'Error al obtener roles y permisos del usuario.');
+        return;
+      }
+
+      // Si por alguna razón la sesión no fue creada en getUser, respaldar con /session
+      if (!getUserData.sesionCreada) {
+        await fetch('/authCtrlAcceso/session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: userEmail })
+        });
+      }
+
+      // Limpiar sessionStorage temporal de autenticación
+      sessionStorage.removeItem('kc_token');
+      sessionStorage.removeItem('mfa_token');
+      sessionStorage.removeItem('mfa_id');
+      sessionStorage.removeItem('auth_email');
+
+      // Paso D: Visualizar el dashboard
+      btnText.textContent = '¡Acceso correcto! Redirigiendo...';
+      btnIcon.className = 'fas fa-check-circle';
+      window.location.href = '/dashboard';
+
+    } catch (error) {
+      console.error('Error durante la verificación:', error);
+      mostrarError('Error durante la verificación: ' + (error.message || error));
+    } finally {
+      verifyBtn.disabled = false;
+      btnText.textContent = 'Verificar código';
+      btnIcon.className = 'bi bi-shield-check';
+    }
+  }
+
+  verifyBtn.addEventListener('click', ejecutarVerificacion);
+</script>
+</body>
+</html>
+

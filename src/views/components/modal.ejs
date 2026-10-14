@@ -1,62 +1,38 @@
 
-    <!-- Modal -->
-    <div id="<%=idModal%>" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden transition-all duration-300">
-        <div class="bg-white rounded-2xl shadow-2xl <%= typeof maxWidth !== 'undefined' ? maxWidth : 'max-w-md' %> w-full mx-4 transform transition-all duration-300 scale-95 opacity-0" id="modalContent">
-            
-            <!-- Cabecera del modal -->
-            <div class="flex justify-between items-center p-6 border-b border-gray-200">
-                <h2 class="text-2xl font-bold text-gray-800">
-                    <i class="bi bi-pencil-fill"></i>
-                    <%=titulo%>
-                </h2>
-                <button id="closeModalBtn" onclick="closeModal()" class="text-gray-400 hover:text-gray-600 transition duration-200">
-                    <i class="bi bi-x-circle text-xl"></i>
+<div id="<%= id %>" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed inset-0 z-50 justify-center items-center w-full h-full">
+    <!-- Backdrop con blur -->
+    <div class="fixed inset-0 bg-neutral-900/40 backdrop-blur-sm transition-opacity" data-modal-hide="<%= id %>"></div>
+
+    <div class="relative p-4 w-full <%= modalSize || 'max-w-5xl' %> max-h-full">
+        <!-- Modal content -->
+        <div class="relative bg-white/95 dark:bg-neutral-900/95 backdrop-blur-xl  dark:border-indigo-400/70 rounded-2xl shadow-2xl shadow-indigo-500/20 dark:shadow-indigo-500/10 p-5 md:p-7 transition-all duration-300 overflow-hidden">
+
+            <!-- Modal header centrado -->
+            <div class="flex flex-col items-center justify-center border-b border-[#a57f2c] dark:border-neutral-800/70 pb-4 md:pb-5 pt-2 relative">
+                <h3 class="text-lg md:text-xl font-semibold tracking-tight text-[#611323] dark:from-indigo-400 dark:via-violet-400 dark:to-fuchsia-400 text-center">
+                    <i class="bi <%= icon %> text-2xl"></i> <%= title.toUpperCase() %>
+                </h3>
+
+                <!-- Botón cerrar en esquina (posición absoluta para no romper el centrado) -->
+                <button 
+                    type="button" 
+                    class="group absolute right-0 top-0 text-neutral-500 dark:text-neutral-400 bg-transparent hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-900 dark:hover:text-neutral-100 rounded-full text-sm w-9 h-9 inline-flex justify-center items-center transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50" 
+                    data-modal-hide="<%= id %>"
+                    aria-label="Close modal"
+                >
+                    <svg class="w-5 h-5 transition-transform duration-200 group-hover:rotate-90" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18 17.94 6M18 18 6.06 6"/>
+                    </svg>
+                    <span class="sr-only">Close modal</span>
                 </button>
             </div>
-            
-            <!-- Cuerpo del modal -->
-            <div class="p-6 overflow-y-auto flex-1 max-h-[80vh]">
+
+            <!-- Modal body -->
+            <div class="space-y-4 md:space-y-6 py-4 md:py-6 text-neutral-700 dark:text-neutral-300">
                 <%- include(body) %>
             </div>
+
         </div>
     </div>
-    <script nonce="<%= nonce %>">
-        const modal = document.getElementById('<%=idModal%>');
-        
-        function openModal() {
-            modal.classList.remove('hidden');
-            // Forzar reflow para la animación
-            modalContent.classList.remove('scale-95', 'opacity-0');
-            modalContent.classList.add('scale-100', 'opacity-100');
-  /*           if(callback && typeof callback === 'function'){
-                callback(id);
-            } */
-        }
+</div>
 
-        function closeModal() {
-            modalContent.classList.remove('scale-100', 'opacity-100');
-            modalContent.classList.add('scale-95', 'opacity-0');
-            // Esperar a que termine la animación antes de ocultar
-            setTimeout(() => {
-                modal.classList.add('hidden');
-            }, 300);
-        }
-
-        function closeOnBackdrop(e) {
-            if (e.target === modal) {
-                closeModal();
-            }
-        }
-
-        modal.addEventListener('click', closeOnBackdrop);
-
-        // Cerrar modal con tecla ESC
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
-                closeModal();
-            }
-        });
-    
-    </script>
-
-  

@@ -36,13 +36,21 @@ app.use(
                     'https://cdn.jsdelivr.net',
                     'https://code.jquery.com/jquery-4.0.0.min.js',
                     'https://cdn.datatables.net/2.3.7/js/dataTables.js',
+                    'https://unpkg.com/'
                 ],
                 fontSrc:["'self'",'https://cdn.jsdelivr.net', 'data:'],
                 imgSrc:["'self'",'data:'],
-                connectSrc:["'self'"],
+                connectSrc:[
+                    "'self'",
+                    process.env.CTRL_ACCESS_TOKEN,
+                    process.env.CTRL_ACCESS_USERINFO,
+                    process.env.CTRL_ACCESS_ROLES,
+                    process.env.API_MFA,
+                ].filter(Boolean),
                 frameSrc:["'self'"],
                 objectSrc:["'self'"],
                 frameAncestors:["'self'"], //refuerza la protección anti-clickjacking
+                upgradeInsecureRequests: null, // Evita que el navegador fuerce URLs http:// a https://
             },
         },
         //Se fuerza a HTTPS en producción mediante HSTS
@@ -80,13 +88,21 @@ app.disable('x-powered-by');
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-//Archivos estaticos
-
+// Defaults para vistas EJS
+app.use((req, res, next) => {
+    res.locals.puede = res.locals.puede || (() => false);
+    res.locals.permisos = res.locals.permisos || [];
+    res.locals.usuarioActual = res.locals.usuarioActual || null;
+    res.locals.menus = res.locals.menus || [];
+    res.locals.rolNombre = res.locals.rolNombre || null;
+    next();
+});
 
 //Rutas publicas
 
 app.use('/',routerPrincipal);
 app.use('/api/v1',routerApi);
+app.use('/api',routerApi);
 
 app.use(manejadorNotFound);
 app.use(manejadorErrores);

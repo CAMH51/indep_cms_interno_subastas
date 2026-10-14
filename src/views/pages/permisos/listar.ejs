@@ -1,0 +1,55 @@
+<div class="m-5 p-5 border border-2 border-gray-200 rounded-2xl">
+    <div class="flex justify-between">
+        <a href="/dashboard" class="flex items-center px-2 py-1.5 text-body rounded-base hover:bg-neutral-tertiary hover:text-fg-brand group">
+            <svg class="w-5 h-5 transition duration-75 group-hover:text-fg-brand" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6.025A7.5 7.5 0 1 0 17.975 14H10V6.025Z"/><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.5 3c-.169 0-.334.014-.5.025V11h7.975c.011-.166.025-.331.025-.5A7.5 7.5 0 0 0 13.5 3Z"/></svg>
+            <span class="ms-3">Ir a Dashboard</span>
+        </a>
+        <h2 class="text-2xl font-semibold">Permisos</h2>
+        <% if(puede('permisos.crear')){%>
+            <a class="text-white bg-success box-border border border-transparent hover:bg-success-strong focus:ring-4 focus:ring-success-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none" href="/permisos/nuevo"><i class="bi bi-check-circle"></i> Nuevo Permiso</a>    
+        <%}%>
+    </div>
+    <hr class="h-px my-3 bg-neutral-quaternary border-0">
+
+    <div class="overflow-x-auto rounded-xl border border-neutral-200 dark:border-neutral-800 shadow-xs mt-3 bg-white dark:bg-neutral-900">
+        <%- include('../../components/mensajeSuccess.ejs') %>
+        <table id="tablaPermisos" class="w-full text-sm text-left rtl:text-right text-neutral-600 dark:text-neutral-300">
+            <thead class="text-xs uppercase bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border-b border-neutral-200 dark:border-neutral-700">
+                <tr>
+                    <th class="px-5 py-3.5 font-semibold">Acción / Permiso</th>
+                    <th class="px-5 py-3.5 font-semibold">Descripción</th>
+                    <th class="px-5 py-3.5 font-semibold">Módulo</th>
+                    <th class="px-5 py-3.5 font-semibold">Fecha de registro</th>
+                    <th class="px-5 py-3.5 font-semibold">Última actualización</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-neutral-100 dark:divide-neutral-800">
+                <% permisos.forEach(permiso => { %>
+                    <tr class="bg-white hover:bg-neutral-50 dark:bg-neutral-900 dark:hover:bg-neutral-800/60 transition-colors">
+                        <td class="px-5 py-3.5 font-medium whitespace-nowrap">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-mono font-semibold bg-rose-50 text-[#611323] border border-rose-200">
+                                <i class="bi bi-key-fill text-xs"></i>
+                                <%= permiso.accion + ':' + (permiso.modulo ? permiso.modulo.slug : '') %>
+                            </span>
+                        </td>
+                        <td class="px-5 py-3.5 text-neutral-500 max-w-xs truncate" title="<%= permiso.descripcion %>"><%= permiso.descripcion || '—' %></td>
+                        <td class="px-5 py-3.5 whitespace-nowrap">
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 border border-neutral-200 dark:border-neutral-700">
+                                <%= permiso.modulo ? permiso.modulo.nombre : '—' %>
+                            </span>
+                        </td>
+                        <td class="px-5 py-3.5 text-neutral-500 whitespace-nowrap"><%= formatearFecha(permiso.createdAt) %></td>
+                        <td class="px-5 py-3.5 text-neutral-500 whitespace-nowrap"><%= formatearFecha(permiso.updatedAt) %></td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script type="module" nonce="<%= nonce %>"> 
+    import {dataTable} from '/js/dataTable.js';
+    dataTable('tablaPermisos');
+
+    
+</script>

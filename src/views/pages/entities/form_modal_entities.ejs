@@ -1,0 +1,118 @@
+<form id="form_campo" novalidate>
+    <input type="hidden" id="edit_field_index" value="">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <%- include('../../components/input.ejs',{
+            label:"Nombre del campo: *",
+            id:"nombre_campo",
+            name:"nombre_campo",
+            type:"text",
+            placeholder:"ej. precio_unitario",
+            pattern:"[a-z][a-z0-9_]{0,49}",
+            required:true
+        }) %>
+
+        <%- include('../../components/input.ejs',{
+            label:"Etiqueta del campo: *",
+            id:"etiqueta_campo",
+            name:"etiqueta_campo",
+            type:"text",
+            placeholder:"ej. Precio Unitario",
+            pattern:"",
+            required:true
+        }) %>
+    
+        <%- include('../../components/select.ejs',{
+            label:"Tipo de dato: *",
+            id:"tipo_campo",
+            name:"tipo_campo",
+            label_option:"Seleccione un tipo de dato",
+            data:[
+                {id_tipo:"string",   name:"Texto (string)"},
+                {id_tipo:"integer",  name:"Número Entero (integer)"},
+                {id_tipo:"bigint",   name:"Número Grande (bigint)"},
+                {id_tipo:"decimal",  name:"Número Decimal (decimal)"},
+                {id_tipo:"boolean",  name:"Valor Booleano (true/false)"},
+                {id_tipo:"date",     name:"Date (fecha y hora)"},
+                {id_tipo:"dateonly", name:"Dateonly (solo fecha)"},
+                {id_tipo:"time",     name:"Time (solo hora)"},
+                {id_tipo:"file",     name:"File (archivo)"},
+            ],
+            id_data:"id_tipo",
+            name_data:"name",
+            required:true
+        }) %>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <%- include('../../components/input.ejs',{
+            label:"Tamaño del campo (1-255): *",
+            id:"tamanio_campo",
+            name:"tamanio_campo",
+            type:"number",
+            className:"tamanio_campo",
+            placeholder:"255",
+            required:false,
+            disabled:true
+        }) %>
+
+        <%- include('../../components/input.ejs',{
+            label:"Número de decimales (0-10): *",
+            id:"decimal_campo",
+            name:"decimal_campo",
+            className:"decimal_campo",
+            type:"number",
+            placeholder:"2",
+            required:false,
+            disabled:true
+        }) %>
+    </div>
+
+    <h3 class="text-md font-semibold text-heading mb-2">Opciones</h3>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <%- include('../../components/checkbox.ejs',{
+            label:"Unique",
+            id:"unique",
+            name: "unique",
+            value: "1"
+        }) %>
+        
+        <%- include('../../components/checkbox.ejs',{
+            label:"Requerido",
+            id:"requerido",
+            name: "requerido",
+            value: "1"
+        }) %>
+
+        <%- include('../../components/checkbox.ejs',{
+            label:"Activo",
+            id:"activo",
+            name: "activo",
+            value: "1",
+            checked: true
+        }) %>
+    </div>
+
+    <%- include('../../components/input.ejs',{
+        label:"Valor por defecto:",
+        id:"default_campo",
+        name:"default_campo",
+        type:"text",
+        placeholder:"Ingresa el valor por defecto del campo (opcional).",
+    }) %>
+
+    <div class="flex justify-end gap-3 pt-4 border-t border-default">
+        <button type="button" data-modal-hide="agregar_campo" class="px-4 py-2 text-sm font-medium text-body bg-neutral-secondary border border-default rounded-base hover:bg-neutral-tertiary focus:outline-none focus:ring-2 focus:ring-brand cursor-pointer">
+            Cancelar
+        </button>
+        <%- include('../../components/button.ejs',{
+            type:"button",
+            title:"Agregar Campo",
+            label:"Agregar Campo",
+            id:"btn_agregar_campo",
+            icon:"<i class='bi bi-plus-circle'></i>",
+            bg:"bg-[#611323]",
+            bg_hover:"hover:bg-[#9b2247]",
+            bg_text:"text-[#ffffff]"
+        }) %>
+    </div>
+</form>

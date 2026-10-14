@@ -33,8 +33,13 @@ async function crearSesion(usuario, meta = {}) {
 
     const sid = sesion.dataValues.sesion_id; // <-- aquí obtienes el id recién creado
 
-    // 2. Ahora sí generar los tokens con el sid real
-    const accessToken = generarAccessToken({ id: usuario_id, sid });
+    // 2. Ahora sí generar los tokens con el sid real incluyendo rol y menus
+    const accessToken = generarAccessToken({
+        id: usuario_id,
+        sid,
+        rol: meta.rolNombre || usuario.rol?.nombre,
+        menus: meta.menus || []
+    });
     const refreshToken = generarRefreshToken({ id: usuario_id, sid });
 
     // 3. Guardar el hash del refresh token en esa misma sesión

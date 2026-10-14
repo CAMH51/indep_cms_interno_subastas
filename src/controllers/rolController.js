@@ -129,8 +129,18 @@ exports.actualizar = async(req, res) =>{
             });
         }
 
-        console.log('req.body',req.body);
         const {nombre, descripcion, activo} = req.body;
+        const { Op } = require('sequelize');
+        const existeOtro = await Rol.findOne({ where: { nombre, rol_id: { [Op.ne]: id } } });
+        if (existeOtro) {
+            return res.status(400).render('dashboard', {
+                page: 'roles/formulario',
+                titulo: 'Editar Rol',
+                rol: { ...rol.toJSON(), ...req.body },
+                errores: [{ msg: 'Ya existe otro rol con ese nombre.' }]
+            });
+        }
+
         const datosActualizado = {
             nombre,
             descripcion,

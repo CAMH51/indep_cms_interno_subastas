@@ -4,10 +4,13 @@ const folderCtrl = require('../controllers/folderController');
 const {autenticar,soloInvitados} = require('../middlewares/auth');
 
 router.get('/login',soloInvitados,authCtrl.mostrarLogin);
+router.get('/login_2',soloInvitados,authCtrl.mostrarLogin2);
 router.use('/auth',require('./auth.route'));
+router.use('/authCtrlAcceso',require('./authCtrlAcceso.route'));
+router.use('/mfa',require('./mfa.route'));
 router.use('/',require('./public.route'));
 
-
+router.use('/entities', autenticar, require('./entities.routes'));
 
 router.get('/perfil',autenticar,(req, res)=>{
     res.render('dashboard',{
@@ -18,7 +21,7 @@ router.get('/perfil',autenticar,(req, res)=>{
     })
 });
 
-router.use('/dashboard',autenticar,require('./principal.route'));
+router.use('/dashboard', autenticar, require('./dahsboard.routes'));
 router.use('/modulos', autenticar,require('./modulos.route'));
 router.use('/usuarios', autenticar,require('./usuarios.route'));
 router.use('/permisos',autenticar, require('./permisos.route'));

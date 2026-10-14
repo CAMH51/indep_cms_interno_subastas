@@ -1,0 +1,257 @@
+<%
+    const isEditing = typeof isEdit !== 'undefined' && isEdit;
+    const currentFormId = typeof formId !== 'undefined' ? formId : (isEditing ? 'form_edit_record' : 'form_add_record');
+    const pfx = typeof prefix !== 'undefined' ? prefix : (isEditing ? 'edit_' : 'add_');
+%>
+
+<form id="<%= currentFormId %>" method="POST" action="<%= isEditing ? '' : ('/entities/' + entity.name + '/records') %>" class="space-y-4" novalidate>
+    <% if (isEditing) { %>
+        <input type="hidden" name="record_id" id="<%= pfx %>record_id" value="">
+    <% } %>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <% entity.fields.forEach(f => { 
+            const inputId = pfx + f.name;
+        %>
+            <% if (f.type === 'string') { %>
+                    <div class="field">
+                        <label for="<%= inputId %>" class="block mb-2 text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                            <%= f.label %> 
+                            <% if (f.unique) { %>
+                                <span class="inline-flex items-center text-[10px] font-semibold text-amber-700 bg-amber-100 dark:bg-amber-900/40 dark:text-amber-300 px-1.5 py-0.5 rounded border border-amber-200 dark:border-amber-800 ml-1.5" title="Campo único: no se permiten registros duplicados">
+                                    <i class="bi bi-shield-check mr-0.5"></i> Único
+                                </span>
+                            <% } %>
+                            <% if (f.required) { %><span class="text-red-600 font-bold ml-0.5">*</span><% } %>
+                        </label>
+                        <input 
+                            type="text" 
+                            id="<%= inputId %>" 
+                            name="<%= f.name %>" 
+                            maxlength="<%= f.length || 255 %>"
+                            class="bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 text-neutral-900 dark:text-neutral-100 text-sm rounded-lg focus:ring-brand focus:border-brand block w-full px-3 py-2.5 transition-colors placeholder:text-neutral-400"
+                            placeholder="Ingresa <%= f.label.toLowerCase() %>"
+                            <%= f.required ? 'required' : '' %>
+                            data-required="<%= f.required ? 'true' : 'false' %>"
+                            data-unique="<%= f.unique ? 'true' : 'false' %>"
+                            data-type="<%= f.type %>"
+                            data-label="<%= f.label %>"
+                            data-length="<%= f.length || 255 %>"
+                        />
+                        <p class="msg text-xs mt-1"></p>
+                    </div>
+            <% } %>
+
+            <% if (f.type === 'text') { %>
+                <div class="field col-span-1 md:col-span-2">
+                    <label for="<%= inputId %>" class="block mb-2 text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                        <%= f.label %> 
+                        <% if (f.unique) { %>
+                            <span class="inline-flex items-center text-[10px] font-semibold text-amber-700 bg-amber-100 dark:bg-amber-900/40 dark:text-amber-300 px-1.5 py-0.5 rounded border border-amber-200 dark:border-amber-800 ml-1.5" title="Campo único: no se permiten registros duplicados">
+                                <i class="bi bi-shield-check mr-0.5"></i> Único
+                            </span>
+                        <% } %>
+                        <% if (f.required) { %><span class="text-red-600 font-bold ml-0.5">*</span><% } %>
+                    </label>
+                    <textarea 
+                        id="<%= inputId %>" 
+                        name="<%= f.name %>" 
+                        rows="4" 
+                        class="bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 text-neutral-900 dark:text-neutral-100 text-sm rounded-lg focus:ring-brand focus:border-brand block w-full p-2.5 transition-colors placeholder:text-neutral-400"
+                        placeholder="Ingresa <%= f.label.toLowerCase() %>"
+                        <%= f.required ? 'required' : '' %>
+                        data-required="<%= f.required ? 'true' : 'false' %>"
+                        data-unique="<%= f.unique ? 'true' : 'false' %>"
+                        data-type="<%= f.type %>"
+                        data-label="<%= f.label %>"
+                    ></textarea>
+                    <p class="msg text-xs mt-1"></p>
+                </div>
+            <% } %>
+
+            <% if (f.type === 'integer' || f.type === 'bigint') { %>
+                <div class="field">
+                    <label for="<%= inputId %>" class="block mb-2 text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                        <%= f.label %> 
+                        <% if (f.unique) { %>
+                            <span class="inline-flex items-center text-[10px] font-semibold text-amber-700 bg-amber-100 dark:bg-amber-900/40 dark:text-amber-300 px-1.5 py-0.5 rounded border border-amber-200 dark:border-amber-800 ml-1.5" title="Campo único: no se permiten registros duplicados">
+                                <i class="bi bi-shield-check mr-0.5"></i> Único
+                            </span>
+                        <% } %>
+                        <% if (f.required) { %><span class="text-red-600 font-bold ml-0.5">*</span><% } %>
+                    </label>
+                    <input 
+                        type="number" 
+                        step="1"
+                        id="<%= inputId %>" 
+                        name="<%= f.name %>" 
+                        class="bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 text-neutral-900 dark:text-neutral-100 text-sm rounded-lg focus:ring-brand focus:border-brand block w-full px-3 py-2.5 transition-colors placeholder:text-neutral-400"
+                        placeholder="0"
+                        <%= f.required ? 'required' : '' %>
+                        data-required="<%= f.required ? 'true' : 'false' %>"
+                        data-unique="<%= f.unique ? 'true' : 'false' %>"
+                        data-type="<%= f.type %>"
+                        data-label="<%= f.label %>"
+                    />
+                    <p class="msg text-xs mt-1"></p>
+                </div>
+            <% } %>
+
+            <% if (f.type === 'decimal') { %>
+                <div class="field">
+                    <label for="<%= inputId %>" class="block mb-2 text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                        <%= f.label %> 
+                        <% if (f.unique) { %>
+                            <span class="inline-flex items-center text-[10px] font-semibold text-amber-700 bg-amber-100 dark:bg-amber-900/40 dark:text-amber-300 px-1.5 py-0.5 rounded border border-amber-200 dark:border-amber-800 ml-1.5" title="Campo único: no se permiten registros duplicados">
+                                <i class="bi bi-shield-check mr-0.5"></i> Único
+                            </span>
+                        <% } %>
+                        <% if (f.required) { %><span class="text-red-600 font-bold ml-0.5">*</span><% } %>
+                    </label>
+                    <input 
+                        type="number" 
+                        step="any"
+                        id="<%= inputId %>" 
+                        name="<%= f.name %>" 
+                        class="bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 text-neutral-900 dark:text-neutral-100 text-sm rounded-lg focus:ring-brand focus:border-brand block w-full px-3 py-2.5 transition-colors placeholder:text-neutral-400"
+                        placeholder="0.00"
+                        <%= f.required ? 'required' : '' %>
+                        data-required="<%= f.required ? 'true' : 'false' %>"
+                        data-unique="<%= f.unique ? 'true' : 'false' %>"
+                        data-type="<%= f.type %>"
+                        data-label="<%= f.label %>"
+                    />
+                    <p class="msg text-xs mt-1"></p>
+                </div>
+            <% } %>
+
+            <% if (f.type === 'boolean') { %>
+                <div class="field col-span-1 md:col-span-2">
+                    <div class="flex items-center p-3 bg-neutral-50 dark:bg-neutral-800/60 rounded-xl border border-neutral-200 dark:border-neutral-700 hover:border-neutral-300 transition-colors">
+                        <input 
+                            id="<%= inputId %>" 
+                            name="<%= f.name %>" 
+                            type="checkbox" 
+                            value="1" 
+                            class="w-4 h-4 text-[#1e5b4f] bg-white border-neutral-300 rounded focus:ring-[#1e5b4f] cursor-pointer"
+                            <%= (!isEditing && f.name.toLowerCase() === 'activo') ? 'checked' : '' %>
+                            <%= f.required ? 'required' : '' %>
+                            data-required="<%= f.required ? 'true' : 'false' %>"
+                            data-unique="<%= f.unique ? 'true' : 'false' %>"
+                            data-type="<%= f.type %>"
+                            data-label="<%= f.label %>"
+                        />
+                        <label for="<%= inputId %>" class="ms-2.5 text-sm font-medium text-neutral-800 dark:text-neutral-200 select-none cursor-pointer flex items-center gap-1.5">
+                            <span><%= f.label %></span>
+                            <% if (f.unique) { %>
+                                <span class="inline-flex items-center text-[10px] font-semibold text-amber-700 bg-amber-100 dark:bg-amber-900/40 dark:text-amber-300 px-1.5 py-0.5 rounded border border-amber-200 dark:border-amber-800" title="Campo único: no se permiten duplicados">
+                                    <i class="bi bi-shield-check mr-0.5"></i> Único
+                                </span>
+                            <% } %>
+                            <% if (f.required) { %><span class="text-red-600 font-bold ml-0.5">*</span><% } %>
+                        </label>
+                    </div>
+                    <p class="msg text-xs mt-1"></p>
+                </div>
+            <% } %>
+
+            <% if (f.type === 'time') { %>
+                <div class="field">
+                    <label for="<%= inputId %>" class="block mb-2 text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                        <%= f.label %> 
+                        <% if (f.unique) { %>
+                            <span class="inline-flex items-center text-[10px] font-semibold text-amber-700 bg-amber-100 dark:bg-amber-900/40 dark:text-amber-300 px-1.5 py-0.5 rounded border border-amber-200 dark:border-amber-800 ml-1.5" title="Campo único: no se permiten registros duplicados">
+                                <i class="bi bi-shield-check mr-0.5"></i> Único
+                            </span>
+                        <% } %>
+                        <% if (f.required) { %><span class="text-red-600 font-bold ml-0.5">*</span><% } %>
+                    </label>
+                    <input 
+                        type="time" 
+                        id="<%= inputId %>" 
+                        name="<%= f.name %>" 
+                        class="bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 text-neutral-900 dark:text-neutral-100 text-sm rounded-lg focus:ring-brand focus:border-brand block w-full px-3 py-2.5 transition-colors"
+                        <%= f.required ? 'required' : '' %>
+                        data-required="<%= f.required ? 'true' : 'false' %>"
+                        data-unique="<%= f.unique ? 'true' : 'false' %>"
+                        data-type="<%= f.type %>"
+                        data-label="<%= f.label %>"
+                    />
+                    <p class="msg text-xs mt-1"></p>
+                </div>
+            <% } %>
+
+            <% if (f.type === 'date') { %>
+                <div class="field">
+                    <label for="<%= inputId %>" class="block mb-2 text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                        <%= f.label %> 
+                        <% if (f.unique) { %>
+                            <span class="inline-flex items-center text-[10px] font-semibold text-amber-700 bg-amber-100 dark:bg-amber-900/40 dark:text-amber-300 px-1.5 py-0.5 rounded border border-amber-200 dark:border-amber-800 ml-1.5" title="Campo único: no se permiten registros duplicados">
+                                <i class="bi bi-shield-check mr-0.5"></i> Único
+                            </span>
+                        <% } %>
+                        <% if (f.required) { %><span class="text-red-600 font-bold ml-0.5">*</span><% } %>
+                    </label>
+                    <input 
+                        type="datetime-local" 
+                        id="<%= inputId %>" 
+                        name="<%= f.name %>" 
+                        class="bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 text-neutral-900 dark:text-neutral-100 text-sm rounded-lg focus:ring-brand focus:border-brand block w-full px-3 py-2.5 transition-colors"
+                        <%= f.required ? 'required' : '' %>
+                        data-required="<%= f.required ? 'true' : 'false' %>"
+                        data-unique="<%= f.unique ? 'true' : 'false' %>"
+                        data-type="<%= f.type %>"
+                        data-label="<%= f.label %>"
+                    />
+                    <p class="msg text-xs mt-1"></p>
+                </div>
+            <% } %>
+
+            <% if (f.type === 'dateonly') { %>
+                <div class="field">
+                    <label for="<%= inputId %>" class="block mb-2 text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                        <%= f.label %> 
+                        <% if (f.unique) { %>
+                            <span class="inline-flex items-center text-[10px] font-semibold text-amber-700 bg-amber-100 dark:bg-amber-900/40 dark:text-amber-300 px-1.5 py-0.5 rounded border border-amber-200 dark:border-amber-800 ml-1.5" title="Campo único: no se permiten registros duplicados">
+                                <i class="bi bi-shield-check mr-0.5"></i> Único
+                            </span>
+                        <% } %>
+                        <% if (f.required) { %><span class="text-red-600 font-bold ml-0.5">*</span><% } %>
+                    </label>
+                    <input 
+                        type="date" 
+                        id="<%= inputId %>" 
+                        name="<%= f.name %>" 
+                        class="bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 text-neutral-900 dark:text-neutral-100 text-sm rounded-lg focus:ring-brand focus:border-brand block w-full px-3 py-2.5 transition-colors"
+                        <%= f.required ? 'required' : '' %>
+                        data-required="<%= f.required ? 'true' : 'false' %>"
+                        data-unique="<%= f.unique ? 'true' : 'false' %>"
+                        data-type="<%= f.type %>"
+                        data-label="<%= f.label %>"
+                    />
+                    <p class="msg text-xs mt-1"></p>
+                </div>
+            <% } %>
+        <% }) %>
+    </div>
+
+    <!-- Acciones del Formulario -->
+    <div class="flex justify-end items-center gap-3 pt-4 border-t border-neutral-200 dark:border-neutral-800">
+        <button 
+            type="button" 
+            data-modal-hide="<%= isEditing ? 'editRecordModal' : 'addRecordModal' %>" 
+            class="px-4 py-2.5 text-sm font-medium text-neutral-700 dark:text-neutral-300 bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 rounded-lg transition-colors cursor-pointer focus:outline-none"
+        >
+            Cancelar
+        </button>
+
+        <button 
+            type="submit" 
+            id="<%= pfx %>btn_submit"
+            class="inline-flex items-center gap-2 text-white bg-[#9b2247] hover:bg-[#7a1b38] focus:ring-4 focus:ring-[#9b2247]/30 shadow-sm font-medium rounded-lg text-sm px-5 py-2.5 transition-all focus:outline-none cursor-pointer"
+        >
+            <i class="bi <%= isEditing ? 'bi-check2-circle' : 'bi-floppy' %>"></i>
+            <span><%= isEditing ? 'Guardar Cambios' : 'Guardar Registro' %></span>
+        </button>
+    </div>
+</form>

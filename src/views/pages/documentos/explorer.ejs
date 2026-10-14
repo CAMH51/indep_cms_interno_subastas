@@ -1,0 +1,607 @@
+
+  <%- //include('partials/navbarExplorer.ejs') %>
+  <%- include('../../partials/breadcrumbs.ejs') %>
+
+<!--   <button data-modal-target="modalPrueba" data-modal-toggle="modalPrueba"
+        class="text-white bg-blue-700 hover:bg-blue-800 rounded-lg px-5 py-2.5" type="button">
+        Prueb de Modal
+</button> -->
+
+<!-- SECCIÓN UNIFICADA: CARPETAS + ARCHIVOS -->
+<!-- <div class="flex align-items-center justify-between ml-8">
+  <div class="text-lg font-bold uppercase tracking-wide flex items-center gap-2">
+    <i class="bi bi-folder2-open"></i> Contenido
+    <span class="flex items-center justify-center bg-brand-softer border border-brand-subtle text-fg-brand-strong text-xs font-medium h-5 w-5 rounded-full">
+      <span class="section-badge"><%= (subfolders ? subfolders.length : 0) + (files ? files.length : 0) %></span>
+    </span>
+  </div>
+</div> -->
+
+<% if ((subfolders && subfolders.length > 0) || (files && files.length > 0)) { %>
+  <div class="m-4 md:m-6">
+    <!-- Contenedor con altura máxima y scroll suave -->
+    <div class="relative overflow-x-auto overflow-y-auto max-h-[640px] border border-neutral-200 dark:border-neutral-800 rounded-xl shadow-xs z-10 bg-white dark:bg-neutral-900">
+      <table class="w-full text-sm text-left rtl:text-right text-neutral-600 dark:text-neutral-300">
+        <thead class="text-xs uppercase bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border-b border-neutral-200 dark:border-neutral-700 sticky top-0 z-10 shadow-xs">
+          <tr>
+            <th scope="col" class="px-5 py-3.5 font-semibold">Nombre</th>
+            <th scope="col" class="px-5 py-3.5 font-semibold">Tamaño / Contenido</th>
+            <th scope="col" class="px-5 py-3.5 font-semibold">Fecha de Modificación</th>
+            <th scope="col" class="px-5 py-3.5 font-semibold text-center">Visibilidad</th>
+            <th scope="col" class="px-5 py-3.5 font-semibold">Link</th>
+            <th scope="col" class="px-5 py-3.5 font-semibold text-center">Acciones</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-neutral-100 dark:divide-neutral-800">
+
+          <!-- CARPETAS -->
+          <% if (subfolders && subfolders.length > 0) { %>
+            <% subfolders.forEach(folder => { %>
+              <tr class="bg-white hover:bg-neutral-50 dark:bg-neutral-900 dark:hover:bg-neutral-800/60 transition-colors">
+                <td class="px-5 py-3.5">
+                  <a href="/folders/<%= folder.folder_id %>" class="folder-info hover:underline inline-flex items-center gap-3">
+                    <img src="/img/icons/carpeta.png" alt="Carpeta" class="w-6 h-6 object-contain flex-shrink-0">
+                    <span class="font-medium text-neutral-900 dark:text-neutral-100 hover:text-blue-600" title="<%= folder.name %>"><%= folder.name %></span>
+                  </a>
+                </td>
+                <td class="px-5 py-3.5 text-neutral-500 whitespace-nowrap">
+                  <span>
+                    <i class="bi bi-folder2 text-neutral-400"></i> <%= (folder.subfolders ? folder.subfolders.length : 0) %> carpetas
+                    <span class="mx-1 text-neutral-300">|</span>
+                    <i class="bi bi-file-earmark text-neutral-400"></i> <%= (folder.files ? folder.files.length : 0) %> archivos
+                  </span>
+                </td>
+                <td class="px-5 py-3.5 text-neutral-500 whitespace-nowrap">
+                  <%= formatearFecha(folder.updatedAt) %>
+                </td>
+                <td class="px-5 py-3.5 text-center text-neutral-400">
+                  <span>—</span>
+                </td>
+                <td class="px-5 py-3.5 text-neutral-400">
+                  <span>—</span>
+                </td>
+                <td class="px-5 py-3.5 text-center whitespace-nowrap">
+                  <div class="inline-flex items-center gap-1.5">
+                    <button type="button" class="p-2 rounded-lg bg-neutral-100 hover:bg-neutral-200 text-neutral-700 btn_renombrar_folder transition" title="Renombrar carpeta" data-folder-id="<%= folder.folder_id %>" data-folder-name="<%= folder.name.replace(/'/g, '\\\'') %>" data-folder-color="<%= folder.color %>">
+                      <i class="bi bi-pencil-square"></i>
+                    </button>
+                    <button type="submit" class="p-2 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 btn_delete_folder transition" data-folder-id="<%= folder.folder_id %>" title="Eliminar carpeta">
+                      <i class="bi bi-trash3"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            <% }) %>
+          <% } %>
+
+          <!-- ARCHIVOS -->
+          <% if (files && files.length > 0) { %>
+            <% files.forEach(file => { %>
+              <%
+                const category = file.fileCategory;
+                let iconClass = 'bi-file-earmark-text';
+                if (category === 'image') { iconClass = '/img/icons/imagenes.png'; }
+                else if (category === 'pdf') { iconClass = '/img/icons/archivo-pdf.png'; }
+                else if (category === 'video') { iconClass = '/img/icons/carpeta.png'; }
+                else if (category === 'audio') { iconClass = '/img/icons/carpeta.png'; }
+                else if (category === 'archive') { iconClass = '/img/icons/carpeta-zip.png'; }
+                else if (category === 'code') { iconClass = '/img/icons/carpeta.png'; }
+                else if (category === 'powerpoint') { iconClass = '/img/icons/powerpoint.png'; }
+                else if (category === 'word') { iconClass = '/img/icons/word.png'; }
+                else if (category === 'excel') { iconClass = '/img/icons/excel.png'; }
+
+                const rawUrl = `${appUrl}/raw/${file.public_code}`;
+              %>
+              <tr class="bg-white hover:bg-neutral-50 dark:bg-neutral-900 dark:hover:bg-neutral-800/60 transition-colors" id="file-row-<%= file.file_id %>">
+                <td class="px-5 py-3.5">
+                  <div class="flex items-center gap-3">
+                    <img src="<%= iconClass %>" alt="Archivo" class="w-6 h-6 object-contain flex-shrink-0">
+                    <span class="font-medium text-neutral-900 dark:text-neutral-100 truncate max-w-xs" title="<%= file.name %>"><%= file.name %></span>
+                  </div>
+                </td>
+                <!-- Tamaño -->
+                <td class="px-5 py-3.5 text-neutral-500 whitespace-nowrap">
+                  <span><i class="fa-solid fa-weight-hanging text-neutral-400 text-xs mr-1"></i> <%= file.formattedSize %></span>
+                </td>
+                <!-- Fecha -->
+                <td class="px-5 py-3.5 text-neutral-500 whitespace-nowrap">
+                  <%= formatearFecha(file.updatedAt) %>
+                </td>
+                <!-- COLUMNA VISIBILIDAD (BOTÓN TOGGLE INTERACTIVO) -->
+                <td class="px-5 py-3.5 text-center whitespace-nowrap">
+                  <button type="button"
+                    class="btn-toggle-visibility inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold cursor-pointer transition-colors shadow-xs <%= file.is_public ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200 border border-emerald-300' : 'bg-amber-100 text-amber-800 hover:bg-amber-200 border border-amber-300' %>"
+                    data-file-id="<%= file.file_id %>"
+                    data-is-public="<%= file.is_public ? 'true' : 'false' %>"
+                    data-raw-url="<%= rawUrl %>"
+                    title="Haz clic para cambiar visibilidad">
+                    <% if (file.is_public) { %>
+                      <i class="bi bi-globe2"></i> <span>Público</span>
+                    <% } else { %>
+                      <i class="bi bi-lock-fill"></i> <span>Privado</span>
+                    <% } %>
+                  </button>
+                </td>
+                <!-- COLUMNA LINK -->
+                <td class="px-5 py-3.5">
+                  <div class="fixed-link-box flex items-center gap-2">
+                    <% if (file.is_public) { %>
+                      <!-- Estado Público: muestra el link directo -->
+                      <span class="fixed-link-text text-xs text-neutral-600 truncate max-w-[180px]" title="<%= rawUrl %>">
+                        <i class="bi bi-link-45deg text-blue-600"></i> <%= rawUrl %>
+                      </span>
+                      <button type="button" class="btn-copy bg-white border border-neutral-300 rounded px-2.5 py-1 text-xs hover:bg-neutral-50 shadow-xs transition cursor-pointer" data-link="<%= rawUrl %>">
+                        <i class="bi bi-copy"></i> Copiar
+                      </button>
+                    <% } else { %>
+                      <!-- Estado Privado: enlace público deshabilitado -->
+                      <span class="text-xs text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200 flex items-center gap-1" title="El enlace público está desactivado">
+                        <i class="bi bi-shield-lock"></i> Privado (Sin enlace)
+                      </span>
+                    <% } %>
+                  </div>
+                </td>
+                <td class="px-5 py-3.5 text-center whitespace-nowrap">
+                  <div class="inline-flex items-center gap-1.5">
+                    <button type="button" class="p-2 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 btn_file_versions transition cursor-pointer" title="Historial de versiones" data-file-id="<%= file.file_id %>" data-file-name="<%= file.name.replace(/'/g, '\\\'') %>">
+                      <i class="bi bi-clock-history"></i>
+                    </button>
+                    <button type="button" class="p-2 rounded-lg bg-neutral-100 hover:bg-neutral-200 text-neutral-700 btn_view_file transition cursor-pointer" data-file-id="<%= file.file_id %>" data-code="<%= file.public_code %>" title="Ver archivo">
+                      <i class="bi bi-box-arrow-up-right"></i>
+                    </button>
+                    <a href="/files/<%= file.file_id %>/download" class="p-2 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 transition" title="Descargar archivo">
+                      <i class="bi bi-download"></i>
+                    </a>
+                    <button type="button" class="p-2 rounded-lg bg-neutral-100 hover:bg-neutral-200 text-neutral-700 btn_renombrar_file transition cursor-pointer" title="Renombrar archivo" data-file-id="<%= file.file_id %>" data-file-name="<%= file.name.replace(/'/g, '\\\'') %>">
+                      <i class="bi bi-pencil-square"></i>
+                    </button>
+                    <button type="submit" class="p-2 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 btnDeleteFile transition cursor-pointer" data-file-id="<%= file.file_id %>" title="Eliminar archivo">
+                      <i class="bi bi-trash3"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            <% }) %>
+          <% } %>
+
+        </tbody>
+      </table>
+    </div>
+  </div>
+<% } else { %>
+  <div class="text-center p-10 border-1 border-gray-300 rounded-xl m-10">
+    <div class="text-7xl mb-3 opacity-75"><i class="bi bi-folder2-open"></i></div>
+    <div class="text-2xl font-bold">Esta carpeta está vacía</div>
+    <div class="text-md m-2">Crea una subcarpeta o sube archivos para comenzar a organizarlos y generar sus URLs fijas.</div>
+    <button type="button" class="bg-blue-500 rounded-xl p-3 text-white hover:bg-blue-700" id="btnSubirPrimerArchivo">
+      <i class="bi bi-cloud-arrow-up-fill"></i> Subir Primer Archivo
+    </button>
+  </div>
+<% } %>
+
+  <%- //include('./partials/modalFlowbite',{
+    //modalId:'modalPrueba',
+    //title:'Modal de Prueba formulario',
+    //contentView:'../contents/prueba1',
+    //contentData: { prueba: null },
+    //size:'max-w-7xl'
+  //}); %> 
+
+<%- include('../../partials/modals.ejs') %>
+<script type="module" nonce="<%= nonce %>">
+    import {openModal, copyToClipboard, openRenameFolderModal, openRenameFileModal, showToast} from '/js/explorer.js';
+
+    const btnSubirPrimerArchivo = document.getElementById('btnSubirPrimerArchivo');
+    const btnNuevaCarpeta = document.getElementById('btnNuevaCarpeta');
+    const btnSubirArchivo = document.getElementById('btnSubirArchivo');
+
+    if (btnSubirPrimerArchivo) {
+        btnSubirPrimerArchivo.addEventListener("click", () => openModal('uploadModal'));
+    }
+
+    if (btnNuevaCarpeta) {
+        btnNuevaCarpeta.addEventListener("click", () => openModal('newFolderModal'));
+    }
+
+    if (btnSubirArchivo) {
+        btnSubirArchivo.addEventListener("click", () => openModal('uploadModal'));
+    }
+
+    function formatBytes(bytes) {
+        if (!bytes || bytes === 0 || bytes === '0') return '0 B';
+        const num = Number(bytes);
+        const k = 1024;
+        const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+        const i = Math.floor(Math.log(num) / Math.log(k));
+        return parseFloat((num / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    function formatDate(dateStr) {
+        if (!dateStr) return '—';
+        const d = new Date(dateStr);
+        return d.toLocaleDateString('es-MX', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+
+    // Cargar historial de versiones
+    async function loadVersions(fileId, fileName) {
+        const modalFileName = document.getElementById('versionsModalFileName');
+        const versionFileId = document.getElementById('versionFileId');
+        const versionsTbody = document.getElementById('versionsTableBody');
+
+        if (modalFileName) modalFileName.textContent = fileName || '';
+        if (versionFileId) versionFileId.value = fileId;
+        if (versionsTbody) {
+            versionsTbody.innerHTML = `
+                <tr>
+                    <td colspan="7" class="px-4 py-6 text-center text-gray-500">
+                        <i class="bi bi-arrow-repeat animate-spin text-indigo-600 mr-2"></i> Cargando historial de versiones...
+                    </td>
+                </tr>
+            `;
+        }
+
+        openModal('versionsModal');
+
+        try {
+            const response = await fetch(`/files/${fileId}/versions`);
+            if (!response.ok) throw new Error('Error al consultar versiones');
+            const data = await response.json();
+            const versions = data.versions || [];
+
+            if (versions.length === 0) {
+                versionsTbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="px-4 py-6 text-center text-gray-400">
+                            No hay versiones registradas aún para este archivo.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            versionsTbody.innerHTML = versions.map((ver, idx) => {
+                const isLatest = idx === 0;
+                const userEmail = ver.usuario?.email || 'Sistema';
+                return `
+                    <tr class="border-b border-gray-100 hover:bg-gray-50/70 transition">
+                        <td class="px-4 py-3 font-semibold text-gray-800">
+                            v${ver.version_number}
+                            ${isLatest ? '<span class="ml-1.5 px-2 py-0.5 rounded-full text-[10px] bg-green-100 text-green-700 font-bold">Activa</span>' : ''}
+                        </td>
+                        <td class="px-4 py-3 text-gray-700 max-w-[160px] truncate" title="${ver.original_name}">
+                            ${ver.original_name}
+                        </td>
+                        <td class="px-4 py-3 text-gray-500">${formatBytes(ver.size)}</td>
+                        <td class="px-4 py-3 text-gray-600 truncate max-w-[120px]" title="${userEmail}">${userEmail}</td>
+                        <td class="px-4 py-3 text-gray-500">${formatDate(ver.createdAt)}</td>
+                        <td class="px-4 py-3 text-gray-600 italic max-w-[150px] truncate" title="${ver.comment || 'Sin notas'}">
+                            ${ver.comment || '—'}
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                            <div class="flex items-center justify-center gap-1.5">
+                                <a href="/files/${fileId}/versions/${ver.version_id}/download"
+                                   class="p-1.5 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition"
+                                   title="Descargar esta versión">
+                                    <i class="bi bi-download"></i>
+                                </a>
+                                ${!isLatest ? `
+                                    <button type="button"
+                                            class="btn_restore_version px-2 py-1 rounded bg-amber-50 text-amber-700 hover:bg-amber-100 text-xs font-medium transition"
+                                            data-file-id="${fileId}"
+                                            data-version-id="${ver.version_id}"
+                                            data-version-num="${ver.version_number}"
+                                            title="Restaurar a esta versión">
+                                        <i class="bi bi-arrow-counterclockwise mr-1"></i> Restaurar
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        } catch (err) {
+            console.error(err);
+            if (versionsTbody) {
+                versionsTbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="px-4 py-6 text-center text-red-500">
+                            No se pudieron cargar las versiones del archivo.
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+    }
+
+    // Subir nueva versión mediante AJAX
+    const uploadNewVersionForm = document.getElementById('uploadNewVersionForm');
+    if (uploadNewVersionForm) {
+        uploadNewVersionForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const fileId = document.getElementById('versionFileId').value;
+            const fileInput = document.getElementById('newVersionFileInput');
+            const submitBtn = document.getElementById('btnSubmitNewVersion');
+
+            if (!fileInput.files || fileInput.files.length === 0) {
+                showToast('Selecciona un archivo para la nueva versión');
+                return;
+            }
+
+            const formData = new FormData(this);
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="bi bi-arrow-repeat animate-spin"></i> Subiendo...';
+
+            try {
+                const response = await fetch(`/files/${fileId}/versions`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    showToast(result.message || 'Nueva versión subida exitosamente');
+                    uploadNewVersionForm.reset();
+                    // Recargar la lista de versiones
+                    const currentFileName = document.getElementById('versionsModalFileName')?.textContent;
+                    await loadVersions(fileId, currentFileName);
+                    setTimeout(() => location.reload(), 1200);
+                } else {
+                    showToast(result.message || result.error || 'Error al subir la versión');
+                }
+            } catch (err) {
+                console.error(err);
+                showToast('Error de red al subir la versión');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="bi bi-upload"></i> Subir Versión';
+            }
+        });
+    }
+
+    // Delegación de eventos clic
+    document.addEventListener('click', async function(e) {
+        const btnRenameFile = e.target.closest('.btn_renombrar_file');
+        const btnCopiar = e.target.closest('.btn-copy');
+        const btnViewFile = e.target.closest('.btn_view_file');
+        const btnRenameFolder = e.target.closest('.btn_renombrar_folder');
+        const btnDeleteFile = e.target.closest('.btnDeleteFile');
+        const btnDeleteFolder = e.target.closest('.btn_delete_folder');
+        const btnToggle = e.target.closest('.btn-toggle-visibility');
+        const btnFileVersions = e.target.closest('.btn_file_versions');
+        const btnRestore = e.target.closest('.btn_restore_version');
+
+        // Historial de versiones modal
+        if (btnFileVersions) {
+            const fileId = btnFileVersions.dataset.fileId;
+            const fileName = btnFileVersions.dataset.fileName;
+            loadVersions(fileId, fileName);
+            return;
+        }
+
+        // Restaurar versión anterior
+        if (btnRestore) {
+            const fileId = btnRestore.dataset.fileId;
+            const versionId = btnRestore.dataset.versionId;
+            const versionNum = btnRestore.dataset.versionNum;
+
+            if (confirm(`¿Deseas restaurar el archivo a la versión v${versionNum}? Esta pasará a ser la versión activa.`)) {
+                btnRestore.disabled = true;
+                try {
+                    const response = await fetch(`/files/${fileId}/versions/${versionId}/restore`, {
+                        method: 'POST'
+                    });
+                    const resJson = await response.json();
+                    if (response.ok && resJson.success) {
+                        showToast(`Restaurado con éxito a v${versionNum}`);
+                        setTimeout(() => location.reload(), 800);
+                    } else {
+                        showToast(resJson.message || 'Error al restaurar');
+                        btnRestore.disabled = false;
+                    }
+                } catch (err) {
+                    console.error(err);
+                    showToast('Error de conexión al restaurar');
+                    btnRestore.disabled = false;
+                }
+            }
+            return;
+        }
+
+        // Renombrar Archivos
+        if (btnRenameFile) {
+            const id = btnRenameFile.dataset.fileId;
+            const name = btnRenameFile.dataset.fileName;
+            openRenameFileModal(id, name);
+            return;
+        }
+
+        // Renombrar Carpetas
+        if (btnRenameFolder) {
+            const id = btnRenameFolder.dataset.folderId;
+            const name = btnRenameFolder.dataset.folderName;
+            const color = btnRenameFolder.dataset.folderColor;
+            openRenameFolderModal(id, name, color);
+            return;
+        }
+
+        // Eliminar archivos
+        if (btnDeleteFile) {
+            const id = btnDeleteFile.dataset.fileId;
+            if (confirm('¿Deseas eliminar este archivo definitivamente?')) {
+                const response = await fetch(`/files/${id}/delete`, {
+                    method: 'POST',
+                    headers: { 'Accept': 'application/json' }
+                });
+                if (response.ok) {
+                    document.location.reload();
+                } else {
+                    showToast('Error al eliminar el archivo');
+                }
+            }
+            return;
+        }
+
+        // Eliminar carpetas
+        if (btnDeleteFolder) {
+            const id = btnDeleteFolder.dataset.folderId;
+            if (confirm('¿Deseas eliminar esta carpeta definitivamente?')) {
+                const response = await fetch(`/folders/${id}/delete`, {
+                    method: 'POST',
+                    headers: { 'Accept': 'application/json' }
+                });
+                if (response.ok) {
+                    document.location.reload();
+                } else {
+                    showToast('Error al eliminar la carpeta');
+                }
+            }
+            return;
+        }
+
+        // Copiar al portapapeles el link
+        if (btnCopiar) {
+            const link = btnCopiar.dataset.link || btnCopiar.dataset.fileId;
+            if (link) copyToClipboard(link);
+            return;
+        }
+
+        // Cambiar visibilidad (Público / Privado)
+        if (btnToggle) {
+            const fileId = btnToggle.dataset.fileId;
+            btnToggle.disabled = true;
+
+            try {
+                const response = await fetch(`/files/${fileId}/toggle-visibility`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    const nuevoEstadoPublico = data.is_public;
+                    btnToggle.dataset.isPublic = nuevoEstadoPublico ? 'true' : 'false';
+
+                    // 1. Actualizar estilos del botón
+                    if (nuevoEstadoPublico) {
+                        btnToggle.className = 'btn-toggle-visibility inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold cursor-pointer transition-colors shadow-xs bg-emerald-100 text-emerald-800 hover:bg-emerald-200 border border-emerald-300';
+                        btnToggle.innerHTML = '<i class="bi bi-globe2"></i> <span>Público</span>';
+                    } else {
+                        btnToggle.className = 'btn-toggle-visibility inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold cursor-pointer transition-colors shadow-xs bg-amber-100 text-amber-800 hover:bg-amber-200 border border-amber-300';
+                        btnToggle.innerHTML = '<i class="bi bi-lock-fill"></i> <span>Privado</span>';
+                    }
+
+                    // 2. Actualizar la celda Link en la tabla inmediatamente
+                    const row = document.getElementById(`file-row-${fileId}`);
+                    if (row) {
+                        const linkBox = row.querySelector('.fixed-link-box');
+                        const rawUrl = data.rawUrl || btnToggle.dataset.rawUrl;
+                        if (linkBox && rawUrl) {
+                            btnToggle.dataset.rawUrl = rawUrl;
+                            if (nuevoEstadoPublico) {
+                                linkBox.innerHTML = `
+                                    <span class="fixed-link-text text-xs text-neutral-600 truncate max-w-[180px]" title="${rawUrl}">
+                                        <i class="bi bi-link-45deg text-blue-600"></i> ${rawUrl}
+                                    </span>
+                                    <button type="button" class="btn-copy bg-white border border-neutral-300 rounded px-2.5 py-1 text-xs hover:bg-neutral-50 shadow-xs transition cursor-pointer" data-link="${rawUrl}">
+                                        <i class="bi bi-copy"></i> Copiar
+                                    </button>
+                                `;
+                            } else {
+                                linkBox.innerHTML = `
+                                    <span class="text-xs text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200 flex items-center gap-1" title="El enlace público está desactivado">
+                                        <i class="bi bi-shield-lock"></i> Privado (Sin enlace)
+                                    </span>
+                                `;
+                            }
+                        }
+                    }
+
+                    showToast(nuevoEstadoPublico ? 'El archivo ahora es público' : 'El archivo ahora es privado');
+                } else {
+                    showToast(data.message || 'Error al actualizar visibilidad');
+                }
+            } catch (err) {
+                console.error(err);
+                showToast('Error de conexión');
+            } finally {
+                btnToggle.disabled = false;
+            }
+            return;
+        }
+
+        // Visualizador de archivos
+        if (btnViewFile) {
+            openModal('viewFileModal');
+            const fileId = btnViewFile.dataset.fileId;
+            const code = btnViewFile.dataset.code;
+            const contenido = document.getElementById('contenido');
+            contenido.innerHTML = '<div class="p-6 text-center text-gray-500"><i class="bi bi-arrow-repeat animate-spin text-indigo-600 mr-2 text-xl"></i> Cargando visualizador...</div>';
+            
+            try {
+                let response = fileId ? await fetch(`/files/${fileId}/preview`) : null;
+                let data = null;
+                if (response && response.ok) {
+                    data = await response.json();
+                } else if (code) {
+                    response = await fetch('/f/' + code);
+                    if (response.ok) data = await response.json();
+                }
+
+                if (!data || !data.file) {
+                    contenido.innerHTML = '<div class="p-6 text-red-500 text-center font-medium">No se pudo cargar la vista previa del archivo.</div>';
+                    return;
+                }
+
+                const category = data.file.fileCategory;
+                const viewUrl = data.previewUrl || `/files/${data.file.file_id}/stream`;
+                const downloadUrl = `/files/${data.file.file_id}/download`;
+
+                if (category === 'pdf') {
+                    contenido.innerHTML = `
+                        <div class="w-full h-[75vh] p-2">
+                            <iframe src="${viewUrl}" class="w-full h-full rounded-lg border border-gray-200" frameborder="0"></iframe>
+                        </div>
+                    `;
+                } else if (category === 'image') {
+                    contenido.innerHTML = `
+                        <div class="flex justify-center items-center p-4 max-h-[70vh] overflow-auto">
+                            <img src="${viewUrl}" alt="${data.file.name}" class="max-w-full max-h-[65vh] object-contain rounded-lg shadow-sm" />
+                        </div>
+                    `;
+                } else if (category === 'video') {
+                    contenido.innerHTML = `
+                        <div class="flex justify-center p-4">
+                            <video src="${viewUrl}" controls class="max-w-full max-h-[65vh] rounded-lg"></video>
+                        </div>
+                    `;
+                } else if (category === 'audio') {
+                    contenido.innerHTML = `
+                        <div class="flex justify-center items-center p-8">
+                            <audio src="${viewUrl}" controls class="w-full"></audio>
+                        </div>
+                    `;
+                } else {
+                    contenido.innerHTML = `
+                        <div class="p-8 text-center text-gray-600">
+                            <p class="mb-4">No hay vista previa disponible para este tipo de archivo.</p>
+                            <a href="${downloadUrl}" class="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+                                <i class="bi bi-download"></i> Descargar archivo
+                            </a>
+                        </div>
+                    `;
+                }
+            } catch (err) {
+                console.error(err);
+                contenido.innerHTML = '<div class="p-6 text-red-500 text-center font-medium">Error al cargar el visualizador.</div>';
+            }
+            return;
+        }
+    });
+</script>

@@ -1,6 +1,6 @@
-const {File, Folder} = require('../models');
+const {File, Folder, FileVersion, Usuario} = require('../models');
 const fs = require('fs');
-const  storageHelper = require('../utils/storageHelper');
+const storageHelper = require('../utils/storageHelper');
 const path = require('path');
 const {v4: uuidv4} = require('uuid');
 
@@ -8,20 +8,33 @@ const uploadFiles = async (req, res, next) =>{
     try{
         const folderId = req.query.folderId || req.body.folder_id || null;
         const targetFolderId = folderId && folderId !== '' && folderId !== 'null' ? folderId : null;
+        const isPublic = req.body.is_public === 'true' || req.body.is_public === true;
 
         if(!req.files || req.files.length === 0){
             return res.status(400).redirect(targetFolderId ? `/folders/${targetFolderId}` : '/documentos');
         }
 
         for(const file of req.files){
-            await File.create({
+            const newFile = await File.create({
                 name: file.originalname,
                 original_name: file.originalname,
                 filename: file.filename,
                 mime_type: file.mimetype,
                 size: file.size,
                 fk_folder_id: targetFolderId,
-                fk_storage_id:req.storage.storage_id
+                fk_storage_id: req.storage.storage_id,
+                is_public: isPublic
+            });
+
+            await FileVersion.create({
+                fk_file_id: newFile.file_id,
+                version_number: 1,
+                filename: file.filename,
+                original_name: file.originalname,
+                size: file.size,
+                mime_type: file.mimetype,
+                comment: 'Versión inicial',
+                fk_usuario_id: req.usuario?.usuario_id
             });
         }
         res.redirect(targetFolderId ? `/folders/${targetFolderId}` : '/documentos');
@@ -29,6 +42,57 @@ const uploadFiles = async (req, res, next) =>{
         next(err);
     }
 }
+
+const uploadNewVersion = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const { comment } = req.body;
+        const uploadedFile = req.file; // multer single('file')
+
+        if (!uploadedFile) {
+            return res.status(400).json({ success: false, message: 'No se envió ningún archivo' });
+        }
+
+        const file = await File.findByPk(id);
+        if (!file) {
+            return res.status(404).json({ success: false, message: 'Archivo no encontrado' });
+        }
+
+        // Obtener el número de la última versión
+        const lastVersion = await FileVersion.max('version_number', {
+            where: { fk_file_id: id }
+        }) || 1;
+
+        const nextVersion = lastVersion + 1;
+
+        // 1. Crear el nuevo registro histórico
+        const version = await FileVersion.create({
+            fk_file_id: file.file_id,
+            version_number: nextVersion,
+            filename: uploadedFile.filename,
+            original_name: uploadedFile.originalname,
+            size: uploadedFile.size,
+            mime_type: uploadedFile.mimetype,
+            comment: comment || `Actualización a versión ${nextVersion}`,
+            fk_usuario_id: req.usuario?.usuario_id
+        });
+
+        // 2. Actualizar el archivo activo para que la URL pública (/raw/:code) entregue siempre la última versión
+        file.filename = uploadedFile.filename;
+        file.original_name = uploadedFile.originalname;
+        file.size = uploadedFile.size;
+        file.mime_type = uploadedFile.mimetype;
+        await file.save();
+
+        res.json({
+            success: true,
+            message: `Versión ${nextVersion} subida exitosamente`,
+            version
+        });
+    } catch (err) {
+        next(err);
+    }
+};
 
 const renameFile = async ( req, res, next) =>{
     try{
@@ -42,7 +106,7 @@ const renameFile = async ( req, res, next) =>{
                 title: 'Archivo no encontrado',
                 message:'El archivo que intentas renombrar no existe.',
                 statusCode:404
-            })
+            });
         }
 
         const newName = name ? name.trim() : '';
@@ -66,9 +130,8 @@ const renameFile = async ( req, res, next) =>{
             }
             // 4. Actualizar en la base de datos
             file.name = cleanNewName;
-            file.original_name = `${cleanNewName}${ext}`; // ✅ No conserva el nombre original anterior
-            file.filename = newFilename;                  // ✅ Sincronizado con el disco
-            // ✅ Guarda cambios y actualiza automáticamente la fecha en updatedAt
+            file.original_name = `${cleanNewName}${ext}`;
+            file.filename = newFilename;
             await file.save();
         }
 
@@ -84,6 +147,9 @@ const deleteFile = async(req, res, next)=>{
         const file = await File.findByPk(id);
 
         if(!file){
+            if (req.xhr || req.headers.accept?.includes('application/json')) {
+                return res.status(404).json({ success: false, message: 'Archivo no encontrado' });
+            }
             return res.status(404).render('dashboard',{
                 page:'error',
                 titulo: 'Archivo no encontrado',
@@ -92,15 +158,19 @@ const deleteFile = async(req, res, next)=>{
             });
         }
 
-        const redirectTarget = file.fk_folder_id ? `/folders/${file._fk_folder_id}` : '/documentos';
+        const redirectTarget = file.fk_folder_id ? `/folders/${file.fk_folder_id}` : '/documentos';
 
-        const filePath = storageHelper.getFilePhysicalPath(file, req.storage);
+        const filePath = await storageHelper.getFilePhysicalPath(file, req.storage);
         if(fs.existsSync(filePath)){
             fs.unlinkSync(filePath);
             console.log(`Archivo eliminado del disco: ${filePath}`);
         }
 
         await file.destroy();
+
+        if (req.xhr || req.headers.accept?.includes('application/json')) {
+            return res.json({ success: true, message: 'Archivo eliminado' });
+        }
         res.redirect(redirectTarget);
     }catch(err){
         next(err);
@@ -121,7 +191,7 @@ const downloadFile = async(req, res, next) =>{
             });
         }
 
-        const filePath = storageHelper.getFilePhysicalPath(file);
+        const filePath = await storageHelper.getFilePhysicalPath(file, req.storage);
         if(!fs.existsSync(filePath)){
             return res.status(404).render('dashboard',{
                 page:'error',
@@ -131,7 +201,7 @@ const downloadFile = async(req, res, next) =>{
             });
         }
 
-        file.download_count += 1;
+        file.downloads_count += 1;
         await file.save();
 
         res.download(filePath, file.original_name);
@@ -140,9 +210,166 @@ const downloadFile = async(req, res, next) =>{
     }
 }
 
+const toggleVisibility = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const file = await File.findByPk(id);
+        if (!file) return res.status(404).json({ success: false, message: 'Archivo no encontrado' });
+
+        file.is_public = !file.is_public;
+
+        // Si se cambia a privado, invalidamos su public_code previo para revocar cualquier URL copiada anteriormente
+        if (!file.is_public) {
+            file.public_code = uuidv4();
+        }
+
+        await file.save();
+
+        const appUrl = process.env.APP_URL || `${req.protocol}://${req.get('host')}`;
+        const rawUrl = `${appUrl}/raw/${file.public_code}`;
+
+        res.json({
+            success: true,
+            is_public: file.is_public,
+            rawUrl,
+            message: file.is_public ? 'El archivo ahora es público' : 'El archivo ahora es privado'
+        });
+    } catch (err) {
+        next(err);
+    }
+};
+
+const getFileVersions = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const file = await File.findByPk(id);
+        if (!file) {
+            return res.status(404).json({ success: false, message: 'Archivo no encontrado' });
+        }
+
+        const versions = await FileVersion.findAll({
+            where: { fk_file_id: id },
+            include: [{ model: Usuario, as: 'usuario', attributes: ['usuario_id', 'email'] }],
+            order: [['version_number', 'DESC']]
+        });
+
+        res.json({
+            success: true,
+            file,
+            versions
+        });
+    } catch (err) {
+        next(err);
+    }
+};
+
+const restoreVersion = async (req, res, next) => {
+    try {
+        const { id, versionId } = req.params;
+        const file = await File.findByPk(id);
+        const targetVersion = await FileVersion.findByPk(versionId);
+
+        if (!file || !targetVersion) {
+            return res.status(404).json({ success: false, message: 'Archivo o versión no encontrada' });
+        }
+
+        file.filename = targetVersion.filename;
+        file.size = targetVersion.size;
+        file.mime_type = targetVersion.mime_type;
+        file.original_name = targetVersion.original_name;
+        await file.save();
+
+        res.json({
+            success: true,
+            message: `Restaurado a la versión ${targetVersion.version_number}`
+        });
+    } catch (err) {
+        next(err);
+    }
+};
+
+const downloadVersion = async (req, res, next) => {
+    try {
+        const { id, versionId } = req.params;
+        const file = await File.findByPk(id);
+        const targetVersion = await FileVersion.findByPk(versionId);
+
+        if (!file || !targetVersion) {
+            return res.status(404).send('Versión de archivo no encontrada');
+        }
+
+        const folderDir = await storageHelper.getFolderPhysicalPath(file.fk_folder_id, req.storage);
+        const filePath = path.join(folderDir, targetVersion.filename);
+
+        if (!fs.existsSync(filePath)) {
+            return res.status(404).send('El archivo físico de esta versión no existe en el disco.');
+        }
+
+        res.download(filePath, targetVersion.original_name);
+    } catch (err) {
+        next(err);
+    }
+};
+
+const getFilePreview = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const file = await File.findByPk(id);
+        if (!file) {
+            return res.status(404).json({ success: false, message: 'Archivo no encontrado' });
+        }
+
+        const appUrl = process.env.APP_URL || `${req.protocol}://${req.get('host')}`;
+        const previewUrl = `/files/${file.file_id}/stream`;
+
+        res.json({
+            success: true,
+            file,
+            previewUrl,
+            appUrl
+        });
+    } catch (err) {
+        next(err);
+    }
+};
+
+const streamFile = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const file = await File.findByPk(id);
+
+        if (!file) {
+            return res.status(404).send('Archivo no encontrado');
+        }
+
+        const folderDir = await storageHelper.getFolderPhysicalPath(file.fk_folder_id, req.storage);
+        const filePath = path.join(folderDir, file.filename);
+
+        if (!fs.existsSync(filePath)) {
+            return res.status(404).send('El archivo físico no existe en el almacenamiento.');
+        }
+
+        res.setHeader('Content-Type', file.mime_type || 'application/octet-stream');
+        res.setHeader('Content-Disposition', `inline; filename="${encodeURIComponent(file.original_name)}"`);
+        res.setHeader('Cache-Control', 'private, no-cache');
+
+        const stream = fs.createReadStream(filePath);
+        stream.pipe(res);
+    } catch (err) {
+        next(err);
+    }
+};
+
 module.exports = {
     uploadFiles,
     renameFile,
     deleteFile,
-    downloadFile
+    downloadFile,
+    toggleVisibility,
+    uploadNewVersion,
+    getFileVersions,
+    restoreVersion,
+    downloadVersion,
+    getFilePreview,
+    streamFile
 }

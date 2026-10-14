@@ -1,5 +1,7 @@
 const sequelize = require('../config/dbPostrgres');
 
+const {Entity, Field} = require('./Meta');
+const Dynamic = require('./Dynamic');
 const Usuario = require('./Usuario');
 const Rol = require('./Rol');
 const Modulo = require('./Modulo');
@@ -17,7 +19,14 @@ const EventosCursos = require('./EventoCurso');
 const MenusLaterales = require('./MenusLaterales');
 const MenusPrincipales = require('./MenuPrincipal');
 
+const FileVersion = require('./FileVersion');
 
+
+
+Entity.hasMany(Field,{as: 'fields', foreignKey: 'fk_entity_id',  onDelete: 'CASCADE'});
+Field.belongsTo(Entity, {
+    foreignKey: 'fk_entity_id'
+});
 
 // ----------Usuario <> Rol (1:N)------------------
 // Un rol puede tener muchos usuarios; un usuario tiene un solo rol
@@ -66,6 +75,10 @@ Storage.hasMany(File,{foreignKey:'fk_storage_id',as:'files',onDelete:'CASCADE'})
 File.belongsTo(Storage,{foreignKey:'fk_storage_id', as:'storage'});
 
 
+// Relaciones
+File.hasMany(FileVersion, { as: 'versions', foreignKey: 'fk_file_id', onDelete: 'CASCADE' });
+FileVersion.belongsTo(File, { as: 'file', foreignKey: 'fk_file_id' });
+FileVersion.belongsTo(Usuario, { as: 'usuario', foreignKey: 'fk_usuario_id' });
 
 module.exports = {
     sequelize,
@@ -83,5 +96,9 @@ module.exports = {
     ConvocatoriasBienes,
     EventosCursos,
     MenusLaterales,
-    MenusPrincipales
+    MenusPrincipales,
+    Dynamic,
+    Entity,
+    Field,
+    FileVersion
 }

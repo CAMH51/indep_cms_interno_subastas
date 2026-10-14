@@ -43,9 +43,9 @@ const getExplorer = async(req, res, next) =>{
 
 
         if(folderId){
-            currentFolder = await Folder.findByPk(folderId,{
+            currentFolder = await Folder.findOne({
                 where:{
-                    forder_id:folderId,
+                    folder_id:folderId,
                     fk_storage_id:currentStorageId
                 }
             });
@@ -106,7 +106,7 @@ const getExplorer = async(req, res, next) =>{
         }
 
         res.render('dashboard',{
-            page:'explorer',
+            page:'documentos/explorer',
             titulo: currentFolder ? `${currentFolder.name} - Directorios` : 'Mi Unidad - Directorios',
             currentFolder,
             folderId,
@@ -206,6 +206,10 @@ const deleteFolder = async(req, res, next) =>{
         await storageHelper.deletePhysicalFolder(folder.folder_id, req.storage);
 
         await folder.destroy();
+
+        if (req.xhr || req.headers.accept?.includes('application/json')) {
+            return res.json({ success: true, message: 'Carpeta eliminada' });
+        }
 
         res.redirect(redirectTarget);
     } catch (error) {

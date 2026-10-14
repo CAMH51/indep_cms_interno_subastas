@@ -67,6 +67,14 @@
         <input type="file" id="fileUploadInput" name="files" multiple <%= (picker && picker.type === 'image') ? 'accept=image/*' : '' %>  class="hidden">
       </div>
 
+      <div class="px-6 pb-2">
+        <label class="flex items-center gap-2 cursor-pointer text-sm text-gray-700">
+          <input type="checkbox" name="is_public" value="true" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+          <span>Hacer público(s) para compartir mediante URL externa</span>
+        </label>
+        <p class="text-xs text-gray-500 ml-6">Si no se marca, requerirá inicio de sesión para consultarlo.</p>
+      </div>
+
       <div class="flex justify-end gap-3 border-t border-gray-200 px-6 py-4">
         <button type="button" class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100" id="btnCloseUpload">Cerrar</button>
       </div>
@@ -140,6 +148,88 @@
   </div>
 </div>
 
+<!-- MODAL: HISTORIAL DE VERSIONES -->
+<div class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm" id="versionsModal">
+  <div class="w-full max-w-3xl rounded-xl bg-white shadow-xl max-h-[90vh] flex flex-col">
+    <!-- Header -->
+    <div class="flex items-center justify-between border-b border-gray-200 px-6 py-4">
+      <div class="flex items-center gap-3">
+        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-100 text-indigo-600">
+          <i class="bi bi-clock-history text-lg"></i>
+        </div>
+        <div>
+          <h3 class="text-base font-semibold text-gray-800">Historial de Versiones</h3>
+          <p class="text-xs text-gray-500 truncate max-w-md" id="versionsModalFileName"></p>
+        </div>
+      </div>
+      <button type="button" class="text-2xl leading-none text-gray-400 hover:text-gray-600" id="btnXVersionsModal">&times;</button>
+    </div>
+
+    <!-- Contenido Scrollable -->
+    <div class="overflow-y-auto px-6 py-4 flex-1">
+      <!-- Formulario para subir nueva versión -->
+      <div class="mb-6 rounded-lg border border-indigo-100 bg-indigo-50/50 p-4">
+        <h4 class="mb-3 text-sm font-semibold text-indigo-900 flex items-center gap-2">
+          <i class="bi bi-cloud-arrow-up"></i> Subir nueva versión
+        </h4>
+        <form id="uploadNewVersionForm" class="space-y-3">
+          <input type="hidden" id="versionFileId" name="file_id">
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-medium text-gray-700 mb-1" for="newVersionFileInput">Archivo de reemplazo *</label>
+              <input type="file" id="newVersionFileInput" name="file" required
+                class="block w-full text-xs text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-white focus:outline-none p-1.5">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-700 mb-1" for="newVersionCommentInput">Notas / Comentario del cambio</label>
+              <input type="text" id="newVersionCommentInput" name="comment" placeholder="Ej. Corrección de precios, cláusula..."
+                class="w-full rounded-lg border border-gray-300 px-3 py-1.5 text-xs text-gray-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
+            </div>
+          </div>
+
+          <div class="flex justify-end">
+            <button type="submit" id="btnSubmitNewVersion"
+              class="inline-flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-700 transition">
+              <i class="bi bi-upload"></i> Subir Versión
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Tabla de Versiones -->
+      <h4 class="mb-2 text-sm font-semibold text-gray-800 flex items-center gap-2">
+        <i class="bi bi-layers"></i> Versiones Registradas
+      </h4>
+      <div class="overflow-x-auto rounded-lg border border-gray-200">
+        <table class="w-full text-xs text-left text-gray-600">
+          <thead class="bg-gray-50 border-b border-gray-200 text-gray-700 uppercase font-medium">
+            <tr>
+              <th class="px-4 py-2.5">Versión</th>
+              <th class="px-4 py-2.5">Archivo</th>
+              <th class="px-4 py-2.5">Tamaño</th>
+              <th class="px-4 py-2.5">Subido por</th>
+              <th class="px-4 py-2.5">Fecha</th>
+              <th class="px-4 py-2.5">Comentario</th>
+              <th class="px-4 py-2.5 text-center">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="versionsTableBody">
+            <tr>
+              <td colspan="7" class="px-4 py-6 text-center text-gray-400">Cargando versiones...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Footer Modal -->
+    <div class="border-t border-gray-200 px-6 py-3 flex justify-end">
+      <button type="button" class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100" id="btnCloseVersionsModal">Cerrar</button>
+    </div>
+  </div>
+</div>
+
 <script type="module" nonce="<%= nonce %>">
   import {closeModal} from '/js/explorer.js';
 
@@ -148,12 +238,14 @@
   const btnRenameFolder = document.getElementById('btnRenameFolder');
   const btnRenameFile = document.getElementById('btnRenameFile');
   const btnXViewFileModal = document.getElementById('btnXViewFileModal');
+  const btnXVersionsModal = document.getElementById('btnXVersionsModal');
 
   const btnCloseNewFolder = document.getElementById('btnCloseNewFolder');
   const btnCloseUpload = document.getElementById('btnCloseUpload');
   const btnCloseRenameFolder = document.getElementById('btnCloseRenameFolder');
   const btnCloseRenameFile = document.getElementById('btnCloseRenameFile');
   const btnCloseViewFileModal = document.getElementById('btnCloseViewFileModal');
+  const btnCloseVersionsModal = document.getElementById('btnCloseVersionsModal');
 
   if(btnNewFolder){
     btnNewFolder.addEventListener('click', function(){
@@ -214,6 +306,32 @@
   if(btnCloseViewFileModal){
     btnCloseViewFileModal.addEventListener('click', function(){
       closeModal('viewFileModal');
+    });
+  }
+
+  if(btnXVersionsModal){
+    btnXVersionsModal.addEventListener('click', function(){
+      closeModal('versionsModal');
+    });
+  }
+
+  if(btnCloseVersionsModal){
+    btnCloseVersionsModal.addEventListener('click', function(){
+      closeModal('versionsModal');
+    });
+  }
+
+  const versionsModal = document.getElementById('versionsModal');
+  if (versionsModal) {
+    versionsModal.addEventListener('click', function(e) {
+      if (e.target === versionsModal) closeModal('versionsModal');
+    });
+  }
+
+  const viewFileModal = document.getElementById('viewFileModal');
+  if (viewFileModal) {
+    viewFileModal.addEventListener('click', function(e) {
+      if (e.target === viewFileModal) closeModal('viewFileModal');
     });
   }
 </script>

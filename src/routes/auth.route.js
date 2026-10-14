@@ -21,6 +21,7 @@ router.post('/login',upload.none(), limitadorLogin,[
     body('email').isEmail().withMessage('Correo invalido').normalizeEmail(),
     body('password').notEmpty().withMessage('La contraseña es obligatoria'),
 ], authCtrl.loginBD);
+router.post('/keycloak-login',upload.none(),authCtrl.loginKeycloak);
 router.post('/logout', autenticar, verificarCsrf,authCtrl.logout);
 router.post('/refresh', authCtrl.refreshToken);
 

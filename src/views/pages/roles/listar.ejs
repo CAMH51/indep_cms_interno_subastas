@@ -1,0 +1,68 @@
+<div class="m-5 p-5 border border-2 border-gray-200 rounded-2xl">
+    <div class="flex justify-between">
+        <a href="/dashboard" class="flex items-center px-2 py-1.5 text-body rounded-base hover:bg-neutral-tertiary hover:text-fg-brand group">
+            <svg class="w-5 h-5 transition duration-75 group-hover:text-fg-brand" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6.025A7.5 7.5 0 1 0 17.975 14H10V6.025Z"/><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.5 3c-.169 0-.334.014-.5.025V11h7.975c.011-.166.025-.331.025-.5A7.5 7.5 0 0 0 13.5 3Z"/></svg>
+            <span class="ms-3">Ir a Dashboard</span>
+        </a>
+        <h2 class="text-2xl font-semibold">Roles</h2>
+        <% if(puede('roles.crear')){%>
+            <a class="text-white bg-success box-border border border-transparent hover:bg-success-strong focus:ring-4 focus:ring-success-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none" href="/roles/nuevo"><i class="bi bi-check-circle"></i> Nuevo Rol</a>    
+        <%}%>
+    </div>
+    <hr class="h-px my-3 bg-neutral-quaternary border-0">
+    <div class="overflow-x-auto rounded-xl border border-neutral-200 dark:border-neutral-800 shadow-xs mt-3 bg-white dark:bg-neutral-900">
+        <%- include('../../components/mensajeSuccess.ejs') %>
+        <table id="tablaRoles" class="w-full text-sm text-left rtl:text-right text-neutral-600 dark:text-neutral-300">
+            <thead class="text-xs uppercase bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border-b border-neutral-200 dark:border-neutral-700">
+                <tr>
+                    <th class="px-5 py-3.5 font-semibold">Nombre</th>
+                    <th class="px-5 py-3.5 font-semibold">Descripción</th>
+                    <th class="px-5 py-3.5 font-semibold text-center">Estatus</th>
+                    <th class="px-5 py-3.5 font-semibold">Fecha de registro</th>
+                    <th class="px-5 py-3.5 font-semibold">Última actualización</th>
+                    <th class="px-5 py-3.5 font-semibold text-center">Acciones</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-neutral-100 dark:divide-neutral-800">
+                <% roles.forEach(rol => { %>
+                    <tr class="bg-white hover:bg-neutral-50 dark:bg-neutral-900 dark:hover:bg-neutral-800/60 transition-colors">
+                        <td class="px-5 py-3.5 font-medium text-neutral-900 dark:text-neutral-100"><%= rol.nombre %></td>
+                        <td class="px-5 py-3.5 text-neutral-500 max-w-xs truncate" title="<%= rol.descripcion %>"><%= rol.descripcion || '—' %></td>
+                        <td class="px-5 py-3.5 text-center whitespace-nowrap">
+                            <% if(rol.activo === true){ %>
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-300">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                    <span>Activo</span>
+                                </span>
+                            <% }else{ %>
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-100 text-rose-800 border border-rose-300 dark:bg-rose-950/60 dark:text-rose-300">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                                    <span>Inactivo</span>
+                                </span>
+                            <%}%>
+                        </td>
+                        <td class="px-5 py-3.5 text-neutral-500 whitespace-nowrap"><%= formatearFecha(rol.createdAt) %></td>
+                        <td class="px-5 py-3.5 text-neutral-500 whitespace-nowrap"><%= formatearFecha(rol.updatedAt) %></td>
+                        <td class="px-5 py-3.5 text-center whitespace-nowrap">
+                            <div class="inline-flex items-center gap-2">
+                                <% if(typeof puede === 'function' && puede('roles.actualizar')){%>
+                                    <a class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg text-white bg-blue-600 hover:bg-blue-700 shadow-xs focus:ring-4 focus:ring-blue-300 transition-all cursor-pointer" href="/roles/<%= rol.rol_id %>/editar"><i class="bi bi-pencil-square"></i> Editar</a> 
+                                <%}%>
+                                <% if(typeof puede === 'function' && puede('roles.leer')){%>
+                                    <a class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg text-white bg-[#a57f2c] hover:bg-[#8b6b23] shadow-xs focus:ring-4 focus:ring-amber-300 transition-all cursor-pointer" href="/roles/<%= rol.rol_id %>/permisos"><i class="bi bi-shield-lock"></i> Permisos</a> 
+                                <%}%>
+                            </div>
+                        </td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+    
+</div>
+<script type="module" nonce="<%= nonce %>"> 
+    import {dataTable} from '/js/dataTable.js';
+    dataTable('tablaRoles');
+
+    
+</script>

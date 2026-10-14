@@ -10,91 +10,301 @@
 </div>
 
 <!-- drawer component -->
-<div id="drawer-navigation" class="fixed top-0 left-0 z-100 w-64 h-screen p-4 overflow-y-auto transition-transform -translate-x-full bg-neutral-primary-soft border-e border-default" tabindex="-1" aria-labelledby="drawer-navigation-label">
-  <div class="border-b border-default pb-4 flex items-center">
-      <a href="" class="flex items-center space-x-2 rtl:space-x-reverse">
-         <img src="/img/Logo_horizontal_color_Mesa de trabajo 1.svg" class="w-full" alt="Flowbite Logo" />
+<div id="drawer-navigation" class="fixed top-0 left-0 z-100 w-72 h-screen p-4 overflow-y-auto transition-transform -translate-x-full bg-white dark:bg-neutral-900 border-e border-neutral-200 dark:border-neutral-800 shadow-xl" tabindex="-1" aria-labelledby="drawer-navigation-label">
+  <div class="border-b border-neutral-200 dark:border-neutral-800 pb-4 mb-2 flex items-center justify-between">
+      <a href="/dashboard" class="flex items-center space-x-2 rtl:space-x-reverse max-w-[190px]">
+         <img src="/img/Logo_horizontal_color_Mesa de trabajo 1.svg" class="w-full h-auto" alt="Logo INDEP" />
       </a>
-      <button type="button" data-drawer-hide="drawer-navigation" aria-controls="drawer-navigation" class="text-body bg-transparent hover:text-heading hover:bg-neutral-tertiary rounded-base w-9 h-9 absolute top-2.5 end-2.5 flex items-center justify-center">
+      <button type="button" data-drawer-hide="drawer-navigation" aria-controls="drawer-navigation" class="text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-lg w-8 h-8 flex items-center justify-center transition">
          <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18 17.94 6M18 18 6.06 6"/></svg>
-         <span class="sr-only">Close menu</span>
+         <span class="sr-only">Cerrar menú</span>
       </button>
    </div>
-  <div class="py-5 overflow-y-auto">
-      <ul class="space-y-2 font-medium">
-         <li>
-            <a href="/dashboard" class="flex items-center px-2 py-1.5 text-body rounded-base hover:bg-neutral-tertiary hover:text-fg-brand group">
-               <svg class="w-5 h-5 transition duration-75 group-hover:text-fg-brand" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6.025A7.5 7.5 0 1 0 17.975 14H10V6.025Z"/><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.5 3c-.169 0-.334.014-.5.025V11h7.975c.011-.166.025-.331.025-.5A7.5 7.5 0 0 0 13.5 3Z"/></svg>
-               <span class="ms-3">Dashboard</span>
-            </a>
-         </li>
-         <% if (typeof puede === 'function' && puede('usuarios.leer')) { %>
-         <li >
-         <a class="flex items-center px-2 py-1.5 text-body rounded-base hover:bg-neutral-tertiary hover:text-fg-brand group" href="/usuarios">
-         <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-         <path stroke="currentColor" stroke-linecap="round" stroke-width="2" d="M16 19h4a1 1 0 0 0 1-1v-1a3 3 0 0 0-3-3h-2m-2.236-4a3 3 0 1 0 0-4M3 18v-1a3 3 0 0 1 3-3h4a3 3 0 0 1 3 3v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1Zm8-10a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
-         </svg>
-         <span class="ms-3">Usuarios</span>
-         </a>
-         </li>
+
+   <!-- Información del Rol / Usuario desde el JSON -->
+   <% 
+      const rolMostrar = (typeof rolNombre !== 'undefined' && rolNombre) 
+         ? rolNombre 
+         : ((typeof usuarioActual !== 'undefined' && usuarioActual && usuarioActual.rol) 
+            ? usuarioActual.rol.nombre 
+            : 'Usuario'); 
+   %>
+   <div class="px-3 py-2 mb-3 bg-[#611323]/5 dark:bg-[#611323]/20 border border-[#611323]/20 rounded-xl flex items-center justify-between">
+      <div class="flex items-center gap-2.5 min-w-0">
+         <div class="w-7 h-7 rounded-lg bg-[#611323] text-white flex items-center justify-center text-xs shadow-sm shrink-0">
+            <i class="bi bi-shield-check"></i>
+         </div>
+         <div class="flex flex-col min-w-0">
+            <span class="text-[10px] text-neutral-400 font-semibold uppercase tracking-wider">Rol</span>
+            <span class="text-xs font-bold text-[#611323] dark:text-red-400 truncate" title="<%= rolMostrar %>"><%= rolMostrar %></span>
+         </div>
+      </div>
+      <% if (typeof usuarioActual !== 'undefined' && usuarioActual && usuarioActual.email) { %>
+         <span class="text-[11px] text-neutral-500 font-medium truncate max-w-[90px]" title="<%= usuarioActual.email %>"><%= usuarioActual.email.split('@')[0] %></span>
+      <% } %>
+   </div>
+
+  <div class="py-2 overflow-y-auto space-y-4">
+      <% if (typeof menus !== 'undefined' && Array.isArray(menus) && menus.length > 0) { %>
+         <!-- SECCIÓN: MENÚS DINÁMICOS DESDE CONTROL DE ACCESOS -->
+         <div>
+            <p class="px-2 mb-1.5 text-[11px] font-bold tracking-wider uppercase text-neutral-400">Menús Asignados</p>
+            <ul class="space-y-1 font-medium">
+               <% 
+                  const iconosRutas = {
+                     '/dashboard': 'bi-speedometer2',
+                     '/entities/new': 'bi-plus-square-dotted',
+                     '/entities': 'bi-collection',
+                     '/documentos': 'bi-folder2-open',
+                     '/usuarios': 'bi-people',
+                     '/roles': 'bi-shield-check',
+                     '/modulos': 'bi-grid',
+                     '/permisos': 'bi-key',
+                     '/storages': 'bi-hdd-network',
+                     '/sliders': 'bi-images',
+                     '/eventos_cursos': 'bi-calendar-event',
+                     '/convocatorias_muebles': 'bi-box-seam',
+                     '/convocatorias_inmuebles': 'bi-houses',
+                     '/menus_principales': 'bi-menu-app',
+                     '/menus_izquierdos': 'bi-layout-sidebar',
+                     '/menus_derechos': 'bi-layout-sidebar-reverse',
+                     'dash': 'bi-speedometer2',
+                     'CRELIB': 'bi-plus-square-dotted'
+                  };
+                  const esAdmin = (typeof rolMostrar !== 'undefined' && (rolMostrar === 'SuperAdmin' || rolMostrar.toLowerCase().includes('admin')));
+                  const menusOrdenados = [...menus]
+                     .filter(m => {
+                        if (esAdmin) return true;
+                        if (!m.permissions) return true;
+                        return m.permissions.read === 1 || m.permissions.read === true || m.permissions.read === '1';
+                     })
+                     .sort((a,b) => (a.position || 0) - (b.position || 0));
+               %>
+               <% menusOrdenados.forEach(function(m) { %>
+                  <% 
+                     const icono = m.icon || iconosRutas[m.name] || iconosRutas[m.screen] || 'bi-app-indicator';
+                     const titulo = m.description || m.name;
+                     const ruta = m.name && m.name.startsWith('/') ? m.name : ('/' + (m.name || ''));
+                  %>
+                  <% if (m.submenus && Array.isArray(m.submenus) && m.submenus.length > 0) { %>
+                     <li class="space-y-1">
+                        <div class="flex items-center justify-between px-3 py-2 text-sm text-neutral-700 dark:text-neutral-200 font-semibold">
+                           <div class="flex items-center">
+                              <i class="bi <%= icono %> text-lg text-neutral-500"></i>
+                              <span class="ms-3"><%= titulo %></span>
+                           </div>
+                        </div>
+                        <ul class="ps-6 space-y-1">
+                           <% m.submenus.forEach(function(sub) { %>
+                              <li>
+                                 <a href="<%= sub.name.startsWith('/') ? sub.name : '/' + sub.name %>" class="flex items-center px-3 py-1.5 text-xs text-neutral-600 dark:text-neutral-300 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-[#611323] group transition-colors">
+                                    <i class="bi bi-circle text-[8px] text-neutral-400 group-hover:text-[#611323] me-2"></i>
+                                    <span><%= sub.description || sub.name %></span>
+                                 </a>
+                              </li>
+                           <% }); %>
+                        </ul>
+                     </li>
+                  <% } else { %>
+                     <li>
+                        <a href="<%= ruta %>" class="flex items-center px-3 py-2 text-sm text-neutral-700 dark:text-neutral-200 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-[#611323] group transition-colors">
+                           <i class="bi <%= icono %> text-lg text-neutral-500 group-hover:text-[#611323] transition-colors"></i>
+                           <span class="ms-3 font-semibold"><%= titulo %></span>
+                        </a>
+                     </li>
+                  <% } %>
+               <% }); %>
+            </ul>
+         </div>
+      <% } else { %>
+         <!-- SECCIÓN: GENERAL (FALLBACK) -->
+         <div>
+            <p class="px-2 mb-1.5 text-[11px] font-bold tracking-wider uppercase text-neutral-400">Principal</p>
+            <ul class="space-y-1 font-medium">
+               <li>
+                  <a href="/dashboard" class="flex items-center px-3 py-2 text-sm text-neutral-700 dark:text-neutral-200 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-[#611323] group transition-colors">
+                     <i class="bi bi-speedometer2 text-lg text-neutral-500 group-hover:text-[#611323]"></i>
+                     <span class="ms-3 font-semibold">Dashboard</span>
+                  </a>
+               </li>
+               <% if (typeof puede === 'function' && puede('documentos.leer')) { %>
+               <li>
+                  <a href="/documentos" class="flex items-center px-3 py-2 text-sm text-neutral-700 dark:text-neutral-200 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-[#611323] group transition-colors">
+                     <i class="bi bi-folder2-open text-lg text-neutral-500 group-hover:text-[#611323]"></i>
+                     <span class="ms-3">Documentos / Explorer</span>
+                  </a>
+               </li>
+               <% } %>
+            </ul>
+         </div>
+
+         <!-- SECCIÓN: LIBRERÍAS DINÁMICAS (FALLBACK) -->
+         <div>
+            <p class="px-2 mb-1.5 text-[11px] font-bold tracking-wider uppercase text-neutral-400">Librerías Dinámicas</p>
+            <ul class="space-y-1 font-medium">
+               <li>
+                  <a href="/entities/new" class="flex items-center px-3 py-2 text-sm text-neutral-700 dark:text-neutral-200 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-[#611323] group transition-colors">
+                     <i class="bi bi-plus-square-dotted text-lg text-neutral-500 group-hover:text-[#611323]"></i>
+                     <span class="ms-3">Nueva Librería</span>
+                  </a>
+               </li>
+            </ul>
+         </div>
+
+         <!-- SECCIÓN: CONTENIDO DEL SITIO (FALLBACK) -->
+         <% 
+            const tieneContenido = typeof puede === 'function' && (
+               puede('sliders.leer') || 
+               puede('eventos_cursos.leer') || 
+               puede('convocatorias_muebles.leer') || 
+               puede('convocatorias_inmuebles.leer') || 
+               puede('menus_principales.leer') || 
+               puede('menus_izquierdos.leer') || 
+               puede('menus_derechos.leer')
+            );
+         %>
+         <% if (tieneContenido) { %>
+         <div>
+            <p class="px-2 mb-1.5 text-[11px] font-bold tracking-wider uppercase text-neutral-400">Contenido del Sitio</p>
+            <ul class="space-y-1 font-medium">
+               <% if (puede('sliders.leer')) { %>
+               <li>
+                  <a href="/sliders" class="flex items-center px-3 py-2 text-sm text-neutral-700 dark:text-neutral-200 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-[#611323] group transition-colors">
+                     <i class="bi bi-images text-lg text-neutral-500 group-hover:text-[#611323]"></i>
+                     <span class="ms-3">Sliders</span>
+                  </a>
+               </li>
+               <% } %>
+
+               <% if (puede('eventos_cursos.leer')) { %>
+               <li>
+                  <a href="/eventos_cursos" class="flex items-center px-3 py-2 text-sm text-neutral-700 dark:text-neutral-200 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-[#611323] group transition-colors">
+                     <i class="bi bi-calendar-event text-lg text-neutral-500 group-hover:text-[#611323]"></i>
+                     <span class="ms-3">Eventos y Cursos</span>
+                  </a>
+               </li>
+               <% } %>
+
+               <% if (puede('convocatorias_muebles.leer')) { %>
+               <li>
+                  <a href="/convocatorias_muebles" class="flex items-center px-3 py-2 text-sm text-neutral-700 dark:text-neutral-200 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-[#611323] group transition-colors">
+                     <i class="bi bi-box-seam text-lg text-neutral-500 group-hover:text-[#611323]"></i>
+                     <span class="ms-3">Convocatorias Muebles</span>
+                  </a>
+               </li>
+               <% } %>
+
+               <% if (puede('convocatorias_inmuebles.leer')) { %>
+               <li>
+                  <a href="/convocatorias_inmuebles" class="flex items-center px-3 py-2 text-sm text-neutral-700 dark:text-neutral-200 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-[#611323] group transition-colors">
+                     <i class="bi bi-houses text-lg text-neutral-500 group-hover:text-[#611323]"></i>
+                     <span class="ms-3">Convocatorias Inmuebles</span>
+                  </a>
+               </li>
+               <% } %>
+
+               <% if (puede('menus_principales.leer')) { %>
+               <li>
+                  <a href="/menus_principales" class="flex items-center px-3 py-2 text-sm text-neutral-700 dark:text-neutral-200 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-[#611323] group transition-colors">
+                     <i class="bi bi-menu-app text-lg text-neutral-500 group-hover:text-[#611323]"></i>
+                     <span class="ms-3">Menús Principales</span>
+                  </a>
+               </li>
+               <% } %>
+
+               <% if (puede('menus_izquierdos.leer')) { %>
+               <li>
+                  <a href="/menus_izquierdos" class="flex items-center px-3 py-2 text-sm text-neutral-700 dark:text-neutral-200 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-[#611323] group transition-colors">
+                     <i class="bi bi-layout-sidebar text-lg text-neutral-500 group-hover:text-[#611323]"></i>
+                     <span class="ms-3">Menús Izquierdos</span>
+                  </a>
+               </li>
+               <% } %>
+
+               <% if (puede('menus_derechos.leer')) { %>
+               <li>
+                  <a href="/menus_derechos" class="flex items-center px-3 py-2 text-sm text-neutral-700 dark:text-neutral-200 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-[#611323] group transition-colors">
+                     <i class="bi bi-layout-sidebar-reverse text-lg text-neutral-500 group-hover:text-[#611323]"></i>
+                     <span class="ms-3">Menús Derechos</span>
+                  </a>
+               </li>
+               <% } %>
+            </ul>
+         </div>
          <% } %>
 
-         <% if (typeof puede === 'function' && puede('roles.leer')) { %>
-         <li>
-         <a class="flex items-center px-2 py-1.5 text-body rounded-base hover:bg-neutral-tertiary hover:text-fg-brand group" href="/roles">
-            <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-            <path fill-rule="evenodd" d="M12 6a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Zm-1.5 8a4 4 0 0 0-4 4 2 2 0 0 0 2 2h7a2 2 0 0 0 2-2 4 4 0 0 0-4-4h-3Zm6.82-3.096a5.51 5.51 0 0 0-2.797-6.293 3.5 3.5 0 1 1 2.796 6.292ZM19.5 18h.5a2 2 0 0 0 2-2 4 4 0 0 0-4-4h-1.1a5.503 5.503 0 0 1-.471.762A5.998 5.998 0 0 1 19.5 18ZM4 7.5a3.5 3.5 0 0 1 5.477-2.889 5.5 5.5 0 0 0-2.796 6.293A3.501 3.501 0 0 1 4 7.5ZM7.1 12H6a4 4 0 0 0-4 4 2 2 0 0 0 2 2h.5a5.998 5.998 0 0 1 3.071-5.238A5.505 5.505 0 0 1 7.1 12Z" clip-rule="evenodd"/>
-            </svg>
-            <span class="ms-3">Roles</span>
-            
-         </a>
-         </li>
-         <% } %>
+         <!-- SECCIÓN: ADMINISTRACIÓN (FALLBACK) -->
+         <% 
+            const tieneAdmin = typeof puede === 'function' && (
+               puede('usuarios.leer') || 
+               puede('roles.leer') || 
+               puede('modulos.leer') || 
+               puede('permisos.leer') || 
+               puede('storages.leer')
+            );
+         %>
+         <% if (tieneAdmin) { %>
+         <div>
+            <p class="px-2 mb-1.5 text-[11px] font-bold tracking-wider uppercase text-neutral-400">Administración</p>
+            <ul class="space-y-1 font-medium">
+               <% if (puede('usuarios.leer')) { %>
+               <li>
+                  <a class="flex items-center px-3 py-2 text-sm text-neutral-700 dark:text-neutral-200 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-[#611323] group transition-colors" href="/usuarios">
+                     <i class="bi bi-people text-lg text-neutral-500 group-hover:text-[#611323]"></i>
+                     <span class="ms-3">Usuarios</span>
+                  </a>
+               </li>
+               <% } %>
 
-         <% if (typeof puede === 'function' && puede('modulos.leer')) { %>
-         <li>
-         <a class="flex items-center px-2 py-1.5 text-body rounded-base hover:bg-neutral-tertiary hover:text-fg-brand group" href="/modulos">
-            <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.143 4H4.857A.857.857 0 0 0 4 4.857v4.286c0 .473.384.857.857.857h4.286A.857.857 0 0 0 10 9.143V4.857A.857.857 0 0 0 9.143 4Zm10 0h-4.286a.857.857 0 0 0-.857.857v4.286c0 .473.384.857.857.857h4.286A.857.857 0 0 0 20 9.143V4.857A.857.857 0 0 0 19.143 4Zm-10 10H4.857a.857.857 0 0 0-.857.857v4.286c0 .473.384.857.857.857h4.286a.857.857 0 0 0 .857-.857v-4.286A.857.857 0 0 0 9.143 14Zm10 0h-4.286a.857.857 0 0 0-.857.857v4.286c0 .473.384.857.857.857h4.286a.857.857 0 0 0 .857-.857v-4.286a.857.857 0 0 0-.857-.857Z"/>
-            </svg>
-         <span class="ms-3">Modulos</span>
-            
-         </a>
-         </li>
-         <% } %>
+               <% if (puede('roles.leer')) { %>
+               <li>
+                  <a class="flex items-center px-3 py-2 text-sm text-neutral-700 dark:text-neutral-200 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-[#611323] group transition-colors" href="/roles">
+                     <i class="bi bi-shield-check text-lg text-neutral-500 group-hover:text-[#611323]"></i>
+                     <span class="ms-3">Roles</span>
+                  </a>
+               </li>
+               <% } %>
 
-         <% if (typeof puede === 'function' && puede('permisos.leer')) { %>
-         <li>
-         <a class="flex items-center px-2 py-1.5 text-body rounded-base hover:bg-neutral-tertiary hover:text-fg-brand group" href="/permisos">
-            <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14v3m-3-6V7a3 3 0 1 1 6 0v4m-8 0h10a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1Z"/>
-            </svg>
-            <span class="ms-3">Permisos</span>
-            </a>
-         </li>
-         <% } %>
-         <% if (typeof puede === 'function' && puede('storages.leer')) { %>
-         <li>
-         <a class="flex items-center px-2 py-1.5 text-body rounded-base hover:bg-neutral-tertiary hover:text-fg-brand group" href="/storages">
-            <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 7.205c4.418 0 8-1.165 8-2.602C20 3.165 16.418 2 12 2S4 3.165 4 4.603c0 1.437 3.582 2.602 8 2.602ZM12 22c4.963 0 8-1.686 8-2.603v-4.404c-.052.032-.112.06-.165.09a7.75 7.75 0 0 1-.745.387c-.193.088-.394.173-.6.253-.063.024-.124.05-.189.073a18.934 18.934 0 0 1-6.3.998c-2.135.027-4.26-.31-6.3-.998-.065-.024-.126-.05-.189-.073a10.143 10.143 0 0 1-.852-.373 7.75 7.75 0 0 1-.493-.267c-.053-.03-.113-.058-.165-.09v4.404C4 20.315 7.037 22 12 22Zm7.09-13.928a9.91 9.91 0 0 1-.6.253c-.063.025-.124.05-.189.074a18.935 18.935 0 0 1-6.3.998c-2.135.027-4.26-.31-6.3-.998-.065-.024-.126-.05-.189-.074a10.163 10.163 0 0 1-.852-.372 7.816 7.816 0 0 1-.493-.268c-.055-.03-.115-.058-.167-.09V12c0 .917 3.037 2.603 8 2.603s8-1.686 8-2.603V7.596c-.052.031-.112.059-.165.09a7.816 7.816 0 0 1-.745.386Z"/>
-            </svg>
+               <% if (puede('modulos.leer')) { %>
+               <li>
+                  <a class="flex items-center px-3 py-2 text-sm text-neutral-700 dark:text-neutral-200 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-[#611323] group transition-colors" href="/modulos">
+                     <i class="bi bi-grid text-lg text-neutral-500 group-hover:text-[#611323]"></i>
+                     <span class="ms-3">Módulos</span>
+                  </a>
+               </li>
+               <% } %>
 
-            <span class="ms-3">Storages</span>
-            </a>
-         </li>
+               <% if (puede('permisos.leer')) { %>
+               <li>
+                  <a class="flex items-center px-3 py-2 text-sm text-neutral-700 dark:text-neutral-200 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-[#611323] group transition-colors" href="/permisos">
+                     <i class="bi bi-key text-lg text-neutral-500 group-hover:text-[#611323]"></i>
+                     <span class="ms-3">Permisos</span>
+                  </a>
+               </li>
+               <% } %>
+
+               <% if (puede('storages.leer')) { %>
+               <li>
+                  <a class="flex items-center px-3 py-2 text-sm text-neutral-700 dark:text-neutral-200 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-[#611323] group transition-colors" href="/storages">
+                     <i class="bi bi-hdd-network text-lg text-neutral-500 group-hover:text-[#611323]"></i>
+                     <span class="ms-3">Storages</span>
+                  </a>
+               </li>
+               <% } %>
+            </ul>
+         </div>
          <% } %>
-         <li>
-            <form action="/auth/logout" method="POST" class="m-0">
-               <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
-               <button type="submit" class="w-full text-left flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded transition-colors">
-                  <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H8m12 0-4 4m4-4-4-4M9 4H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h2"/>
-                  </svg>
-                  Cerrar sesión
-               </button>
-            </form>
-         </li>
-      </ul>
+      <% } %>
+
+      <!-- SECCIÓN: SESIÓN -->
+      <div class="pt-2 border-t border-neutral-200 dark:border-neutral-800">
+         <form action="/auth/logout" method="POST" class="m-0">
+            <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+            <button type="submit" class="w-full flex items-center px-3 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-lg transition-colors font-semibold cursor-pointer">
+               <i class="bi bi-box-arrow-left text-lg mr-3"></i>
+               <span>Cerrar sesión</span>
+            </button>
+         </form>
+      </div>
    </div>
 </div>

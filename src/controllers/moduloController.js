@@ -119,6 +119,16 @@ exports.actualizar = async(req, res) =>{
         }
 
         const {nombre, slug, descripcion, icono, orden, activo} = req.body;
+        const { Op } = require('sequelize');
+        const existeOtro = await Modulo.findOne({ where: { slug: slug.toLowerCase().trim(), modulo_id: { [Op.ne]: id } } });
+        if (existeOtro) {
+            return res.status(400).render('dashboard', {
+                page: 'modulos/formulario',
+                titulo: 'Editar Módulo',
+                modulo: { ...modulo.toJSON(), ...req.body },
+                errores: [{ msg: 'Ya existe otro módulo con ese identificador (slug).' }]
+            });
+        }
 
         const actualizar = await moduloService.actualizar(id,{
             nombre,

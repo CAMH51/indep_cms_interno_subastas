@@ -13,6 +13,48 @@ const activeStorage = require('../middlewares/activeStorage');
 const MAX_INTENTOS = 5;
 const MINUTOS_BLOQUEO = 15;
 
+exports.loginKeycloak = async (req, res) =>{
+
+    console.log('Body',req.body);
+    const {username, password} = req.body;
+
+    if(!username || !password){
+        return res.status(400).json({error:'Usuario y contraseña requeridos'});
+    }
+
+    const params = new URLSearchParams({
+        client_id: process.env.CLIENT_ID,
+        client_secret: process.env.CLIENT_SECRET,
+        grant_type: process.env.GRANT_TYPE || 'password',
+        scope: process.env.SCOPE || 'openid',
+        username,
+        password
+    });
+
+    try {
+        const response = await fetch(process.env.CTRL_ACCESS_TOKEN,{
+            method:'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: params
+        });
+
+        const data = await response.json();
+    if (!response.ok) {
+      return res.status(response.status).json({
+        error: data.error_description || data.error || 'Credenciales inválidas'
+      });
+    }
+    // Aquí puedes guardar el token en la sesión de Express / cookies si lo necesitas
+    // req.session.token = data.access_token;
+    return res.json({ success: true, token: data.access_token });
+    } catch (error) {
+        console.error('Error al conectar con Keycloak:', error);
+        return res.status(500).json({ error: 'Error interno al comunicarse con Keycloak' });
+    }
+}
+
 const credencialesInvalidas = (res, email) =>{
     return res.status(401).render('login',{
         titulo:'Iniciar Sesión',
@@ -29,6 +71,21 @@ exports.mostrarLogin =  (req, res) =>{
     });
 }
 
+exports.mostrarLogin2 =  (req, res) =>{
+    const config ={
+        client_id:process.env.CLIENT_ID,
+        grant_type:process.env.GRANT_TYPE,
+        client_secret:process.env.CLIENT_SECRET,
+        scope:process.env.SCOPE
+    }
+    res.render('login_2',{
+        titulo:'Iniciar Sesión',
+        error:null,
+        email:'',
+        url_token:process.env.CTRL_ACCESS_TOKEN,
+        config
+    });
+}
 exports.loginBD = async(req,res) =>{
    const errrores = validationResult(req);
     const {email, password} = req.body;
@@ -111,7 +168,7 @@ exports.loginAD = async(req, res) =>{
     
         const {accessToken, refreshToken} = await crearSesion(usuario,{
             ip:req.ip,
-            user_agent: req.headers['user-agent']
+            user_agent: req.get('User-Agent')
         });
     
         res.cookie('accessToken', accessToken, opcionesAccessCookie);

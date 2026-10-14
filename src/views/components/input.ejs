@@ -1,0 +1,15 @@
+<div class="field mb-4">
+    <label for="<%= id %>" class="block mb-2.5 text-sm font-medium text-heading"><%= label %></label>
+    <input
+        type="<%= type %>"
+        id="<%= id %>"
+        name="<%= name %>"
+        class="bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full px-3 py-2.5 shadow-xs placeholder:text-body <%= typeof className !== 'undefined' ? className : '' %>"
+        placeholder="<%= typeof placeholder !== 'undefined' ? placeholder : '' %>"
+        <%= (typeof pattern  !== 'undefined' && pattern)  ? `pattern=${pattern}`   : '' %>
+        <%= (typeof required !== 'undefined' && required) ? 'required'               : '' %>
+        <%= (typeof value    !== 'undefined' && value)    ? `value="${value}"`       : '' %>
+        <%= (typeof disabled     !== 'undefined' && disabled )    ? 'disabled'       : '' %>
+    />
+    <p class="msg"></p>
+</div>

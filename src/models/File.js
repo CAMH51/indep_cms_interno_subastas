@@ -52,6 +52,12 @@ const File = sequelize.define('File', {
         type:DataTypes.UUID,
         allowNull:false
     },
+    is_public:{
+        type:DataTypes.BOOLEAN,
+        allowNull:false,
+        defaultValue:false,
+        comment:"Determina si el archivo es accesible sin iniciar sesión"
+    },
 
     // CAMPOS VIRTUALES (Se serializan automáticamente en res.json)
     formattedSize: {

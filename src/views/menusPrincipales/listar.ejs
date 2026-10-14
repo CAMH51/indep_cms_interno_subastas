@@ -7,50 +7,60 @@
             <span class="ms-3">Ir a Dashboard</span>
         </a>
         <h2 class="text-2xl font-semibold">Menú Principal</h2>
-        <% if(puede('eventos_cursos.crear')){%>
+        <% if(typeof puede === 'function' && puede('menus_principales.crear')){%>
             <a class="text-white bg-success box-border border border-transparent hover:bg-success-strong focus:ring-4 focus:ring-success-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none" href="/menus_principales/nuevo"><i class="bi bi-check-circle"></i> Nuevo Menú Principal</a>    
         <%}%>
     </div>
     <hr class="h-px my-3 bg-neutral-quaternary border-0">
 
-    <div>
+    <div class="overflow-x-auto rounded-xl border border-neutral-200 dark:border-neutral-800 shadow-xs mt-3 bg-white dark:bg-neutral-900">
         <%- include('../components/mensajeSuccess.ejs') %>
-        <table id="tablaMenusPrincipales" class="text-center">
-            <thead>
+        <table id="tablaMenusPrincipales" class="w-full text-sm text-left rtl:text-right text-neutral-600 dark:text-neutral-300">
+            <thead class="text-xs uppercase bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border-b border-neutral-200 dark:border-neutral-700">
                 <tr>
-                    <th>Titulo</th>
-                    <th>URL</th>
-                    <th>Icono</th>
-                    <th>Orden</th>
-                    <th>ID</th>
-                    <th>Sitio Padre</th>
-                    <th>Estatus</th>
-                    <th>Fecha de registro</th>
-                    <th>Última actualización</th>
-                    <th>Acciones</th>
+                    <th class="px-5 py-3.5 font-semibold">Título</th>
+                    <th class="px-5 py-3.5 font-semibold">URL</th>
+                    <th class="px-5 py-3.5 font-semibold text-center">Icono</th>
+                    <th class="px-5 py-3.5 font-semibold text-center">Orden</th>
+                    <th class="px-5 py-3.5 font-semibold">Sitio Padre</th>
+                    <th class="px-5 py-3.5 font-semibold text-center">Estatus</th>
+                    <th class="px-5 py-3.5 font-semibold">Fecha de registro</th>
+                    <th class="px-5 py-3.5 font-semibold">Última actualización</th>
+                    <th class="px-5 py-3.5 font-semibold text-center">Acciones</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody class="divide-y divide-neutral-100 dark:divide-neutral-800">
                 <% menusPrincipal.forEach(menu => { %>
-                    <tr>
-                        <td><%= menu.titulo %></td>
-                        <td><%= menu.url %></td>
-                        <td><%= menu.icono %></td>
-                        <td><%= menu.orden %></td>
-                        <td><%= menu.id %></td>
-                        <td><%= menu.sitio_padre %></td>
-                        <td class="px-6 py-4">
+                    <tr class="bg-white hover:bg-neutral-50 dark:bg-neutral-900 dark:hover:bg-neutral-800/60 transition-colors">
+                        <td class="px-5 py-3.5 font-medium text-neutral-900 dark:text-neutral-100"><%= menu.titulo %></td>
+                        <td class="px-5 py-3.5 text-neutral-500 font-mono text-xs max-w-xs truncate" title="<%= menu.url %>"><%= menu.url %></td>
+                        <td class="px-5 py-3.5 text-center">
+                            <% if (menu.icono) { %>
+                                <i class="bi <%= menu.icono %> text-base text-neutral-700 dark:text-neutral-300"></i>
+                            <% } else { %>
+                                <span class="text-neutral-400">—</span>
+                            <% } %>
+                        </td>
+                        <td class="px-5 py-3.5 text-center font-semibold text-neutral-700 dark:text-neutral-300"><%= menu.orden %></td>
+                        <td class="px-5 py-3.5 text-neutral-500"><%= menu.sitio_padre || '—' %></td>
+                        <td class="px-5 py-3.5 text-center whitespace-nowrap">
                             <% if(menu.activo === true){ %>
-                            <span class="bg-success-soft text-fg-success-strong text-xs font-medium px-1.5 py-0.5 rounded">Activo</span>
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-300">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                    <span>Activo</span>
+                                </span>
                             <% }else{ %>
-                             <span class="bg-danger-soft text-fg-danger-strong text-xs font-medium px-1.5 py-0.5 rounded">Inactivo</span>
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-100 text-rose-800 border border-rose-300 dark:bg-rose-950/60 dark:text-rose-300">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                                    <span>Inactivo</span>
+                                </span>
                             <%}%>
                         </td>
-                        <td><%= formatearFecha(menu.createdAt) %></td>
-                        <td><%= formatearFecha(menu.updatedAt) %></td>
-                        <td>
-                            <% if(puede('eventos_cursos.actualizar')){%>
-                                <a class="text-white bg-blue-500 box-border border border-transparent hover:bg-blue-700 focus:ring-4 focus:ring-success-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none" href="/menus_principales/<%= menu.menu_principal_id %>/editar"><i class="bi bi-pencil-square"></i> Editar</a> 
+                        <td class="px-5 py-3.5 text-neutral-500 whitespace-nowrap"><%= formatearFecha(menu.createdAt) %></td>
+                        <td class="px-5 py-3.5 text-neutral-500 whitespace-nowrap"><%= formatearFecha(menu.updatedAt) %></td>
+                        <td class="px-5 py-3.5 text-center whitespace-nowrap">
+                            <% if(typeof puede === 'function' && puede('menus_principales.actualizar')){%>
+                                <a class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg text-white bg-blue-600 hover:bg-blue-700 shadow-xs focus:ring-4 focus:ring-blue-300 transition-all cursor-pointer" href="/menus_principales/<%= menu.menu_principal_id %>/editar"><i class="bi bi-pencil-square"></i> Editar</a> 
                             <%}%>
                         </td>
                     </tr>

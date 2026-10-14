@@ -1,60 +1,74 @@
-<div class="m-5 p-5 border border-2 border-gray-200 rounded-2xl">
-    <div class="flex justify-between">
-        <a href="/dashboard" class="flex items-center px-2 py-1.5 text-body rounded-base hover:bg-neutral-tertiary hover:text-fg-brand group">
-            <svg class="w-5 h-5 transition duration-75 group-hover:text-fg-brand" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6.025A7.5 7.5 0 1 0 17.975 14H10V6.025Z"/><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.5 3c-.169 0-.334.014-.5.025V11h7.975c.011-.166.025-.331.025-.5A7.5 7.5 0 0 0 13.5 3Z"/></svg>
-            <span class="ms-3">Ir a Dashboard</span>
-        </a>
-        <h2 class="text-2xl font-semibold">Convocatorias Bienes Muebles</h2>
+<div class="m-5 p-6 bg-white rounded-2xl shadow-xs border border-neutral-200">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div class="flex items-center gap-3">
+            <a href="/dashboard" class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-neutral-600 bg-neutral-100 rounded-lg hover:bg-neutral-200 hover:text-neutral-900 transition">
+                <svg class="w-4 h-4 me-1.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6.025A7.5 7.5 0 1 0 17.975 14H10V6.025Z"/><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.5 3c-.169 0-.334.014-.5.025V11h7.975c.011-.166.025-.331.025-.5A7.5 7.5 0 0 0 13.5 3Z"/></svg>
+                Dashboard
+            </a>
+            <h2 class="text-xl font-bold text-neutral-800">Convocatorias Bienes Muebles</h2>
+        </div>
         <% if(puede('convocatorias_muebles.crear')){%>
-            <a class="text-white bg-success box-border border border-transparent hover:bg-success-strong focus:ring-4 focus:ring-success-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none" href="/convocatorias_muebles/nuevo"><i class="bi bi-check-circle"></i> Nueva Convocatoria Bienes Muebles</a>    
+            <a class="inline-flex items-center justify-center gap-2 text-white bg-[#0e3b2c] hover:bg-[#15543f] font-medium rounded-lg text-sm px-4 py-2.5 transition shadow-xs" href="/convocatorias_muebles/nuevo">
+                <i class="bi bi-plus-circle"></i> Nueva Convocatoria
+            </a>    
         <%}%>
     </div>
-    <hr class="h-px my-3 bg-neutral-quaternary border-0">
+    <hr class="h-px my-4 bg-neutral-200 border-0">
     <%- include('../components/mensajeSuccess.ejs') %>
-    <div>
-        <table id="tablaConvocatoriasMuebles">
-            <thead>
+    <div class="overflow-x-auto rounded-xl border border-neutral-200 mt-2">
+        <table id="tablaConvocatoriasMuebles" class="w-full text-sm text-left text-neutral-600">
+            <thead class="text-xs uppercase tracking-wider bg-neutral-50 text-neutral-700 border-b border-neutral-200">
                 <tr>
-                    <th>Nombre</th>
-                    <th>Descripción</th>
-                    <th>URL del documento</th>
-                    <th>Estatus</th>
-                    <th>Fecha de registro</th>
-                    <th>Última actualización</th>
-                    <th>Acciones</th>
+                    <th scope="col" class="px-5 py-3.5 font-semibold">Nombre</th>
+                    <th scope="col" class="px-5 py-3.5 font-semibold">Descripción</th>
+                    <th scope="col" class="px-5 py-3.5 font-semibold">URL del documento</th>
+                    <th scope="col" class="px-5 py-3.5 font-semibold text-center">Estatus</th>
+                    <th scope="col" class="px-5 py-3.5 font-semibold">Registro</th>
+                    <th scope="col" class="px-5 py-3.5 font-semibold">Actualización</th>
+                    <th scope="col" class="px-5 py-3.5 font-semibold text-center">Acciones</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody class="divide-y divide-neutral-200">
                  <% convocatoriasBienesMuebles.forEach(mueble => { %>
-                    <tr>
-                        <td><%= mueble.nombre %></td>
-                        <td><%= mueble.descripcion %></td>
-                        <td><%= mueble.url_documento %></td>
-                        <td class="px-6 py-4">
+                    <tr class="hover:bg-neutral-50/70 transition">
+                        <td class="px-5 py-3.5 font-medium text-neutral-900"><%= mueble.nombre %></td>
+                        <td class="px-5 py-3.5 max-w-xs truncate" title="<%= mueble.descripcion %>"><%= mueble.descripcion || '—' %></td>
+                        <td class="px-5 py-3.5">
+                            <% if(mueble.url_documento) { %>
+                                <a href="<%= mueble.url_documento %>" target="_blank" class="text-blue-600 hover:text-blue-800 underline max-w-[200px] truncate block" title="<%= mueble.url_documento %>">
+                                    <%= mueble.url_documento %>
+                                </a>
+                            <% } else { %>
+                                <span class="text-neutral-400">—</span>
+                            <% } %>
+                        </td>
+                        <td class="px-5 py-3.5 text-center">
                             <% if(mueble.activo === true){ %>
-                            <span class="bg-success-soft text-fg-success-strong text-xs font-medium px-1.5 py-0.5 rounded">Activo</span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 me-1.5"></span>Activo
+                                </span>
                             <% }else{ %>
-                             <span class="bg-danger-soft text-fg-danger-strong text-xs font-medium px-1.5 py-0.5 rounded">Inactivo</span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-rose-100 text-rose-800">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-rose-500 me-1.5"></span>Inactivo
+                                </span>
                             <%}%>
                         </td>
-                        <td><%= formatearFecha(mueble.createdAt) %></td>
-                        <td><%= formatearFecha(mueble.updatedAt) %></td>
-                        <td>
+                        <td class="px-5 py-3.5 whitespace-nowrap text-xs text-neutral-500"><%= formatearFecha(mueble.createdAt) %></td>
+                        <td class="px-5 py-3.5 whitespace-nowrap text-xs text-neutral-500"><%= formatearFecha(mueble.updatedAt) %></td>
+                        <td class="px-5 py-3.5 text-center whitespace-nowrap">
                             <% if(puede('convocatorias_muebles.actualizar')){%>
-                                <a class="text-white bg-blue-500 box-border border border-transparent hover:bg-blue-700 focus:ring-4 focus:ring-success-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none" href="/convocatorias_muebles/<%= mueble.convocatoria_bien_id %>/editar"><i class="bi bi-pencil-square"></i> Editar</a> 
+                                <a class="inline-flex items-center gap-1.5 text-white bg-blue-600 hover:bg-blue-700 font-medium rounded-lg text-xs px-3 py-1.5 transition shadow-xs" href="/convocatorias_muebles/<%= mueble.convocatoria_bien_id %>/editar">
+                                    <i class="bi bi-pencil-square"></i> Editar
+                                </a> 
                             <%}%>
                         </td>
                     </tr>
                 <% }) %>
-
             </tbody>
         </table>
     </div>
-
-    
 </div>
 <script type="module" nonce="<%= nonce %>"> 
     import {dataTable} from '/js/dataTable.js';
     dataTable('tablaConvocatoriasMuebles');
-
 </script>
