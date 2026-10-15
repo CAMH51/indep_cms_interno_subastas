@@ -3,8 +3,8 @@ const authCtrl = require('../controllers/authController');
 const folderCtrl = require('../controllers/folderController');
 const {autenticar,soloInvitados} = require('../middlewares/auth');
 
-router.get('/login',soloInvitados,authCtrl.mostrarLogin);
-router.get('/login_2',soloInvitados,authCtrl.mostrarLogin2);
+//router.get('/login',soloInvitados,authCtrl.mostrarLogin);
+router.get('/login',soloInvitados,authCtrl.mostrarLogin2);
 router.use('/auth',require('./auth.route'));
 router.use('/authCtrlAcceso',require('./authCtrlAcceso.route'));
 router.use('/mfa',require('./mfa.route'));

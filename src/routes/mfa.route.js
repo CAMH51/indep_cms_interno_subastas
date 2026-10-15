@@ -2,9 +2,8 @@ const rateLimit = require('express-rate-limit');
 const router = require('express').Router();
 const mfaCtrl = require('../controllers/mfaController');
 const { soloInvitados } = require('../middlewares/auth');
+const {uploadNone} = require('../middlewares/formData');
 
-const multer = require('multer');
-const upload = multer();
 
 const limitadorLogin = rateLimit({
     windowMs: 15 * 60 * 1000,
@@ -20,8 +19,8 @@ router.get('/', soloInvitados, (req, res) => {
    });
 });
 
-router.post('/token', upload.none(), limitadorLogin, mfaCtrl.getToken);
-router.post('/login', upload.none(), limitadorLogin, mfaCtrl.getOTP);
-router.post('/verify', upload.none(), limitadorLogin, mfaCtrl.getVerifyOTP);
+router.post('/token', uploadNone, limitadorLogin, mfaCtrl.getToken);
+router.post('/login', uploadNone, limitadorLogin, mfaCtrl.getOTP);
+router.post('/verify', uploadNone, limitadorLogin, mfaCtrl.getVerifyOTP);
 
 module.exports = router;

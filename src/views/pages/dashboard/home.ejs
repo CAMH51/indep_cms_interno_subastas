@@ -14,11 +14,13 @@
             </p>
         </div>
         <div class="flex items-center gap-3">
+            <% if (typeof puede === 'function' && (puede('CRELIB.leer') || puede('/entities/new') || puede('entities.crear'))) { %>
             <a href="/entities/new" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white text-[#611323] font-semibold text-sm hover:bg-neutral-100 shadow-md transition-all">
                 <i class="bi bi-plus-circle-fill"></i>
                 <span>Nueva Librería</span>
             </a>
-            <% if (typeof puede === 'function' && puede('documentos.leer')) { %>
+            <% } %>
+            <% if (typeof puede === 'function' && puede('REPDOC.leer')) { %>
             <a href="/documentos" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/20 hover:bg-white/30 text-white font-semibold text-sm backdrop-blur-sm border border-white/30 transition-all">
                 <i class="bi bi-folder2-open"></i>
                 <span>Documentos</span>
@@ -42,20 +44,24 @@
             </h2>
             <p class="text-xs text-neutral-500">Módulos de datos personalizados configurados en el CMS.</p>
         </div>
+        <% if (typeof puede === 'function' && (puede('CRELIB') || puede('/entities/new') || puede('entities.crear'))) { %>
         <a href="/entities/new" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-[#611323] hover:bg-[#7d1a2f] rounded-lg transition-colors shadow-xs">
             <i class="bi bi-plus-lg"></i>
             <span>Nueva Librería</span>
         </a>
+        <% } %>
     </div>
 
     <% if (!entities || entities.length === 0) { %> 
         <div class="p-8 text-center bg-neutral-50 dark:bg-neutral-800/40 border border-neutral-200 dark:border-neutral-800 rounded-xl">
             <i class="bi bi-box-seam text-4xl text-neutral-300 dark:text-neutral-600 mb-2 inline-block"></i>
-            <h4 class="text-base font-semibold text-neutral-700 dark:text-neutral-300">No existen librerías creadas todavía</h4>
-            <p class="text-xs text-neutral-400 max-w-sm mx-auto mt-1 mb-4">Crea tu primera librería personalizada para comenzar a capturar registros estructurados.</p>
+            <h4 class="text-base font-semibold text-neutral-700 dark:text-neutral-300">No existen librerías disponibles o asignadas</h4>
+            <p class="text-xs text-neutral-400 max-w-sm mx-auto mt-1 mb-4">No se encontraron librerías con permisos de consulta para tu rol actual.</p>
+            <% if (typeof puede === 'function' && (puede('CRELIB') || puede('/entities/new') || puede('entities.crear'))) { %>
             <a href="/entities/new" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold shadow-xs transition">
                 <i class="bi bi-plus-circle"></i> Crear una librería
             </a>
+            <% } %>
         </div>
     <% } else { %>
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">

@@ -98,8 +98,45 @@
 <form id="form_nueva_entidad" method="POST" action="/entities" class="flex flex-col flex-1 min-h-0">
     <input type="hidden" id="form_mode" name="mode" value="create">
     <input type="hidden" id="original_entity_name" name="original_name" value="">
+    <input type="hidden" id="tipo_entidad" name="entity_type" value="estandar">
 
-    <div class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl p-4 md:p-6 mb-5 shadow-sm">
+    <div class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl p-4 md:p-6 mb-5 shadow-sm space-y-4">
+        
+        <!-- SECCIÓN: Selección de Tipo de Entidad (Retrocompatible: Default Estándar) -->
+        <div class="p-3.5 bg-neutral-50 dark:bg-neutral-800/60 rounded-xl border border-neutral-200 dark:border-neutral-700 flex flex-col md:flex-row md:items-center justify-between gap-3">
+            <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 mb-1">
+                    Tipo de Estructura de la Librería
+                </label>
+                <div class="flex items-center gap-4">
+                    <label class="flex items-center gap-2 cursor-pointer text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                        <input type="radio" name="opt_tipo_entidad" value="estandar" checked class="w-4 h-4 text-[#1e5b4f] focus:ring-[#1e5b4f] cursor-pointer">
+                        <span>Librería de Datos Estándar</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                        <input type="radio" name="opt_tipo_entidad" value="menu" class="w-4 h-4 text-[#1e5b4f] focus:ring-[#1e5b4f] cursor-pointer">
+                        <span class="flex items-center gap-1.5">
+                            <i class="bi bi-menu-app text-[#9b2247]"></i>
+                            <span>Menú Jerárquico (Menús y Submenús)</span>
+                        </span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Botón de plantilla rápida visible al activar tipo menú -->
+            <div id="wrapper_btn_plantilla_menu" class="hidden">
+                <button 
+                    type="button" 
+                    id="btn_aplicar_plantilla_menu"
+                    class="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold text-emerald-800 dark:text-emerald-300 bg-emerald-100 hover:bg-emerald-200 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800 rounded-lg transition-colors cursor-pointer"
+                    title="Auto-configurar campos requeridos para Menús y Submenús"
+                >
+                    <i class="bi bi-magic"></i>
+                    <span>Cargar Campos Predefinidos de Menú</span>
+                </button>
+            </div>
+        </div>
+
         <%- include('../../components/input.ejs',{
             label:"Nombre de la librería (solo minúsculas, números y guión bajo( _ )): *",
             id:"name",
@@ -123,8 +160,6 @@
 
             <div class="flex items-center gap-2.5">
                 <button 
-                    data-modal-target="agregar_campo" 
-                    data-modal-toggle="agregar_campo" 
                     id="btn_abrir_modal_campo"
                     class="text-white bg-[#1e5b4f] hover:bg-[#15433a] focus:ring-4 focus:ring-[#1e5b4f]/30 shadow-xs font-medium rounded-lg text-sm px-4 py-2.5 transition-colors cursor-pointer flex items-center gap-2 focus:outline-none" 
                     type="button"
@@ -176,6 +211,66 @@
         default_campo: 'true'
     };
 
+    // Plantilla de campos para Menú Jerárquico (Menús Principales y Submenús)
+    const menuTemplateFields = [
+        {
+            nombre_campo: 'titulo',
+            etiqueta_campo: 'Título del Menú',
+            tipo_campo: 'string',
+            tamanio_campo: 255,
+            decimal_campo: null,
+            unico_campo: false,
+            requerido_campo: true,
+            activo_campo: true,
+            default_campo: null
+        },
+        {
+            nombre_campo: 'url',
+            etiqueta_campo: 'Ruta o URL',
+            tipo_campo: 'string',
+            tamanio_campo: 255,
+            decimal_campo: null,
+            unico_campo: false,
+            requerido_campo: false,
+            activo_campo: true,
+            default_campo: '#'
+        },
+        {
+            nombre_campo: 'icono',
+            etiqueta_campo: 'Clase del Ícono (ej. bi-house)',
+            tipo_campo: 'string',
+            tamanio_campo: 100,
+            decimal_campo: null,
+            unico_campo: false,
+            requerido_campo: false,
+            activo_campo: true,
+            default_campo: null
+        },
+        {
+            nombre_campo: 'orden',
+            etiqueta_campo: 'Orden de Visualización',
+            tipo_campo: 'integer',
+            tamanio_campo: null,
+            decimal_campo: null,
+            unico_campo: false,
+            requerido_campo: true,
+            activo_campo: true,
+            default_campo: '0'
+        },
+        {
+            nombre_campo: 'padre_id',
+            etiqueta_campo: 'Menú Padre (ID si es Submenú)',
+            tipo_campo: 'parent_id',
+            tamanio_campo: null,
+            decimal_campo: null,
+            unico_campo: false,
+            requerido_campo: false,
+            activo_campo: true,
+            default_campo: null
+        },
+        { ...defaultActivoField }
+    ];
+
     let items = [{ ...defaultActivoField }];
 
     const container = document.getElementById('fields');
@@ -186,6 +281,12 @@
     const btnSubmitLabel = document.getElementById('btn_submit_label');
     const fieldsErrorBox = document.getElementById('fields_error_message');
     const fieldsErrorText = document.getElementById('fields_error_text');
+
+    // Elementos del selector de tipo de entidad
+    const radiosTipoEntidad = document.querySelectorAll('input[name="opt_tipo_entidad"]');
+    const wrapperBtnMenu = document.getElementById('wrapper_btn_plantilla_menu');
+    const btnAplicarPlantilla = document.getElementById('btn_aplicar_plantilla_menu');
+    const hiddenTipoEntidad = document.getElementById('tipo_entidad');
 
     // Elementos del selector de librería existente
     const selectLibreria = document.getElementById('select_libreria_existente');
@@ -213,11 +314,13 @@
 
     // Modal helpers
     function openFieldModal() {
+        document.querySelectorAll('[modal-backdrop]').forEach(el => el.remove());
         const modal = document.getElementById('agregar_campo');
         if (modal) {
             modal.classList.remove('hidden');
             modal.classList.add('flex');
         }
+        document.body.classList.add('overflow-hidden');
     }
 
     function closeFieldModal() {
@@ -226,7 +329,30 @@
             modal.classList.add('hidden');
             modal.classList.remove('flex');
         }
+        // Eliminar cualquier backdrop residual y restaurar scroll de la página
+        document.querySelectorAll('[modal-backdrop]').forEach(el => el.remove());
+        document.body.classList.remove('overflow-hidden');
     }
+
+    // ── Cerrar modal de campos al hacer clic en Cancelar, (X) o backdrop con data-modal-hide ──
+    document.addEventListener('click', (e) => {
+        const hideBtn = e.target.closest('[data-modal-hide="agregar_campo"]');
+        if (hideBtn) {
+            closeFieldModal();
+            resetModalForm();
+        }
+    });
+
+    // ── Cerrar modal de campos con tecla Escape ──
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            const modal = document.getElementById('agregar_campo');
+            if (modal && !modal.classList.contains('hidden')) {
+                closeFieldModal();
+                resetModalForm();
+            }
+        }
+    });
 
     // Renderizar la tabla de campos con soporte para eliminar, sincronizar y MODIFICAR
     function renderFields() {
@@ -263,6 +389,28 @@
         btnAbrirModalCampo.addEventListener('click', () => {
             resetModalForm();
             openFieldModal();
+        });
+    }
+
+    // ── Control de tipo de entidad y plantilla de menú ──
+    radiosTipoEntidad.forEach(radio => {
+        radio.addEventListener('change', () => {
+            if (radio.value === 'menu') {
+                if (wrapperBtnMenu) wrapperBtnMenu.classList.remove('hidden');
+                if (hiddenTipoEntidad) hiddenTipoEntidad.value = 'menu';
+                if (nameInput && !nameInput.value) nameInput.value = 'menus_navegacion';
+            } else {
+                if (wrapperBtnMenu) wrapperBtnMenu.classList.add('hidden');
+                if (hiddenTipoEntidad) hiddenTipoEntidad.value = 'estandar';
+            }
+        });
+    });
+
+    if (btnAplicarPlantilla) {
+        btnAplicarPlantilla.addEventListener('click', () => {
+            items = JSON.parse(JSON.stringify(menuTemplateFields));
+            renderFields();
+            hideFieldsError();
         });
     }
 

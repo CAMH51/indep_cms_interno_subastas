@@ -9,7 +9,7 @@
         <input type="hidden" name="record_id" id="<%= pfx %>record_id" value="">
     <% } %>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-1 gap-4">
         <% entity.fields.forEach(f => { 
             const inputId = pfx + f.name;
         %>
@@ -42,6 +42,33 @@
                     </div>
             <% } %>
 
+            <% if (f.type === 'file') { %>
+                <div class="field col-span-1 md:col-span-2">
+                    <label for="<%= inputId %>" class="block mb-2 text-sm font-medium text-neutral-800 dark:text-neutral-200">
+                        <%= f.label %> 
+                        <% if (f.unique) { %>
+                            <span class="inline-flex items-center text-[10px] font-semibold text-amber-700 bg-amber-100 dark:bg-amber-900/40 dark:text-amber-300 px-1.5 py-0.5 rounded border border-amber-200 dark:border-amber-800 ml-1.5" title="Campo único: no se permiten registros duplicados">
+                                <i class="bi bi-shield-check mr-0.5"></i> Único
+                            </span>
+                        <% } %>
+                        <% if (f.required) { %><span class="text-red-600 font-bold ml-0.5">*</span><% } %>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="<%= inputId %>" 
+                        name="<%= f.name %>" 
+                        class="bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 text-neutral-900 dark:text-neutral-100 text-sm rounded-lg focus:ring-brand focus:border-brand block w-full px-3 py-2.5 transition-colors placeholder:text-neutral-400"
+                        placeholder="URL o ruta del archivo para <%= f.label.toLowerCase() %>"
+                        <%= f.required ? 'required' : '' %>
+                        data-required="<%= f.required ? 'true' : 'false' %>"
+                        data-unique="<%= f.unique ? 'true' : 'false' %>"
+                        data-type="<%= f.type %>"
+                        data-label="<%= f.label %>"
+                    />
+                    <p class="msg text-xs mt-1"></p>
+                </div>
+            <% } %>
+
             <% if (f.type === 'text') { %>
                 <div class="field col-span-1 md:col-span-2">
                     <label for="<%= inputId %>" class="block mb-2 text-sm font-medium text-neutral-800 dark:text-neutral-200">
@@ -69,7 +96,7 @@
                 </div>
             <% } %>
 
-            <% if (f.type === 'integer' || f.type === 'bigint') { %>
+            <% if (f.type === 'integer' || f.type === 'bigint' || f.type === 'parent_id') { %>
                 <div class="field">
                     <label for="<%= inputId %>" class="block mb-2 text-sm font-medium text-neutral-800 dark:text-neutral-200">
                         <%= f.label %> 
@@ -86,7 +113,7 @@
                         id="<%= inputId %>" 
                         name="<%= f.name %>" 
                         class="bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 text-neutral-900 dark:text-neutral-100 text-sm rounded-lg focus:ring-brand focus:border-brand block w-full px-3 py-2.5 transition-colors placeholder:text-neutral-400"
-                        placeholder="0"
+                        placeholder="<%= f.type === 'parent_id' ? 'ID del menú padre (dejar vacío si es Menú Principal)' : '0' %>"
                         <%= f.required ? 'required' : '' %>
                         data-required="<%= f.required ? 'true' : 'false' %>"
                         data-unique="<%= f.unique ? 'true' : 'false' %>"

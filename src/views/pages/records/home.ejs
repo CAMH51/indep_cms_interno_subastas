@@ -26,6 +26,7 @@
         </div>
 
         <div class="flex items-center gap-2.5">
+            <% if (typeof puede === 'function' && (puede('CRELIB') || puede('/entities/new') || puede('entities.crear') || puede('entities.actualizar'))) { %>
             <a 
                 href="/entities/new?entity=<%= entity.name %>"
                 class="inline-flex items-center gap-2 text-neutral-700 dark:text-neutral-200 bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 border border-neutral-300 dark:border-neutral-700 shadow-xs font-medium rounded-lg text-sm px-3.5 py-2.5 transition-all cursor-pointer"
@@ -34,10 +35,10 @@
                 <i class="bi bi-gear"></i>
                 <span>Modificar Campos</span>
             </a>
+            <% } %>
 
+            <% if (typeof puede === 'function' && (puede(entity.name + '.crear') || puede(entity.name + '.add') || puede('entities.crear'))) { %>
             <button 
-                data-modal-target="addRecordModal" 
-                data-modal-toggle="addRecordModal" 
                 id="btn_abrir_agregar"
                 class="inline-flex items-center gap-2 text-white bg-[#1e5b4f] hover:bg-[#15433a] focus:ring-4 focus:ring-[#1e5b4f]/30 shadow-xs font-medium rounded-lg text-sm px-4 py-2.5 transition-all cursor-pointer focus:outline-none" 
                 type="button"
@@ -45,6 +46,7 @@
                 <i class="bi bi-plus-circle"></i>
                 <span>Agregar Registro</span>
             </button> 
+            <% } %>
         </div>
     </div>
 </div>
@@ -67,7 +69,7 @@
     title: 'Agregar Registro - ' + entity.name,
     icon: 'bi-plus-circle',
     body: '../pages/records/form_add_record.ejs',
-    modalSize: 'max-w-6xl',
+    modalSize: 'max-w-3xl',
     formId: 'form_add_record',
     isEdit: false,
     prefix: 'add_'
@@ -79,7 +81,7 @@
     title: 'Editar Registro - ' + entity.name,
     icon: 'bi-pencil-square',
     body: '../pages/records/form_add_record.ejs',
-    modalSize: 'max-w-6xl',
+    modalSize: 'max-w-3xl',
     formId: 'form_edit_record',
     isEdit: true,
     prefix: 'edit_'

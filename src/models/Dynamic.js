@@ -12,7 +12,8 @@ const TYPE_MAP = {
     boolean: () => DataTypes.BOOLEAN,
     date: () => DataTypes.DATE,
     dateonly: () => DataTypes.DATEONLY,
-    time: () => DataTypes.TIME
+    time: () => DataTypes.TIME,
+    parent_id: () => DataTypes.INTEGER
 };
 
 const registry = new Map();

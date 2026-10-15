@@ -55,7 +55,7 @@ const File = sequelize.define('File', {
     is_public:{
         type:DataTypes.BOOLEAN,
         allowNull:false,
-        defaultValue:false,
+        defaultValue:true,
         comment:"Determina si el archivo es accesible sin iniciar sesión"
     },
 

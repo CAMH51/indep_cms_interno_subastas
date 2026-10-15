@@ -3,6 +3,8 @@ const { Op } = require('sequelize');
 const {buildModel, validateDefinition, registry} = require('../models/Dynamic');
 const {File, Usuario, Slider, Field} = require('../models');
 const entityService = require('../services/entity.service');
+const { detectarCampoPadre, detectarCampoOrden, construirArbolJerarquico } = require('../utils/treeHelper');
+
 
 const renderWithError = async (res, msg) => {
     const entities = await entityService.getAll().catch(() => []);
@@ -20,7 +22,27 @@ exports.renderNewEntities = async (req, res) => {
 
 exports.renderListEntities = async(req, res) =>{
     try {
-        const entities = await entityService.getAll();
+        let entities = await entityService.getAll();
+        const rolNombre = req.rolNombre || req.usuario?.rol?.nombre || '';
+        const esSuperAdmin = rolNombre === 'SuperAdmin' || (rolNombre && rolNombre.toLowerCase().includes('admin'));
+
+        // Filtrar entidades dinámicas según permisos si NO es SuperAdmin
+        if (!esSuperAdmin) {
+            const { verificarPermisoEnArbolMenus } = require('../middlewares/permisos');
+            const menus = req.menus || req.usuario?.menus || [];
+            entities = entities.filter(e => {
+                if (typeof req.puede === 'function' && (
+                    req.puede(e.name) ||
+                    req.puede(`${e.name}.leer`) ||
+                    req.puede(`${e.name}.read`) ||
+                    req.puede(`/entities/${e.name}`)
+                )) {
+                    return true;
+                }
+                return verificarPermisoEnArbolMenus(menus, e.name, 'leer');
+            });
+        }
+
         const [totalFiles, totalUsuarios, totalSliders] = await Promise.all([
             File.count().catch(() => 0),
             Usuario.count().catch(() => 0),
@@ -394,3 +416,67 @@ exports.getRecords = async(req, res)=>{
         res.status(400).json({error:error.message});
     }
 }
+
+/**
+ * Consulta jerárquica para entidades tipo Menú Jerárquico.
+ * Agrupa los registros padres con sus respectivos hijos en el arreglo 'submenus' y 'children'.
+ */
+exports.getMenuTree = async (req, res) => {
+    try {
+        const entity = await entityService.getName(req.params.name);
+        if (!entity) return res.status(404).json({ success: false, msg: 'La entidad no existe' });
+
+        let model = registry.get(req.params.name);
+        if (!model) {
+            model = buildModel(entity);
+        }
+        if (!model) return res.status(404).json({ success: false, msg: 'La entidad no existe' });
+
+        const campoPadre = detectarCampoPadre(entity, model);
+        if (!campoPadre) {
+            return res.status(400).json({
+                success: false,
+                msg: `La entidad '${entity.name}' no tiene definido un campo de jerarquía (parent_id o padre_id)`
+            });
+        }
+
+        const campoOrden = detectarCampoOrden(entity, model);
+
+        // Opciones de filtrado
+        const whereClause = {};
+        const filtro = req.query.activo ?? req.query.filtro;
+        if (filtro === 'true' || filtro === '1') {
+            whereClause.activo = true;
+        } else if (filtro === 'false' || filtro === '0') {
+            whereClause.activo = false;
+        }
+
+        const orderClause = [];
+        if (campoOrden) {
+            orderClause.push([campoOrden, 'ASC']);
+        }
+        orderClause.push(['id', 'ASC']);
+
+        const records = await model.findAll({
+            where: whereClause,
+            order: orderClause
+        });
+
+        const tree = construirArbolJerarquico(records, campoPadre, campoOrden);
+
+        return res.status(200).json({
+            success: true,
+            entidad: entity.name,
+            es_jerarquico: true,
+            campo_padre: campoPadre,
+            campo_orden: campoOrden,
+            total_registros: records.length,
+            total_padres: tree.length,
+            data: tree
+        });
+    } catch (error) {
+        return res.status(400).json({ success: false, error: error.message });
+    }
+};
+
+exports.getJerarquia = exports.getMenuTree;

@@ -13,11 +13,11 @@ const validacionStorages = [
     .withMessage('La ubicación es obligatoria')
 ];
 
-router.get('/', verificarPermiso('storages.leer'),storageCtrl.listar);
-router.get('/nuevo', verificarPermiso('storages.crear'), storageCtrl.formularioCrear);
-router.post('/',verificarPermiso('storages.crear'), verificarCsrf, validacionStorages, storageCtrl.crear);
+router.get('/', verificarPermiso('UNIALM.leer'),storageCtrl.listar);
+router.get('/nuevo', verificarPermiso('UNIALM.crear'), storageCtrl.formularioCrear);
+router.post('/',verificarPermiso('UNIALM.crear'), verificarCsrf, validacionStorages, storageCtrl.crear);
 
-router.get('/:id/editar', verificarPermiso('storages.actualizar'), storageCtrl.formEditar);
-router.post('/:id',verificarPermiso('storages.actualizar'), verificarCsrf, validacionStorages, storageCtrl.actualizar);
+router.get('/:id/editar', verificarPermiso('UNIALM.actualizar'), storageCtrl.formEditar);
+router.post('/:id',verificarPermiso('UNIALM.actualizar'), verificarCsrf, validacionStorages, storageCtrl.actualizar);
 
 module.exports = router;

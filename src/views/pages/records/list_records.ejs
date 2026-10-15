@@ -91,6 +91,7 @@
                             <% }) %>
                             <td class="px-4 py-3.5 whitespace-nowrap text-center">
                                 <div class="inline-flex items-center gap-2">
+                                    <% if (typeof puede === 'function' && (puede(entity.name + '.actualizar') || puede(entity.name + '.write') || puede('entities.actualizar'))) { %>
                                     <!-- Boton de Editar -->
                                     <button 
                                         type="button" 
@@ -104,8 +105,9 @@
                                         <i class="bi bi-pencil-square"></i>
                                         <span>Editar</span>
                                     </button>
+                                    <% } %>
 
-                                    <% if (hasActivoField) { %>
+                                    <% if (hasActivoField && typeof puede === 'function' && (puede(entity.name + '.eliminar') || puede(entity.name + '.delete') || puede('entities.eliminar'))) { %>
                                         <% const isActivo = (r.get('activo') === true || r.get('activo') === 1 || r.get('activo') === 'true' || r.get('activo') === '1'); %>
                                         <!-- Boton Activar / Desactivar segun sea el caso -->
                                         <button 
@@ -140,7 +142,11 @@
 
     // Inicializar dataTable
     const tableId = 'tabla<%= entity.name %>';
-    dataTable(tableId);
+    try {
+        dataTable(tableId);
+    } catch (e) {
+        console.warn('Error inicializando dataTable:', e);
+    }
 
     // Cargar definición de campos de la entidad
     let fieldsData = [];
@@ -155,10 +161,12 @@
 
     // ── Funciones de ayuda para mostrar / ocultar modales ──
     function openModal(modalId) {
+        document.querySelectorAll('[modal-backdrop]').forEach(el => el.remove());
         const modal = document.getElementById(modalId);
         if (!modal) return;
         modal.classList.remove('hidden');
         modal.classList.add('flex');
+        document.body.classList.add('overflow-hidden');
     }
 
     function closeModal(modalId) {
@@ -166,6 +174,8 @@
         if (!modal) return;
         modal.classList.add('hidden');
         modal.classList.remove('flex');
+        document.querySelectorAll('[modal-backdrop]').forEach(el => el.remove());
+        document.body.classList.remove('overflow-hidden');
     }
 
     // Manejo de botones de cierre con data-modal-hide
@@ -187,10 +197,11 @@
                 formAdd.querySelectorAll('.msg').forEach(m => { m.innerHTML = ''; m.className = 'msg text-xs mt-1'; });
                 formAdd.querySelectorAll('input, textarea, select').forEach(input => {
                     input.classList.remove('border-red-500', 'focus:border-red-500', 'focus:ring-red-200');
+                    input.classList.add('border-neutral-300', 'dark:border-neutral-700');
                     input.dataset.duplicate = 'false';
                 });
                 // Asegurar que el campo 'activo' esté seleccionado por default
-                const addActivo = document.getElementById('add_activo');
+                const addActivo = formAdd.querySelector('#add_activo') || formAdd.querySelector('[name="activo"]');
                 if (addActivo) addActivo.checked = true;
             }
             openModal('addRecordModal');
@@ -343,32 +354,42 @@
 
     // ── Validaciones Dinámicas dependientes de required y tipo ──
     function validateInputField(input, fieldDef) {
+        if (!input) return true;
         const fieldWrapper = input.closest('.field') || input.parentElement;
         const msgEl = fieldWrapper?.querySelector('.msg');
         const isCheckbox = input.type === 'checkbox';
-        const value = isCheckbox ? input.checked : input.value.trim();
+        const value = isCheckbox ? input.checked : (input.value !== undefined ? input.value.trim() : '');
         let error = null;
 
+        const isRequired = fieldDef?.required || input.dataset.required === 'true' || input.hasAttribute('required');
+        const fieldLabel = fieldDef?.label || input.dataset.label || input.name;
+        const fieldType = fieldDef?.type || input.dataset.type || input.type;
+        const maxLength = fieldDef?.length || (input.dataset.length ? Number(input.dataset.length) : null) || (input.maxLength > 0 ? input.maxLength : null);
+
         // 1. Validación de required
-        if (fieldDef.required) {
+        if (isRequired) {
             if (isCheckbox ? !value : value === '') {
-                error = `El campo "${fieldDef.label}" es obligatorio.`;
+                error = `El campo "${fieldLabel}" es obligatorio.`;
             }
         }
 
-        // 2. Validaciones de formato si tiene valor
+        // 2. Validaciones de formato si tiene valor y no es checkbox
         if (!error && value !== '' && !isCheckbox) {
-            if (fieldDef.type === 'integer' || fieldDef.type === 'bigint') {
+            if (fieldType === 'integer' || fieldType === 'bigint') {
                 if (!/^-?\d+$/.test(value)) {
-                    error = `"${fieldDef.label}" debe ser un número entero.`;
+                    error = `"${fieldLabel}" debe ser un número entero.`;
                 }
-            } else if (fieldDef.type === 'decimal') {
+            } else if (fieldType === 'parent_id') {
+                if (!/^\d+$/.test(value)) {
+                    error = `"${fieldLabel}" debe ser un ID numérico entero válido.`;
+                }
+            } else if (fieldType === 'decimal') {
                 if (isNaN(Number(value))) {
-                    error = `"${fieldDef.label}" debe ser un número válido.`;
+                    error = `"${fieldLabel}" debe ser un número válido.`;
                 }
-            } else if (fieldDef.type === 'string' && fieldDef.length) {
-                if (value.length > fieldDef.length) {
-                    error = `"${fieldDef.label}" no debe exceder ${fieldDef.length} caracteres.`;
+            } else if (fieldType === 'string' && maxLength) {
+                if (value.length > maxLength) {
+                    error = `"${fieldLabel}" no debe exceder ${maxLength} caracteres.`;
                 }
             }
         }
@@ -378,8 +399,8 @@
             input.classList.add('border-red-500', 'focus:border-red-500', 'focus:ring-red-200');
             input.classList.remove('border-neutral-300', 'dark:border-neutral-700');
             if (msgEl) {
-                msgEl.innerHTML = `<i class="bi bi-exclamation-circle-fill"></i> ${error}`;
-                msgEl.className = 'msg text-red-600 dark:text-red-400 text-xs font-medium mt-1 flex items-center gap-1';
+                msgEl.innerHTML = `<i class="bi bi-exclamation-circle-fill mr-1"></i> ${error}`;
+                msgEl.className = 'msg text-red-600 dark:text-red-400 text-xs font-medium mt-1 flex items-center';
             }
             return false;
         } else {
@@ -397,13 +418,16 @@
     }
 
     // ── Validación Asíncrona de Campos Únicos (evitar duplicados) ──
-    async function checkUniqueField(input, fieldDef, prefix) {
-        if (!fieldDef.unique) return true;
+    async function checkUniqueField(form, input, fieldDef, prefix) {
+        const isUnique = fieldDef?.unique || input.dataset.unique === 'true';
+        if (!isUnique) return true;
         if (input.type === 'checkbox') return true;
 
-        const value = input.value.trim();
+        const value = input.value ? input.value.trim() : '';
         const fieldWrapper = input.closest('.field') || input.parentElement;
         const msgEl = fieldWrapper?.querySelector('.msg');
+        const fieldLabel = fieldDef?.label || input.dataset.label || input.name;
+        const fieldName = fieldDef?.name || input.name;
 
         if (value === '') {
             input.dataset.duplicate = 'false';
@@ -412,7 +436,7 @@
 
         let excludeId = '';
         if (prefix === 'edit_') {
-            const idInput = document.getElementById('edit_record_id');
+            const idInput = form.querySelector('#edit_record_id') || document.getElementById('edit_record_id');
             if (idInput && idInput.value) {
                 excludeId = idInput.value;
             }
@@ -420,7 +444,7 @@
 
         try {
             const entityName = '<%= entity.name %>';
-            const url = `/entities/${entityName}/check-unique?field=${encodeURIComponent(fieldDef.name)}&value=${encodeURIComponent(value)}&excludeId=${encodeURIComponent(excludeId)}`;
+            const url = `/entities/${entityName}/check-unique?field=${encodeURIComponent(fieldName)}&value=${encodeURIComponent(value)}&excludeId=${encodeURIComponent(excludeId)}`;
             const response = await fetch(url);
             if (response.ok) {
                 const resData = await response.json();
@@ -428,8 +452,8 @@
                     input.classList.add('border-red-500', 'focus:border-red-500', 'focus:ring-red-200');
                     input.classList.remove('border-neutral-300', 'dark:border-neutral-700');
                     if (msgEl) {
-                        msgEl.innerHTML = `<i class="bi bi-exclamation-circle-fill"></i> Ya existe un registro con este valor para "${fieldDef.label}". No se permiten registros duplicados.`;
-                        msgEl.className = 'msg text-red-600 dark:text-red-400 text-xs font-medium mt-1 flex items-center gap-1';
+                        msgEl.innerHTML = `<i class="bi bi-exclamation-circle-fill mr-1"></i> Ya existe un registro con este valor para "${fieldLabel}". No se permiten registros duplicados.`;
+                        msgEl.className = 'msg text-red-600 dark:text-red-400 text-xs font-medium mt-1 flex items-center';
                     }
                     input.dataset.duplicate = 'true';
                     return false;
@@ -456,30 +480,41 @@
         if (!form) return;
 
         const timers = {};
+        const inputs = Array.from(form.querySelectorAll('input:not([type="hidden"]), textarea, select'));
+
+        // Obtener definición para un input
+        function getDefForInput(input) {
+            const fieldName = input.name;
+            return fieldsData.find(item => item.name === fieldName) || {
+                name: fieldName,
+                label: input.dataset.label || fieldName,
+                type: input.dataset.type || input.type,
+                required: input.dataset.required === 'true' || input.hasAttribute('required'),
+                unique: input.dataset.unique === 'true',
+                length: input.dataset.length ? Number(input.dataset.length) : null
+            };
+        }
 
         // Validaciones en tiempo real (input y blur)
-        fieldsData.forEach(f => {
-            const inputId = prefix + f.name;
-            const input = document.getElementById(inputId);
-            if (!input) return;
-
+        inputs.forEach(input => {
+            const f = getDefForInput(input);
             const isCheckOrDate = (input.type === 'checkbox' || input.type === 'date' || input.type === 'datetime-local');
             const eventType = isCheckOrDate ? 'change' : 'input';
 
             input.addEventListener(eventType, () => {
                 const ok = validateInputField(input, f);
-                if (f.unique && ok) {
-                    clearTimeout(timers[inputId]);
-                    timers[inputId] = setTimeout(() => {
-                        checkUniqueField(input, f, prefix);
+                if ((f.unique || input.dataset.unique === 'true') && ok) {
+                    clearTimeout(timers[input.id || input.name]);
+                    timers[input.id || input.name] = setTimeout(() => {
+                        checkUniqueField(form, input, f, prefix);
                     }, 400);
                 }
             });
 
             input.addEventListener('blur', () => {
                 const ok = validateInputField(input, f);
-                if (f.unique && ok) {
-                    checkUniqueField(input, f, prefix);
+                if (f.unique || input.dataset.unique === 'true') {
+                    checkUniqueField(form, input, f, prefix);
                 }
             });
         });
@@ -492,11 +527,8 @@
             let firstInvalid = null;
 
             // 1. Validar campos requeridos y de formato
-            fieldsData.forEach(f => {
-                const inputId = prefix + f.name;
-                const input = document.getElementById(inputId);
-                if (!input) return;
-
+            inputs.forEach(input => {
+                const f = getDefForInput(input);
                 const fieldOk = validateInputField(input, f);
                 if (!fieldOk) {
                     isValid = false;
@@ -513,16 +545,14 @@
             }
 
             // 2. Validar campos únicos antes del envío
-            const uniqueFields = fieldsData.filter(f => f.unique);
-            for (const f of uniqueFields) {
-                const inputId = prefix + f.name;
-                const input = document.getElementById(inputId);
-                if (!input) continue;
-
-                const isUnique = await checkUniqueField(input, f, prefix);
-                if (!isUnique) {
-                    isValid = false;
-                    if (!firstInvalid) firstInvalid = input;
+            for (const input of inputs) {
+                const f = getDefForInput(input);
+                if (f.unique || input.dataset.unique === 'true') {
+                    const isUnique = await checkUniqueField(form, input, f, prefix);
+                    if (!isUnique) {
+                        isValid = false;
+                        if (!firstInvalid) firstInvalid = input;
+                    }
                 }
             }
 

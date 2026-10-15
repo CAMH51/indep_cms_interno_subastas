@@ -4,15 +4,56 @@ const storageHelper = require('../utils/storageHelper');
 const path = require('path');
 const {v4: uuidv4} = require('uuid');
 
+/**
+ * Resuelve un usuario_id válido de la tabla local 'usuarios' para satisfacer la foreign key en 'file_versions'.
+ * Si el usuario proviene de sesión externa/stateless (Keycloak / Control de Accesos) y su ID no existe en la BD local,
+ * intenta buscarlo o crearlo por correo electrónico. Si falla o no hay usuario, devuelve null de forma segura.
+ */
+const resolveUsuarioId = async (usuario) => {
+    if (!usuario) return null;
+
+    try {
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+        const candidateId = usuario.usuario_id || usuario.id || usuario.uid;
+
+        // 1. Si candidateId tiene formato UUID válido, verificar si existe en la tabla local usuarios
+        if (candidateId && typeof candidateId === 'string' && uuidRegex.test(candidateId)) {
+            const userById = await Usuario.findByPk(candidateId);
+            if (userById) return userById.usuario_id;
+        }
+
+        // 2. Si tiene email, buscar o sincronizar en la tabla local usuarios
+        const email = usuario.email || usuario.mail;
+        if (email && typeof email === 'string' && email.includes('@')) {
+            const emailNormalizado = email.toLowerCase().trim();
+            const [userByEmail] = await Usuario.findOrCreate({
+                where: { email: emailNormalizado },
+                defaults: {
+                    email: emailNormalizado,
+                    activo: true,
+                    mfa: true
+                }
+            });
+            if (userByEmail) return userByEmail.usuario_id;
+        }
+    } catch (err) {
+        console.warn('Advertencia al asociar fk_usuario_id para FileVersion (se guardará sin autor):', err.message);
+    }
+
+    return null;
+};
+
 const uploadFiles = async (req, res, next) =>{
     try{
-        const folderId = req.query.folderId || req.body.folder_id || null;
+        const folderId = req.query.folderId || req.body.folderId || req.body.folder_id || null;
         const targetFolderId = folderId && folderId !== '' && folderId !== 'null' ? folderId : null;
         const isPublic = req.body.is_public === 'true' || req.body.is_public === true;
 
         if(!req.files || req.files.length === 0){
             return res.status(400).redirect(targetFolderId ? `/folders/${targetFolderId}` : '/documentos');
         }
+
+        const usuarioIdValido = await resolveUsuarioId(req.usuario);
 
         for(const file of req.files){
             const newFile = await File.create({
@@ -34,11 +75,19 @@ const uploadFiles = async (req, res, next) =>{
                 size: file.size,
                 mime_type: file.mimetype,
                 comment: 'Versión inicial',
-                fk_usuario_id: req.usuario?.usuario_id
+                fk_usuario_id: usuarioIdValido
             });
+        }
+
+        if (req.xhr || req.headers.accept?.includes('application/json')) {
+            return res.json({ success: true, message: 'Archivos subidos exitosamente' });
         }
         res.redirect(targetFolderId ? `/folders/${targetFolderId}` : '/documentos');
     }catch(err){
+        console.error('Error al subir archivos:', err);
+        if (req.xhr || req.headers.accept?.includes('application/json')) {
+            return res.status(500).json({ success: false, message: err.message || 'Error al subir archivos' });
+        }
         next(err);
     }
 }
@@ -64,6 +113,7 @@ const uploadNewVersion = async (req, res, next) => {
         }) || 1;
 
         const nextVersion = lastVersion + 1;
+        const usuarioIdValido = await resolveUsuarioId(req.usuario);
 
         // 1. Crear el nuevo registro histórico
         const version = await FileVersion.create({
@@ -74,7 +124,7 @@ const uploadNewVersion = async (req, res, next) => {
             size: uploadedFile.size,
             mime_type: uploadedFile.mimetype,
             comment: comment || `Actualización a versión ${nextVersion}`,
-            fk_usuario_id: req.usuario?.usuario_id
+            fk_usuario_id: usuarioIdValido
         });
 
         // 2. Actualizar el archivo activo para que la URL pública (/raw/:code) entregue siempre la última versión
@@ -90,7 +140,11 @@ const uploadNewVersion = async (req, res, next) => {
             version
         });
     } catch (err) {
-        next(err);
+        console.error('Error al subir nueva versión:', err);
+        return res.status(500).json({
+            success: false,
+            message: err.message || 'Error al subir la nueva versión'
+        });
     }
 };
 
@@ -249,7 +303,7 @@ const getFileVersions = async (req, res, next) => {
 
         const versions = await FileVersion.findAll({
             where: { fk_file_id: id },
-            include: [{ model: Usuario, as: 'usuario', attributes: ['usuario_id', 'email'] }],
+            include: [{ model: Usuario, as: 'usuario', attributes: ['usuario_id', 'email'], required: false }],
             order: [['version_number', 'DESC']]
         });
 

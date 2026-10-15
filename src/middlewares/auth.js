@@ -8,7 +8,7 @@ const {
     duracionAMilisegundos,
     ACCESS_EXPIRES_IN
 } = require('../utils/jws');
-const {renovarSesion, obtenerPermisosDeUsuario} = require('../services/sesion.service');
+const {renovarSesion} = require('../services/sesion.service');
 const {opcionesAccessCookie, opcionesRefreshCookie} = require('../utils/cookies');
 const activeStorage = require('./activeStorage');
 
@@ -33,6 +33,7 @@ const MAPA_ACCIONES = {
 
 /**
  * Normaliza las acciones de permissions del JSON hacia llaves combinadas (screen.accion, modulo.accion, ruta.accion).
+ * Soporta pantallas existentes y entidades dinámicas.
  * @param {Array} menus 
  * @param {boolean} esSuperAdmin 
  * @returns {Array<string>}
@@ -40,32 +41,48 @@ const MAPA_ACCIONES = {
 function normalizarPermisosDesdeMenus(menus, esSuperAdmin) {
     const permisosSet = new Set();
 
+    // Si es SuperAdmin, acceso total irrestricto
     if (esSuperAdmin) {
         permisosSet.add('*');
+        return Array.from(permisosSet);
     }
 
     if (!Array.isArray(menus)) return Array.from(permisosSet);
 
-    menus.forEach(m => {
+    function procesarMenu(m) {
         if (!m) return;
         const screenCode = m.screen ? String(m.screen).trim() : null;
         const rutaName = m.name ? String(m.name).trim() : null;
         
         // Identificadores: screen, ruta completa, módulo base (ej. /entities/new -> entities)
-        const segmentosRuta = rutaName ? rutaName.replace(/^\//, '').split('/') : [];
+        const rutaLimpia = rutaName ? rutaName.replace(/^\//, '') : '';
+        const segmentosRuta = rutaLimpia ? rutaLimpia.split('/') : [];
         const moduloBase = segmentosRuta.length > 0 ? segmentosRuta[0] : null;
+        const subRuta = segmentosRuta.length > 1 ? segmentosRuta.slice(1).join('/') : null;
 
         const identificadores = [
             screenCode,
             rutaName,
+            rutaLimpia,
             moduloBase,
-            moduloBase && !moduloBase.endsWith('s') ? `${moduloBase}s` : null
+            moduloBase && !moduloBase.endsWith('s') ? `${moduloBase}s` : null,
+            subRuta ? `${moduloBase}.${subRuta}` : null
         ].filter(Boolean);
 
+        // Soporte dinámico para librerías/entidades (ej. /entities/nombre_libreria)
+        if (moduloBase === 'entities' && segmentosRuta[1]) {
+            const entidadNombre = segmentosRuta[1];
+            identificadores.push(entidadNombre);
+            identificadores.push(`entities.${entidadNombre}`);
+            identificadores.push(`/entities/${entidadNombre}`);
+        }
+
         if (m.permissions && typeof m.permissions === 'object') {
+            let tieneAlgunaAccion = false;
             Object.keys(m.permissions).forEach(k => {
                 const valor = m.permissions[k];
                 if (valor === 1 || valor === true || valor === '1') {
+                    tieneAlgunaAccion = true;
                     const sinonimos = MAPA_ACCIONES[k] || [k];
                     identificadores.forEach(id => {
                         sinonimos.forEach(sin => {
@@ -75,14 +92,23 @@ function normalizarPermisosDesdeMenus(menus, esSuperAdmin) {
                     });
                 }
             });
+
+            // Si tiene alguna acción permitida, registrar también el identificador directamente
+            if (tieneAlgunaAccion) {
+                identificadores.forEach(id => {
+                    permisosSet.add(id);
+                    permisosSet.add(id.toLowerCase());
+                });
+            }
         }
 
         // Si tiene submenus, procesar recursivamente
         if (Array.isArray(m.submenus) && m.submenus.length > 0) {
-            normalizarPermisosDesdeMenus(m.submenus, false).forEach(p => permisosSet.add(p));
+            m.submenus.forEach(procesarMenu);
         }
-    });
+    }
 
+    menus.forEach(procesarMenu);
     return Array.from(permisosSet);
 }
 
@@ -102,6 +128,19 @@ function crearValidadorPermisos(permisos, esSuperAdmin) {
 
         const reqLower = String(permisoRequerido).trim().toLowerCase();
         if (permisosLower.has(reqLower)) return true;
+
+        // Si se consulta un identificador sin acción (ej. 'dash', 'CRELIB', '/dashboard', 'usuarios')
+        if (permisosLower.has(`${reqLower}.read`) || 
+            permisosLower.has(`${reqLower}.leer`) ||
+            permisosLower.has(`${reqLower}.ver`)) {
+            return true;
+        }
+
+        for (const p of permisosLower) {
+            if (p.startsWith(`${reqLower}.`)) {
+                return true;
+            }
+        }
 
         const partes = reqLower.split('.');
         if (partes.length === 2 && permisosLower.has(`${partes[0]}.*`)) {
@@ -145,7 +184,17 @@ function extraerInfoDeJson(data) {
     const primerRol = rolesArray[0] || null;
     const rolNombre = primerRol?.name || 'SuperAdmin';
     const rolDescripcion = primerRol?.description || rolNombre;
-    const menus = Array.isArray(primerRol?.menus) ? primerRol.menus : [];
+
+    // Recolectar menús de todos los roles asignados
+    let menus = [];
+    rolesArray.forEach(r => {
+        if (Array.isArray(r.menus)) {
+            menus = menus.concat(r.menus);
+        }
+    });
+    if (menus.length === 0 && Array.isArray(primerRol?.menus)) {
+        menus = primerRol.menus;
+    }
 
     const partesNombre = [
         usuarioInfo.name,
@@ -156,7 +205,10 @@ function extraerInfoDeJson(data) {
     const nombreCompleto = partesNombre.length > 0 ? partesNombre.join(' ') : (usuarioInfo.name || email);
 
     const usuarioId = usuarioInfo.uid || usuarioInfo.id || 'usr-' + Date.now();
-    const esSuperAdmin = rolNombre === 'SuperAdmin' || rolNombre.toLowerCase().includes('admin');
+    const esSuperAdmin = rolesArray.some(r => {
+        const n = (r.name || '').toLowerCase();
+        return n === 'superadmin' || n.includes('admin');
+    }) || (rolNombre.toLowerCase() === 'superadmin' || rolNombre.toLowerCase().includes('admin'));
 
     // Normalizar lista completa de permisos con sinónimos e identificadores
     const permisos = normalizarPermisosDesdeMenus(menus, esSuperAdmin);
@@ -538,8 +590,6 @@ async function autenticar(req, res, next) {
 
         sesion.update({ ultimo_uso: new Date() }).catch(() => {});
 
-        const permisos = await obtenerPermisosDeUsuario(usuario.dataValues.usuario_id);
-
         let menus = payload.menus;
         if (!menus || !Array.isArray(menus) || menus.length === 0) {
             if (req.cookies?.user_menus) {
@@ -555,6 +605,7 @@ async function autenticar(req, res, next) {
 
         const rolNombre = payload.rol || req.cookies?.user_rol || (usuario.rol ? usuario.rol.nombre : '');
         const esSuperAdmin = rolNombre === 'SuperAdmin' || rolNombre.toLowerCase().includes('admin');
+        const permisos = normalizarPermisosDesdeMenus(menus, esSuperAdmin);
         const { puede, puedeAccion } = crearValidadorPermisos(permisos, esSuperAdmin);
 
         req.usuario = usuario;

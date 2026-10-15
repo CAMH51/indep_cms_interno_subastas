@@ -24,7 +24,7 @@
               <% if (crumb.id === null) { %>
                 <i class="bi bi-house-door text-indigo-500 text-md"></i>
               <% } %>
-              <%= crumb.name %>
+              <%= crumb.name.toUpperCase() %>
             </span>
           <% } else { %>
             <a href="<%= crumb.id ? `/folders/${crumb.id}` : '/documentos' %>" 
@@ -32,7 +32,7 @@
               <% if (crumb.id === null) { %>
                 <i class="bi bi-house-door text-indigo-500 text-md"></i>
               <% } %>
-              <span class="group-hover:underline underline-offset-2"><%= crumb.name %></span>
+              <span class="group-hover:underline underline-offset-2"><%= crumb.name.toUpperCase() %></span>
             </a>
             <span class="text-gray-300 text-xs mx-0.5">
               <i class="bi bi-chevron-right"></i>

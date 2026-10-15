@@ -36,11 +36,18 @@
                 {id_tipo:"dateonly", name:"Dateonly (solo fecha)"},
                 {id_tipo:"time",     name:"Time (solo hora)"},
                 {id_tipo:"file",     name:"File (archivo)"},
+                {id_tipo:"parent_id", name:"Menú Padre / Jerarquía (parent_id)"}
             ],
             id_data:"id_tipo",
             name_data:"name",
             required:true
         }) %>
+    </div>
+
+    <!-- Banner informativo contextual para campo Menú Padre -->
+    <div id="parent_id_info" class="hidden my-3 p-3 text-xs bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-lg text-amber-800 dark:text-amber-300 flex items-center gap-2">
+        <i class="bi bi-diagram-2 text-base text-amber-600"></i>
+        <span>Este campo almacena el ID del Menú Principal. Cuando esté vacío (null), el registro será un <strong>Menú Principal</strong>; cuando tenga un valor, será un <strong>Submenú</strong> asociado a ese padre. Debe mantenerse como <em>no requerido</em>.</span>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">

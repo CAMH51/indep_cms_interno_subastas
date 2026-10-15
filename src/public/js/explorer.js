@@ -65,10 +65,12 @@ export function showToast(message) {
   // GESTIÓN DE MODALES (Tailwind: hidden <-> flex)
   // ==========================================
   export function openModal(modalId){
+    document.querySelectorAll('[modal-backdrop]').forEach(b => b.remove());
     const modal = document.getElementById(modalId);
     if (modal) {
       modal.classList.remove('hidden');
       modal.classList.add('flex');
+      document.body.classList.add('overflow-hidden');
       const input = modal.querySelector('input[type="text"]');
       if (input) setTimeout(() => input.focus(), 100);
     }
@@ -80,16 +82,19 @@ export function showToast(message) {
       modal.classList.add('hidden');
       modal.classList.remove('flex');
     }
+    document.querySelectorAll('[modal-backdrop]').forEach(b => b.remove());
+    document.body.classList.remove('overflow-hidden');
   };
 
   // Cerrar al presionar Escape o clic fuera del modal
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
-      // ya no usamos '.active': buscamos los que están visibles (con 'flex')
-      document.querySelectorAll('.modal-backdrop.flex').forEach((m) => {
+      document.querySelectorAll('.modal-backdrop.flex, .modal-backdrop:not(.hidden)').forEach((m) => {
         m.classList.add('hidden');
         m.classList.remove('flex');
       });
+      document.querySelectorAll('[modal-backdrop]').forEach(b => b.remove());
+      document.body.classList.remove('overflow-hidden');
     }
   });
 
@@ -98,6 +103,8 @@ export function showToast(message) {
       if (e.target === backdrop) {
         backdrop.classList.add('hidden');
         backdrop.classList.remove('flex');
+        document.querySelectorAll('[modal-backdrop]').forEach(b => b.remove());
+        document.body.classList.remove('overflow-hidden');
       }
     });
   });

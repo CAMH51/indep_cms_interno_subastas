@@ -23,6 +23,18 @@ export function selectTipoDato(selectElement) {
         const selectedValue = this.value;
         const tamanio = document.getElementById('tamanio_campo');
         const decimal = document.getElementById('decimal_campo');
+        const parentInfo = document.getElementById('parent_id_info');
+        const requerido = document.getElementById('requerido');
+
+        // Mostrar u ocultar mensaje informativo de jerarquía
+        if (parentInfo) {
+            if (selectedValue === 'parent_id') {
+                parentInfo.classList.remove('hidden');
+                if (requerido) requerido.checked = false; // El padre debe ser opcional
+            } else {
+                parentInfo.classList.add('hidden');
+            }
+        }
 
         if (selectedValue === 'string') {
             if (tamanio) {
@@ -163,6 +175,8 @@ export function resetModalForm() {
     if (requerido) requerido.checked = false;
     if (activo) activo.checked = true;
     if (defaultCampo) defaultCampo.value = "";
+    const parentInfo = document.getElementById('parent_id_info');
+    if (parentInfo) parentInfo.classList.add('hidden');
 
     const modalEl = document.getElementById('agregar_campo');
     if (modalEl) {

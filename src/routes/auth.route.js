@@ -4,9 +4,9 @@ const router = require('express').Router();
 const authCtrl = require('../controllers/authController');
 const {autenticar, soloInvitados} = require('../middlewares/auth');
 const {verificarCsrf} = require('../middlewares/permisos');
+const {uploadNone} = require('../middlewares/formData');
 
-const multer = require('multer');
-const upload = multer();
+
 
 const limitadorLogin = rateLimit({
     windowMs: 15 * 60 * 1000,
@@ -17,11 +17,11 @@ const limitadorLogin = rateLimit({
 });
 
 //router.get('/login', soloInvitados, authCtrl.mostrarLogin);
-router.post('/login',upload.none(), limitadorLogin,[
+router.post('/login',uploadNone, limitadorLogin,[
     body('email').isEmail().withMessage('Correo invalido').normalizeEmail(),
     body('password').notEmpty().withMessage('La contraseña es obligatoria'),
 ], authCtrl.loginBD);
-router.post('/keycloak-login',upload.none(),authCtrl.loginKeycloak);
+router.post('/keycloak-login',uploadNone,authCtrl.loginKeycloak);
 router.post('/logout', autenticar, verificarCsrf,authCtrl.logout);
 router.post('/refresh', authCtrl.refreshToken);
 

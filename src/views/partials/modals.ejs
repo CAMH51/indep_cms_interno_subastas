@@ -1,5 +1,5 @@
 <!-- MODAL: CREAR NUEVA CARPETA -->
-<div class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm" id="newFolderModal">
+<div class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm modal-backdrop" id="newFolderModal">
   <div class="w-full max-w-md rounded-xl bg-white shadow-xl">
     <div class="flex items-center justify-between border-b border-gray-200 px-6 py-4">
       <h3 class="flex items-center gap-2 text-lg font-semibold text-gray-800">
@@ -47,7 +47,7 @@
 </div>
 
 <!-- MODAL: SUBIR ARCHIVO -->
-<div class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm" id="uploadModal">
+<div class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm modal-backdrop" id="uploadModal">
   <div class="w-full max-w-md rounded-xl bg-white shadow-xl">
     <div class="flex items-center justify-between border-b border-gray-200 px-6 py-4">
       <h3 class="flex items-center gap-2 text-lg font-semibold text-gray-800">
@@ -55,8 +55,14 @@
       </h3>
       <button type="button" class="text-2xl leading-none text-gray-400 hover:text-gray-600" id="btnUpload">&times;</button>
     </div>
-    <form id="uploadFilesForm" action="/files/upload<%= folderId ? '?folderId=' + folderId : '' %> <%= picker && picker.type ? '&type=' + picker.type : '' %>" method="POST" enctype="multipart/form-data">
-      <input type="hidden" name="folderId" value="<%= folderId || '' %>">
+    <%
+      const uploadParams = [];
+      if (typeof folderId !== 'undefined' && folderId) uploadParams.push('folderId=' + encodeURIComponent(folderId));
+      if (typeof picker !== 'undefined' && picker && picker.type) uploadParams.push('type=' + encodeURIComponent(picker.type));
+      const uploadUrl = '/files/upload' + (uploadParams.length > 0 ? '?' + uploadParams.join('&') : '');
+    %>
+    <form id="uploadFilesForm" action="<%= uploadUrl %>" method="POST" enctype="multipart/form-data">
+      <input type="hidden" name="folderId" value="<%= typeof folderId !== 'undefined' && folderId ? folderId : '' %>">
 
       <div class="m-6 flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 px-6 py-10 text-center cursor-pointer hover:border-cyan-400 hover:bg-cyan-50/50 transition-colors" id="dropzone">
         <div class="mb-3 text-4xl text-cyan-500">
@@ -83,7 +89,7 @@
 </div>
 
 <!-- MODAL: RENOMBRAR CARPETA -->
-<div class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm" id="renameFolderModal">
+<div class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm modal-backdrop" id="renameFolderModal">
   <div class="w-full max-w-md rounded-xl bg-white shadow-xl">
     <div class="flex items-center justify-between border-b border-gray-200 px-6 py-4">
       <h3 class="flex items-center gap-2 text-lg font-semibold text-gray-800">
@@ -107,7 +113,7 @@
 </div>
 
 <!-- MODAL: RENOMBRAR ARCHIVO -->
-<div class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm" id="renameFileModal">
+<div class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm modal-backdrop" id="renameFileModal">
   <div class="w-full max-w-md rounded-xl bg-white shadow-xl">
     <div class="flex items-center justify-between border-b border-gray-200 px-6 py-4">
       <h3 class="flex items-center gap-2 text-lg font-semibold text-gray-800">
@@ -131,7 +137,7 @@
 </div>
 
 <!-- MODAL: VISUALIZADOR DE ARCHIVO -->
-<div class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm" id="viewFileModal">
+<div class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm modal-backdrop" id="viewFileModal">
   <div class="w-full max-w-4xl rounded-xl bg-white shadow-xl">
     <div class="flex items-center justify-between border-b border-gray-200 px-6 py-4">
       <h3 class="flex items-center gap-2 text-lg font-semibold text-gray-800">
@@ -149,7 +155,7 @@
 </div>
 
 <!-- MODAL: HISTORIAL DE VERSIONES -->
-<div class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm" id="versionsModal">
+<div class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm modal-backdrop" id="versionsModal">
   <div class="w-full max-w-3xl rounded-xl bg-white shadow-xl max-h-[90vh] flex flex-col">
     <!-- Header -->
     <div class="flex items-center justify-between border-b border-gray-200 px-6 py-4">
@@ -321,17 +327,23 @@
     });
   }
 
-  const versionsModal = document.getElementById('versionsModal');
-  if (versionsModal) {
-    versionsModal.addEventListener('click', function(e) {
-      if (e.target === versionsModal) closeModal('versionsModal');
-    });
-  }
+  // Cerrar modales al hacer clic en el backdrop
+  const allExplorerModals = ['newFolderModal', 'uploadModal', 'renameFolderModal', 'renameFileModal', 'viewFileModal', 'versionsModal'];
+  allExplorerModals.forEach((modalId) => {
+    const modalEl = document.getElementById(modalId);
+    if (modalEl) {
+      modalEl.addEventListener('click', function(e) {
+        if (e.target === modalEl) closeModal(modalId);
+      });
+    }
+  });
 
-  const viewFileModal = document.getElementById('viewFileModal');
-  if (viewFileModal) {
-    viewFileModal.addEventListener('click', function(e) {
-      if (e.target === viewFileModal) closeModal('viewFileModal');
-    });
-  }
+  // Cerrar modales con tecla Escape
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      allExplorerModals.forEach((modalId) => {
+        closeModal(modalId);
+      });
+    }
+  });
 </script>
